@@ -1,99 +1,128 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>Hello APP</title>
-    <link rel="stylesheet" type="text/css" href="./css/api.css" />
-    <style type="text/css">
-    html,body{
-        height: 100%;
-    }
-    #wrap{
-        height: 100%;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-flex-flow: column;
-    }
-    #header{
-        text-align: center; 
-		background-color: #81a9c3; 
-		color: #fff;
-        width: 100%;
-    }
-    #header h1{
-        font-size: 20px; 
-		height: 44px; 
-		line-height: 44px; 
-		margin: 0em; 
-		color: #fff;
-    }
-    #main{
-        -webkit-box-flex: 1; 
-        -webkit-flex: 1;
-    }
-    #footer{
-        height: 30px; 
-		line-height: 30px;
-        background-color: #81a9c3; 
-        width: 100%;
-        text-align: center;
-    }
-    #footer h5{
-        color: white;
-    }
-    .con{
-		font-size: 28px; 
-		text-align: center;
-	}
+    <title>底部导航</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="./css/aui.css"/>
+    <style>
+        header{ background-color: #f2f2f2; }
+        header ul li { height: 30px; line-height: 10px; text-align: center; display: none; color: #323237; position: relative;font-size: 18px;  }
+        header ul li.active{ display: block; }
+        #footer{  background-color: #f2f2f2;font-size: 14px;}
+        #footer ul li{  padding-top: 28px; padding-bottom: 2px; background: url() no-repeat center 2px; background-size: auto 30px; text-align: center; }
+        #footer ul li.active{ color: #6ab494; }
+        #footer ul li:nth-child(1){ background-image: url(./image/index.png); }
+        #footer ul li:nth-child(2){ background-image: url(./image/shop.png); }
+        #footer ul li:nth-child(3){ background-image: url(./image/cart.png); }
+        #footer ul li:nth-child(4){ background-image: url(./image/setting.png); }
+        #footer ul li:nth-child(1).active{ background-image: url(./image/index1.png); }
+        #footer ul li:nth-child(2).active{ background-image: url(./image/shop1.png); }
+        #footer ul li:nth-child(3).active{ background-image: url(./image/cart1.png); }
+        #footer ul li:nth-child(4).active{ background-image: url(./image/setting1.png); }
+        .flex-con{
+          overflow: auto
+        }
     </style>
+    <script type="text/javascript" src="script/api.js"></script>
+    <script type="text/javascript" src="script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="script/jquery-1.11.1.min.js"></script>
+
 </head>
 <body>
-    <div id="wrap">
-        <div id="header">
-            <h1>APICloud</h1>
-        </div>
-        <div id="main">
-                
-        </div>
-        <div id="footer">
-            <h5>Copyright &copy;<span id="year"></span> </h5>
-        </div>
-    </div>
-</body>
-<script type="text/javascript" src="./script/api.js"></script>
-<script type="text/javascript">
-    apiready = function(){
-		//输出Log，Log将显示在APICloud Studio控制台
-		console.log("Hello APICloud");
+<div id="wrap" class="flex-wrap flex-vertical">
+    <header>
+        <ul>
+            <li class="border-b active" >首页</li>
+            <li class="border-b" >商城</li>
+            <li class="border-b" >购物车</li>
+            <li class="border-b" >设置</li>
+        </ul>
+    </header>
+    <div id="main" class="flex-con">
 
-        var header = $api.byId('header');
-        //适配iOS7+，Android4.4+状态栏沉浸式效果，详见config文档statusBarAppearance字段
-        $api.fixStatusBar(header);
-		//动态计算header的高度，因iOS7+和Android4.4+上支持沉浸式效果，
-		//因此header的实际高度可能为css样式中声明的44px加上设备状态栏高度
-		//其中，IOS状态栏高度为20px，Android为25px
-        var headerH = $api.offset(header).h;
-		//footer高度为css样式中声明的30px
-		var footerH = 30;
-		//frame的高度为当前window高度减去header和footer的高度
-		var frameH = api.winHeight - headerH - footerH;
-        api.openFrame({
-            name: 'main',
-            url: 'html/main.html',
-            bounces: true,
+    </div>
+    <div id="footer" class="border-t f14">
+        <ul class="flex-wrap" >
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con active" >首页</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >商城</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >购物车</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >设置</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript" src="script/main.js"></script>
+<!-- <script type="text/javascript" src="script/index.js"></script> -->
+<script type="text/javascript">
+    removeStorageSync('token');
+    getToken();
+/*    setTimeout(function(){
+    //  removeStorageSync('member');
+        loginAjax();
+    },100);*/
+
+    apiready = function () {
+        $api.fixStatusBar( $api.dom('header') );
+        api.setStatusBarStyle({
+            style: 'dark',
+            color: '#6ab494'
+        });
+        funIniGroup();
+        loginAjax();
+    }
+
+    function funIniGroup(){
+        var eHeaderLis = $api.domAll('header li'),
+            frames = [];
+        for (var i = 0,len = eHeaderLis.length; i < len; i++) {
+                frames.push( {
+                    name: 'frame'+i,
+                    url: './html/frame'+i+'.html',
+                    bgColor : 'rgba(0,0,0,.2)',
+                    bounces:false
+                } )
+        }
+        api.openFrameGroup({
+            name: 'group',
+            scrollEnabled: true,
             rect: {
                 x: 0,
-                y: headerH,
-                w: 'auto',
-                h: frameH
-            }
+                y: $api.dom('header').offsetHeight,
+                w: api.winWidth,
+                h: $api.dom('#main').offsetHeight
+            },
+            index: 0,
+            frames: frames
+        }, function (ret, err) {
+
         });
+    }
 
-        var year = $api.byId('year');
-        year.innerHTML = new Date().getFullYear();
-
-    };
+    // 随意切换按钮
+    function randomSwitchBtn( tag ) {
+        if( tag == $api.dom('#footer li.active') )return;
+        var eFootLis = $api.domAll('#footer li'),
+            eHeaderLis = $api.domAll('header li'),
+            index = 0;
+        for (var i = 0,len = eFootLis.length; i < len; i++) {
+            if( tag == eFootLis[i] ){
+                index = i;
+            }else{
+                $api.removeCls(eFootLis[i], 'active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        }
+        $api.addCls( eFootLis[index], 'active');
+        $api.addCls( eHeaderLis[index], 'active');
+        api.setFrameGroupIndex({
+            name: 'group',
+            index: index,
+            reload:true
+        });
+    }
 </script>
-</html>

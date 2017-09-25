@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>开发</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <link rel="stylesheet" type="text/css" href="../css/orderCreate.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header class="aui-bar aui-bar-nav">
+            <a href="javascript:history.go(-1)" class="aui-pull-left aui-btn" id="backBtn">
+                <span class="aui-iconfont aui-icon-left"></span>
+            </a>
+            <div class="aui-title">填写订单</div>
+        </header>
+        <div class="scroll-view">
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in no-list-item-active">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">重量合计</div>
+                            <div class="aui-list-item-right price f16">{{weight}}kg</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">订单金额</div>
+                            <div class="aui-list-item-right price f16">￥{{price | toFix}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in no-list-item-active">
+                    <li class="aui-list-item" v-on:click="toAddress()">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">收货信息</div>
+                            <div class="aui-list-item-right f14 black">选择地址</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="addbox">
+                                <div class="titleleft-checkbox" v-show="boxshow">
+                                    <label>
+                    										<div class="labelcheckbox titlecheckbox">
+                    										  	<!--<input type="checkbox" class="checkbox-input" :checked="addTrue" v-on:change="changeAddTrue()" />-->
+                    										  	<span class="checkbox-class">
+                    									  			<i class="aui-iconfont aui-icon-correct"></i>
+                    								  			</span>
+                    										</div>
+                    										<p class="titlename f14 gray">是否同步到系统地址</p>
+                    						    </label>
+                                </div>
+                                <p class="f14 gray">收件人：{{address.name}}&nbsp;&nbsp;{{address.phone}}</p>
+                                <p class="f14 gray">地址：{{address.address}}</p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content" v-for="(v,i) in LogisticList">
+                <ul class="aui-list aui-list-in no-list-item-active">
+                    <li class="aui-list-item" v-on:click="showPicker(i)">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">{{v.wareHouseName}}</div>
+                            <div class="aui-list-item-right f16 black">{{v.expressName}}</div>
+                        </div>
+                    </li>
+                    <li :class="{'aui-list-item':true,courierbox:v.CourierContent?true:false}">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">运费</div>
+                            <div class="aui-list-item-right price f16">￥{{v.CourierMoney}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item couriermsg" v-show="v.CourierContent">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-text">{{v.CourierContent}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">订单备注</div>
+                            <div class="aui-list-item-input">
+                                <input type="text" placeholder="内容" v-model="v.remark">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content">
+                <ul class="aui-list aui-list-in no-list-item-active">
+                    <li class="aui-list-item aui-list-item-arrow">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">商品清单</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <footer class="orderfooter">
+            <span class="black f16">应付金额：</span>
+            <span class="price f16">￥{{totalNum}}</span>
+            <span class="f10 gray smtext">不含运费</span>
+            <p class="subtn fr f16" v-on:click="orderCompile()">提交订单</p>
+        </footer>
+        <div class="waiting" v-show="loading">
+            <div class="waiting-main">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/toast.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            loading: true,
+            cartIDs:'',
+            cartNumbers:'',
+            weight: 0,
+            price: 0,
+            address: {
+                name: '',
+                phone: '',
+                address: ''
+            },
+            AddressParam: {
+                postalCode: "",
+                provinceName: "",
+                cityName: "",
+                countyName: "",
+                detailInfo: "",
+                telNumber: "",
+                userName: ""
+            },
+            LogisticList: [],
+            provinceName: '',
+            addTrue: false,
+            boxshow: false,
+            courierMsg: '',
+            expIndex:0,
+            pickerIndex:0,
+            totalNum:0
+        },
+        methods: {
+            showPicker(index) {
+                this.expIndex=index;
+                var expID=this.LogisticList[index].key;
+                var newArr = this.LogisticList[index].array;
+                var arrIndex=0;
+                for(var i=0;i<newArr.length;i++){
+                    if(newArr[i].key==expID){
+                        arrIndex=i;
+                        break;
+                    }
+                }
+                picker.show(function() {
+                    picker.refillColumn(0, newArr);
+                    picker.scrollColumn(0, arrIndex);
+                });
+            },
+            toAddress() {
+                setStorageSync('from', 'address');
+                location.href = "../../person/address/address.html";
+            },
+            changeAddTrue() {
+                this.addTrue = !this.addTrue;
+            },
+            total() {
+                var total=this.price;
+                for(var i=0;i<this.LogisticList.length;i++){
+                    total+=this.LogisticList[i].CourierMoney?this.LogisticList[i].CourierMoney:0;
+                }
+                this.totalNum=total;
+                console.log(total);
+            },
+
+            courier() {
+                var that=this;
+                var member=getStorageSync('member');
+                var wareHouse=this.LogisticList[this.expIndex];
+                wareHouse.expressName=wareHouse.array[this.pickerIndex].text;
+                wareHouse.key=wareHouse.array[this.pickerIndex].key;
+                var wareHouseID=wareHouse.wareHouseID;
+                var logisticID=wareHouse.array[this.pickerIndex].key;
+                var cartIDs=wareHouse.CartIDs;
+                var cartNumbers=wareHouse.CartNumbers;
+                var provinceName=this.provinceName;
+                var data={
+                  userID:member.UserID,
+                  wareHouseID,
+                  logisticID,
+                  cartIDs,
+                  cartNumbers,
+                  provinceName
+                }
+                callAjax(
+                  'api/Order/GetCartExpressFee',
+                  'get',
+                  data,
+                  function(res){
+                    if(res.status){
+                      wareHouse.CourierContent=res.data.tips;
+                      wareHouse.CourierMoney=res.data.expressFee;
+                    }
+                    else{
+                      wareHouse.CourierContent=res.message;
+                      wareHouse.key='-1';
+                      wareHouse.CourierMoney='';
+                    }
+                    that.total();
+                  }
+                );
+
+            },
+            orderCompile() {
+                var that = this;
+                var LogisticIDs=[];
+                var Remarks=[];
+                for(var i=0;i<this.LogisticList.length;i++){
+                  if(this.LogisticList[i].key=='-1'){
+                    showToast('fail', '请选择快递公司');
+                    return false;
+                  }
+                  LogisticIDs.push(this.LogisticList[i].key);
+                  console.log(this.LogisticList[i].key);
+                  Remarks.push(this.LogisticList[i].remark);
+                }
+                if (!this.address.address) {
+                    showToast('fail', '请选择收货地址');
+                } else {
+                    var member = getStorageSync('member');
+                    var data={
+                      userID:member.UserID,
+                      cartIDs: this.cartIDs,
+                      cartNumbers: this.cartNumbers,
+                      LogisticIDs:LogisticIDs.join(','),
+                      remark:Remarks.join(','),
+                      IsSyncAddress:false,
+                      addressParam:this.AddressParam
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                      'api/Order/AddCartToOrder',
+                      'post',
+                      data,
+                      function(res){
+                          console.log(JSON.stringify(res));
+                          if(res.status){
+                              showToast('success', res.message);
+                              setStorageSync('member',res.data.UserInfo);
+                              removeStorageSync('orderAddress');
+
+                          /*    setTimeout(function(){
+                                  linkTo(name,url,reload,data);
+                              },1000);*/
+                          }
+                          else{
+                              showToast('fail', res.message);
+                          }
+                      },
+                      'application/json'
+                    );
+                }
+            },
+
+        },
+        mounted() {
+            var that = this;
+            setTimeout(function() {
+                console.log(JSON.stringify(api.pageParam));
+                that.cartIDs = api.pageParam.cartIDs;
+                that.cartNumbers = api.pageParam.cartNumbers;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Order/GetOrderCheck',
+                    'get', {
+                        userID: member.UserID,
+                        cartNumbers: api.pageParam.cartNumbers,
+                        cartIDs: api.pageParam.cartIDs
+                    },
+                    function(res) {
+                        that.loading = false;
+                        if (res.status) {
+                            var weight = res.data.TotalWeight;
+                            var price = res.data.TotalPrice;
+                            var LogisticList = [];
+                            for (var i = 0; i < res.data.LogisticList.length; i++) {
+                                var array = [];
+                                for (var j = 0; j < res.data.LogisticList[i].LogisticList.length; j++) {
+                                    var arrayItem = {
+                                        key: res.data.LogisticList[i].LogisticList[j].LogisticID,
+                                        text: res.data.LogisticList[i].LogisticList[j].LogisticName
+                                    }
+                                    array.push(arrayItem);
+                                }
+                                var LogisticItem = {
+                                    CartIDs: res.data.LogisticList[i].CartIDs,
+                                    CartNumbers: res.data.LogisticList[i].CartNumbers,
+                                    wareHouseID: res.data.LogisticList[i].WareHouseID,
+                                    wareHouseName: res.data.LogisticList[i].WareHouseName,
+                                    array: array,
+                                    index: 0,
+                                    key: '-1',
+                                    CourierMoney: '',
+                                    CourierContent: '',
+                                    expressName: '--请选择--',
+                                    remark: '',
+                                    expTrue: false
+                                }
+                                LogisticList.push(LogisticItem);
+                                console.log(JSON.stringify(LogisticItem));
+                            }
+                            var address = {
+                                name: res.data.DefaultAddress.Name,
+                                phone: res.data.DefaultAddress.Mobile,
+                                address: res.data.DefaultAddress.ProvinceName + res.data.DefaultAddress.CityName + res.data.DefaultAddress.TownName + res.data.DefaultAddress.Address
+                            }
+                            that.address = address;
+                            that.AddressParam = {
+                                postalCode: res.data.DefaultAddress.PostalCode,
+                                provinceName: res.data.DefaultAddress.ProvinceName,
+                                cityName: res.data.DefaultAddress.CityName,
+                                countyName: res.data.DefaultAddress.TownName,
+                                detailInfo: res.data.DefaultAddress.Address,
+                                telNumber: res.data.DefaultAddress.Mobile,
+                                userName: res.data.DefaultAddress.Name
+                            }
+                            that.weight = weight;
+                            that.price = price;
+                            that.LogisticList = LogisticList;
+                            that.provinceName = res.data.DefaultAddress.ProvinceName;
+                            that.GoodsNum = res.data.CartNumber;
+                            that.total();
+                            newPicker();
+                        }
+
+                    }
+                );
+            }, 100);
+        }
+    });
+
+    function newPicker(index) {
+        var picker = new Picker({
+            data: [[]],
+            selectedIndex: [index ? index : 0],
+            title: '选择快递'
+        });
+
+        picker.on('picker.select',function(selectedVal, selectedIndex){
+            v.pickerIndex=selectedIndex;
+            v.courier();
+        });
+        picker.on('picker.change', function (index, selectedIndex){
+        //    console.log(selectedIndex);
+        });
+        window.picker = picker;
+    }
+</script>
+
+</html>

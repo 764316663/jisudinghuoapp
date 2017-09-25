@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>端API</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        html,
+        body {
+            background-color: #fff;
+            padding-top: 2.25rem;
+        }
+
+        .container {
+            padding: 0 1rem;
+        }
+
+        .login-logo {
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .bg-dark {
+            background: #333333 !important;
+        }
+
+        .aui-slide-node img {
+            width: auto;
+            height: 100%;
+        }
+
+        .form-middle {
+            border: 1px solid #DDDDDD;
+            border-radius: 0.25rem;
+        }
+
+        .form-middle .aui-list {
+            background-image: none;
+        }
+
+        .form-middle .aui-list-item:last-child {
+            background-image: none;
+        }
+
+        .mb1 {
+            margin-bottom: 1rem;
+        }
+
+        .bottom-link {
+            width: 100%;
+            margin-top: 8rem;
+            text-align: center;
+            color: #999999;
+        }
+
+        .bottom-link a {
+            color: #999999;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+
+</head>
+
+<body>
+    <div id="app">
+        <header class="aui-bar aui-bar-nav">
+            <div class="aui-title">登录</div>
+        </header>
+        <div class="container">
+            <img class="login-logo" src="../image/logo.png" alt="" />
+            <div class="aui-content mb1 form-middle">
+                <ul class="aui-list aui-form-list">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label-icon">
+                                <i class="aui-iconfont aui-icon-my"></i>
+                            </div>
+                            <div class="aui-list-item-input">
+                                <input type="text" placeholder="请输入账号" v-model="username" :value="username">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label-icon">
+                                <i class="aui-iconfont aui-icon-lock"></i>
+                            </div>
+                            <div class="aui-list-item-input">
+                                <input type="password" placeholder="请输入密码" v-model="password" :value="password">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <p>
+                <div class="aui-btn aui-btn-info aui-btn-block" @click="login()">登 &nbsp;&nbsp;录</div>
+            </p>
+            <p class="bottom-link"><a href="">一键登录</a>　|　<a href="findPwd.html">找回密码</a></p>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/toast.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            username: '',
+            password: '',
+            msg: 'message'
+        },
+        methods: {
+            login() {
+                callAjax(
+                    'api/Agent/Login',
+                    'post', {
+                        loginID: this.username,
+                        loginPwd: this.password,
+                    },
+                    function(res) {
+                        if (res.status) {
+                            console.log();
+                            var member = res.data;
+                            showToast('success', res.message);
+                            setStorageSync('member', member);
+                            setTimeout(function() {
+                              linkTo('index','../index.html',false);
+                              /*
+                                api.openWin({
+                                    name: 'index',
+                                    url: '../index.html',
+                                    pageParam: {
+                                        name: 'test'
+                                    }
+                                });
+                              */
+                            }, 1500);
+                        } else {
+                            showToast('fail', res.message);
+                        }
+
+                    }
+                );
+            }
+        }
+    });
+</script>
+<!-- <script type="text/javascript" src="../script/login.js"></script> -->
+
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>开发</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .cartbox {
+            width: 100%;
+            height: calc(100% - 2.25rem);
+        }
+
+        .wbox {
+            width: 100%;
+            margin-bottom: 0.25rem;
+        }
+
+        .wtitle {
+            height: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .titlecheck {
+            line-height: 2rem;
+        }
+
+        .titlecheckbox {
+            top: 50%;
+            left: 0.5rem;
+            margin-top: -0.5rem;
+        }
+
+        .titlename {
+            margin-left: 1.8rem;
+            line-height: 2rem;
+        }
+
+        .titlempty {
+            margin-right: 0.75rem;
+            line-height: 2rem;
+        }
+
+        .wgoods {
+            height: 4rem;
+        }
+
+        .goods-checkbox {
+            height: 100%;
+        }
+
+        .wgoodsinfo {
+            width: calc(100% - 2rem);
+        }
+
+        .cartgoodsbox {
+            width: 100%;
+            border-bottom: 1px solid #EEEEEE;
+        }
+
+        .cartgoodsinfo {
+            padding-top: 5px;
+            height: 4rem;
+        }
+
+        .cartgoodsinfo-checkbox {
+            display: block;
+            width: 2rem;
+            height: 100%;
+            position: relative;
+        }
+
+        .goodscheckbox {
+            top: 50%;
+            left: 0.5rem;
+            margin-top: -0.5rem;
+        }
+
+        .cartlinkdetail {
+            display: block;
+            width: calc(100% - 2rem);
+        }
+
+        .cartlinkdetail img {
+            display: block;
+            width: 3.5rem;
+            height: 3.5rem;
+            margin: 0.25rem 0.25rem 0;
+        }
+
+        .cartlinkdetail .cartinfo {
+            width: calc(100% - 5rem);
+            margin: 0.25rem 0.25rem 0;
+        }
+
+        .cartinfo .goodsname {
+            font-size: 0.7rem;
+            color: #333;
+            margin-bottom: 0.125rem;
+        }
+
+        .cartinfo .goodsdesc {
+            font-size: 0.6rem;
+            color: #bbb;
+            margin-bottom: 0.125rem;
+        }
+
+        .cartinfo .cartgoodsprice {
+            color: #dd524d;
+            font-size: 0.8rem;
+        }
+
+        .cartinfo .goodstock {
+            font-size: 0.6rem;
+            color: #bbb;
+            padding-top: 0.25rem;
+        }
+
+        .cartoperation {
+            height: 1.8rem;
+            line-height: 1.8rem;
+            padding-left: 2rem;
+            padding-bottom: 0.25rem;
+        }
+
+        .cartgoodsdel {
+            color: #bbb;
+            font-size: 0.6rem;
+        }
+
+        .cartunit {
+            color: #bbb;
+            padding-right: 0.5rem;
+        }
+
+        .cartchangenum {
+            height: 1.5rem;
+        }
+
+        .cartnumbox {
+            width: 1.5rem;
+            float: left;
+            margin-right: 0.125rem;
+            height: 1.5rem;
+            background: #f1f1f1;
+            line-height: 1.5rem;
+        }
+
+        .numinp {
+            width: 2.5rem;
+        }
+
+        .numinp input {
+            width: 100%;
+            height: 100%;
+        }
+
+        .cartfoot {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 2.25rem;
+            border-top: 1px solid #ccc;
+        }
+
+        .footerBtn {
+            border-radius: 0;
+            border: 0;
+            outline: none;
+            height: 2.25rem;
+            line-height: 2.25rem;
+            width: 25%;
+        }
+
+        .footerlabeltext{
+          line-height: 2.25rem;
+        }
+        .totalbox{
+          line-height: 2.3rem;
+        }
+        .totalbox p{
+          margin-right: 0.25rem;
+        }
+        .totalbox .totaltext{
+          line-height: 2.35rem;
+        }
+        .totalbox .exp{
+          line-height: 2.45rem;
+        }
+        .btnDis{
+          opacity: .8;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <div class="scroll-view pr oh cartbox">
+            <div class="wbox bgf" v-for="(v,i) in cartList">
+                <div class="wtitle">
+                    <div class="titleleft-checkbox">
+                        <label>
+        										<div class="labelcheckbox titlecheckbox">
+        											  <input type="checkbox" class="checkbox-input" :checked="v.checked" v-model="v.checked" @change="wCheck(i)" />
+        											  <span class="checkbox-class">
+        												    <i class="aui-iconfont aui-icon-correct"></i>
+        											  </span>
+        										</div>
+        										<p class="titlename f16 black">{{v.WareHouseName}}</p>
+        								</label>
+                    </div>
+                    <p class="fr gray f14 titlempty">清空</p>
+                </div>
+                <div class="cartgoodsbox" v-for="(value,index) in v.List">
+                    <div class="cartgoodsinfo">
+                        <label class="cartgoodsinfo-checkbox fl">
+        										<div class="labelcheckbox goodscheckbox">
+        											  <input type="checkbox" class="checkbox-input" :checked="value.checked" v-model="value.checked" @change="goodsCheck(i,index)" />
+        											  <span class="checkbox-class">
+        												    <i class="aui-iconfont aui-icon-correct"></i>
+        											  </span>
+        										</div>
+      									</label>
+                        <div class="cartlinkdetail fl">
+                            <img :src="value.ImageUrl+'/200'" class="fl" alt="" />
+                            <div class="cartinfo fl">
+                                <p class="goodsname">{{value.ItemName}}</p>
+                                <p class="goodsdesc">{{value.TagLine}}</p>
+                                <p class="cartgoodsprice fl">￥{{value.SalePrice}}</p>
+                                <p class="goodstock fr">库存{{value.StockNum}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cartoperation">
+                        <div class="fl cartgoodsdel">
+                            <i class="iconfont icon-shanchu"></i>&nbsp;删除
+                        </div>
+                        <p class="cartunit fr">{{value.UnitName}}</p>
+                        <div class="cartchangenum fr">
+                            <p class="cartnumbox tc" @click="numMinus(i,index)">-</p>
+                            <p class="cartnumbox tc numinp">
+                                <input type="number" :value="value.Number" v-model="value.Number" class="db tc" @blur="numInput(i,index)" />
+                            </p>
+                            <p class="cartnumbox tc" @click="numPlus(i,index)">+</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="cartfoot bgf" v-show="cartList.length">
+            <div class="titleleft-checkbox">
+                <label>
+                    <div class="labelcheckbox titlecheckbox">
+                        <input type="checkbox" class="checkbox-input" :checked="checkAll" v-model="checkAll" @change="allCheck()" />
+                        <span class="checkbox-class">
+                            <i class="aui-iconfont aui-icon-correct"></i>
+                        </span>
+                    </div>
+                    <p class="titlename footerlabeltext f16 black">全选</p>
+                </label>
+            </div>
+            <button :class="{footerBtn:true, fr:true, bgcolor:true, tc:true, f20:true, db:true,btnDis:dis }" :disabled="dis" @click="toOrderCreate()">下&nbsp;单</button>
+            <div class="totalbox fr">
+              <p class="totaltext fl f14">合计:</p>
+              <p class="price f18 fl">￥{{total | toFix}}</p>
+              <p class="exp gray f12 fl">不含运费</p>
+            </div>
+        </footer>
+        <div class="waiting" v-show="loading">
+            <div class="waiting-main">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/toast.js"></script>
+<script type="text/javascript">
+
+    var v = new Vue({
+        el: '#app',
+        data: {
+            loading: true,
+            cartList: [],
+            total: 0,
+            checkAll: true,
+            dis:false
+        },
+        methods: {
+            link(name, url, reload) {
+                linkTo(name, url, reload);
+            },
+            goodsCheck(w, g) {
+                if(!this.cartList[w].List[g].checked){
+                    this.cartList[w].checked=false;
+                    this.checkAll=false;
+                }
+                else{
+                    var checked=true;
+                    for(var i=0;i<this.cartList[w].List.length;i++){
+                        if(!this.cartList[w].List[i].checked){
+                            checked=false;
+                            break;
+                        }
+                    }
+                    this.cartList[w].checked=checked;
+                    this.isCheck();
+                }
+                this.totalNum();
+                this.disabledBtn();
+                this.cartChoose();
+            },
+            wCheck(w) {
+                if(this.cartList[w].checked){
+                    var wCheck=true;
+                    for(var i=0;i<this.cartList[w].List.length;i++){
+                        if(this.cartList[w].List[i].StockNum<=0){
+                            wCheck=false;
+                            this.cartList[w].List[i].checked=false;
+                            this.checkAll=false;
+                        }
+                        else{
+                            this.cartList[w].List[i].checked=true;
+                        }
+                    }
+                    this.cartList[w].checked=wCheck;
+                    this.isCheck();
+                }
+                else{
+                    this.checkAll=false;
+                    for(var i=0;i<this.cartList[w].List.length;i++){
+                        this.cartList[w].List[i].checked=false;
+                    }
+                }
+                this.totalNum();
+                this.disabledBtn();
+                this.cartChoose();
+            },
+            allCheck() {
+                if(this.checkAll){
+                   for(var i=0;i<this.cartList.length;i++){
+                       var wChecked=true;
+                       for(var  j=0;j<this.cartList[i].List.length;j++){
+                           if(this.cartList[i].List[j].StockNum>0){
+                               this.cartList[i].List[j].checked=true;
+                           }
+                           else{
+                               this.checkAll=false;
+                               wChecked=false;
+                           }
+                       }
+                       this.cartList[i].checked=wChecked;
+                   }
+                   this.totalNum();
+                }
+                else{
+                    for(var i=0;i<this.cartList.length;i++){
+                        this.cartList[i].checked=false;
+                        for(var  j=0;j<this.cartList[i].List.length;j++){
+                            this.cartList[i].List[j].checked=false;
+                        }
+                    }
+                    this.dis=true;
+                    this.total=0;
+                }
+                this.disabledBtn();
+                this.cartChoose();
+            },
+            isCheck() {
+                var checkAll = true;
+                for (var i = 0; i < this.cartList.length; i++) {
+                    if (!this.cartList[i].checked) {
+                        checkAll = false;
+                    }
+                    var wChecked = true;
+                    for (var j = 0; j < this.cartList[i].List.length; j++) {
+                        if (!this.cartList[i].List[j].checked) {
+                            checkAll = false;
+                            wChecked = false;
+                        }
+                    }
+                    this.cartList[i].checked = wChecked;
+                }
+                this.checkAll = checkAll;
+            },
+            disabledBtn() {
+                var dis=true;
+                disx:
+                for(var i = 0; i < this.cartList.length; i++){
+                    for(var j = 0; j < this.cartList[i].List.length; j++){
+                        if(this.cartList[i].List[j].checked){
+                            dis=false;
+                            break disx;
+                        }
+                    }
+                }
+                this.dis=dis;
+            },
+            totalNum() {
+                var total=0;
+                for(var i=0;i<this.cartList.length;i++){
+                    for(var j=0;j<this.cartList[i].List.length;j++){
+                        if(this.cartList[i].List[j].checked){
+                            total+=this.cartList[i].List[j].SalePrice*this.cartList[i].List[j].Number;
+                        }
+                    }
+                }
+                this.total=total;
+            },
+            cartChoose(){
+                var chooseCartID=[];
+                var chooseCartNum=[];
+                for(var i=0;i<this.cartList.length;i++){
+                    for(var j=0;j<this.cartList[i].List.length;j++){
+                        if(this.cartList[i].List[j].checked){
+                            chooseCartID.push(this.cartList[i].List[j].CartID);
+                            chooseCartNum.push(this.cartList[i].List[j].Number);
+                        }
+                    }
+                }
+                this.chooseCartID=chooseCartID;
+                this.chooseCartNum=chooseCartNum;
+            },
+            numInput(w,g){
+
+            },
+            numMinus(w,g){
+
+            },
+            numPlus(w,g){
+
+            },
+            deleteGoods(){
+
+            },
+            emptyWareHouse(){
+
+            },
+            toOrderCreate(){
+                var cartIDs=this.chooseCartID.join(',');
+                var cartNumbers=this.chooseCartNum.join(',');
+                linkTo('cartOrderCreate','cartOrderCreate.html',true,{
+                    cartIDs:cartIDs,
+                    cartNumbers:cartNumbers
+                });
+            }
+
+        },
+        mounted() {
+            var that = this;
+            var member = getStorageSync('member');
+            loginAjax(
+                'api/Order/GetShopingCart',
+                'get', {
+                    userID: member.UserID
+                },
+                function(res) {
+                    //    console.log(JSON.stringify(res));
+                    that.loading = false;
+                    if (res.status) {
+                        var cartList = [];
+                        for (var i = 0; i < res.data.length; i++) {
+                            var List = [];
+                            for (var j = 0; j < res.data[i].CartList.length; j++) {
+                                var item = {
+                                    IsPinkage: res.data[i].CartList[j].IsPinkage,
+                                    IsSingleOrder: res.data[i].CartList[j].IsSingleOrder,
+                                    CartID: res.data[i].CartList[j].CartID,
+                                    itemID: res.data[i].CartList[j].ItemID,
+                                    stockID: res.data[i].CartList[j].StockID,
+                                    ItemName: res.data[i].CartList[j].ItemName,
+                                    ImageUrl: res.data[i].CartList[j].ImageUrl,
+                                    StockName: res.data[i].CartList[j].StockName,
+                                    SalePrice: res.data[i].CartList[j].SalePrice,
+                                    Number: res.data[i].CartList[j].Number,
+                                    UnitName: res.data[i].CartList[j].UnitName,
+                                    StockNum: res.data[i].CartList[j].StockNum,
+                                    MaxNum: res.data[i].CartList[j].MaxNum,
+                                    MinNum: res.data[i].CartList[j].MinNum,
+                                    checked: true,
+                                    TagLine: res.data[i].CartList[j].TagLine,
+                                }
+                                if (item.StockNum <= 0) {
+                                    item.checked = false;
+                                    item.Number = 0;
+                                }
+                                List.push(item);
+                            }
+                            var ListItem = {
+                                WareHouseID: res.data[i].WareHouseID,
+                                WareHouseName: res.data[i].WareHouseName,
+                                List: List,
+                                checked: true
+                            }
+                            cartList.push(ListItem);
+                        }
+                        that.cartList = cartList;
+                        that.disabledBtn();
+                        that.isCheck();
+                        that.totalNum();
+                        that.cartChoose();
+                    }
+                }
+            );
+            callAjax(
+                'api/Index/GetHotGoodStock',
+                'get', {
+                    days: 30,
+                    pageIndex: 1,
+                    pageSize: 10
+                },
+                function(res) {
+                    //    console.log(JSON.stringify(res));
+                }
+            );
+        }
+    });
+</script>
+
+</html>

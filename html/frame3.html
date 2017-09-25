@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>文档</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        .container {
+            padding: 0.5rem;
+        }
+
+        .roll{
+            height: 1.8rem;
+            line-height: 1.8rem;
+        }
+
+        .aui-content {
+            margin-top: 0.5rem;
+        }
+
+        .aui-list {
+            background-image: none;
+        }
+
+        .aui-list-header {
+            height: 0.4rem;
+            padding: 0 !important;
+            background-color: #F0F0F0 !important;
+        }
+
+        .aui-list-item {
+            background-position: 0.5rem bottom;
+            padding-left: 0.5rem;
+        }
+
+        .aui-list-item:last-child {
+            background-image: none !important;
+        }
+
+        .aui-list-item i {
+            margin-right: 0.3rem;
+        }
+
+        .aui-list-item span {
+            font-size: 0.7rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <div class="roll bgcolor f14 oh pr">点此绑定微信账号，享有微信消息推送、一键登录、资金保障等特权。</div>
+        <div class="aui-content">
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-suo"></i>
+                            <span>修改资料</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-shenfen"></i>
+                            <span>修改密码</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="aui-content">
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-item" v-on:click="toAddress()">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-dizhi-copy"></i>
+                            <span>收货地址</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-shoucang"></i>
+                            <span>我的收藏</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="aui-content aui-margin-b-15">
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-item aui-list-item-middle">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-gonggao"></i>
+                            <span>通知公告</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-icon6"></i>
+                            <span>意见反馈</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <i class="iconfont icon-xiaoxi"></i>
+                            <span>在线客服</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="container">
+            <p>
+                <div class="aui-btn aui-btn-block bgcolor" v-on:click="logout()">退出登录</div>
+            </p>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/toast.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+
+        },
+        methods: {
+            toAddress(){//收货地址
+              console.log('address');
+            /*    api.openWin({
+                    name: 'page1',
+                    url: './page1.html',
+                    pageParam: {
+                        name: 'test'
+                    }
+                });*/
+
+            },
+            logout(){//退出登录
+                removeStorageSync('member');
+                api.openWin({
+                    name: 'login',
+                    url: 'login.html',
+                    pageParam: {
+                        name: 'test'
+                    },
+                    reload:true
+                });
+            },
+        }
+    });
+</script>
+
+</html>

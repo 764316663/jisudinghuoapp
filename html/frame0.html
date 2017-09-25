@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>首页</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .swiper-box {
+            width: 100%;
+            height: 10.5rem;
+            border-bottom: 0.5rem solid #f1f2f2;
+        }
+
+        .swiper-box img {
+            width: 100%;
+            height: 10rem;
+        }
+
+        .notice {
+            padding: 0.75rem;
+            background: #fff;
+        }
+
+        .notice-left {
+            margin-right: 0.75rem;
+        }
+
+        .notice-left i {
+            margin-right: 0.25rem;
+        }
+
+        .notice-right {}
+
+        .flex-wrp {
+            display: flex;
+            background-color: #fff;
+            flex-direction: row;
+            word-break: break-all;
+            flex-wrap: wrap;
+        }
+
+        .flex-item {
+            width: 4.5rem;
+            color: #ccc;
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 0;
+            text-align: center;
+        }
+
+        .navlist {}
+
+        .navlist a {
+            display: block;
+            border: 1px solid #A7A9AC;
+            border-radius: 0.5rem;
+            width: 4.5rem;
+            height: 4.5rem;
+            box-sizing: border-box;
+            margin: 1rem auto 0;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 1.8rem;
+            margin-top: 0.5rem;
+            opacity: .8;
+            color: #333;
+        }
+
+        .icon1 {
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .icon2 {
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="box">
+        <div class="swiper-box">
+            <img src="http://fileserver.lusiling.com/images/201708/22184638_9619.jpg/750" alt="">
+        </div>
+        <div class="notice oh">
+            <div class="notice-left fl f14">
+                <i class="iconfont icon-gonggao1"></i>公告
+            </div>
+            <div class="notice-right gray f14">内容</div>
+        </div>
+        <div class="navlist">
+            <div class="flex-wrp">
+                <div class="flex-item">
+                    <a href="#">
+                        <div class="iconfont icon-qiandai-kongxin icon"></div>
+                        <p>我的账户</p>
+                    </a>
+                </div>
+                <div class="flex-item">
+                    <a href="#">
+                        <div class="iconfont icon-huangguan icon icon2"></div>
+                        <p>代理开户</p>
+                    </a>
+                </div>
+                <div class="flex-item">
+                    <a href="#">
+                        <div class="iconfont icon-qbzuo01 icon"></div>
+                        <p>团队业绩</p>
+                    </a>
+                </div>
+            </div>
+            <div class="flex-wrp">
+                <div class="flex-item">
+                    <a href="#">
+                        <div class="iconfont icon-menu-order icon icon1"></div>
+                        <p>我的订单</p>
+                    </a>
+                </div>
+                <div class="flex-item">
+                    <a href="#">
+                        <div class="iconfont icon-diandan icon"></div>
+                        <p>点单系统</p>
+                    </a>
+                </div>
+                <div class="flex-item">
+                    <a v-on:click="link('me','me.html',false)">
+                        <div class="iconfont icon-zhanghu icon icon1"></div>
+                        <p>我的信息</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/toast.js"></script>
+<script type="text/javascript" src="../script/home.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#box',
+        data: {
+
+        },
+        methods: {
+            link(name,url,reload){
+                linkTo(name,url,reload);
+            }
+        }
+    });
+</script>
+
+</html>
