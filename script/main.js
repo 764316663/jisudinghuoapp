@@ -21,9 +21,7 @@ document.addEventListener('plusready', function() {
     }
 });
 */
-apiready = function(){
-    api.parseTapmode();
-}
+
 function setStorageSync(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
 };

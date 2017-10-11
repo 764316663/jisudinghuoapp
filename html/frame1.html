@@ -287,7 +287,6 @@
             toCart() {
                 var jsfun = 'sToCart();'
                 api.execScript({
-                    name: '',
                     frameName: 'group',
                     script: jsfun
                 });
@@ -297,7 +296,8 @@
                     console.log(eFootLis.length);*/
                 api.setFrameGroupIndex({
                     name: 'group',
-                    index: 2
+                    index: 2,
+                    reload:true
                 });
             },
             toDetail(itemID, stockID, title) {

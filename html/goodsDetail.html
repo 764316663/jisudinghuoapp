@@ -28,11 +28,8 @@
 
 <body>
     <div id="app">
-        <header class="aui-bar aui-bar-nav">
-            <a href="javascript:history.go(-1)" class="aui-pull-left aui-btn" id="backBtn">
-                <span class="aui-iconfont aui-icon-left"></span>
-            </a>
-            <div class="aui-title">{{title}}</div>
+        <header>
+            <div><a class="hicon aui-iconfont aui-icon-left"></a>商品详情</div>
         </header>
         <div class="scroll-view">
             <div class="swiper-box">
@@ -89,6 +86,7 @@
 </body>
 <script type="text/javascript" src="../script/picker.min.js"></script>
 <script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/apiheader.js"></script>
 <script type="text/javascript">
     var v = new Vue({
         el: '#app',

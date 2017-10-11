@@ -4,7 +4,6 @@ html, body, #app {
 
 #app {
     box-sizing: border-box;
-    padding-top: 2.25rem;
     padding-bottom: 2.5rem;
 }
 

@@ -17,16 +17,19 @@
         .aui-bar-nav .aui-title{position: relative;}*/
 
 
-
+        header{
+            padding-top: 0.5rem;
+            box-sizing: content-box;
+        }
         header>div{
             display: none;
         }
         header>div.active{
             display: block;
         }
-        #main{
+        /*#main{
           margin-top: 2.25rem;
-        }
+        }*/
 /*
         header .aui-title {
             display: none;
@@ -145,16 +148,13 @@
 
 </html>
 <script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript" src="../script/apiheader.js"></script>
 <script type="text/javascript">
     //var exitApp=false;
 
     apiready = function() {
 
-        $api.fixStatusBar($api.dom('header'));
-        api.setStatusBarStyle({
-            style: 'light',
-            color: '#03a9f4'
-        });
+
         funIniGroup();
 
         loginAjax();
@@ -230,7 +230,7 @@
     }
 
     function sToCart() {
-        console.log(123);
+        console.log('sToCart');
         var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
             eHeaderLis = $api.domAll('header>div');
         $api.removeCls(eFootLis[1], 'aui-active');
