@@ -182,6 +182,15 @@ function closeToWin(name){
       name: name
   });
 };
+function hPadding(){
+    console.log('hPadding');
+    $api.fixStatusBar($api.dom('header'));
+    api.setStatusBarStyle({
+        style: 'light',
+        color: '#ffffff'
+    });
+}
+
 //vue
 Vue.filter('toFix',function(value){
     return parseInt(value).toFixed(2);
