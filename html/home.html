@@ -9,30 +9,28 @@
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../css/public.css" />
     <style>
         /*header{ background-color: #f2f2f2;height: 20px;padding:15px 0; }*/
         /*header ul li {  text-align: center; display: none; color: #323237; position: relative;font-size: 18px;  }*/
-        .aui-bar-nav{height: 2.25rem;box-sizing: content-box;padding-top: 1rem;}
-        .aui-bar-nav .aui-title{position: relative;}
+        /*.aui-bar-nav{height: 2.25rem;box-sizing: content-box;padding-top: 1rem;}
+        .aui-bar-nav .aui-title{position: relative;}*/
 
-        
-        header {
-            height:2.25rem;
-            box-sizing: content-box;
-        }
+
+
         header>div{
-            margin: 0 auto;
-            height: 2.25rem;
-            text-align: center;
-            color: #fff;
-            font-size: 18px;
-            line-height: 2.25rem;
             display: none;
+        }
+        header>div.active{
+            display: block;
+        }
+        #main{
+          margin-top: 2.25rem;
         }
 /*
         header .aui-title {
             display: none;
-            
+
         }
 
         header .aui-title.active {
@@ -113,11 +111,11 @@
             <li class="border-b" >设置</li>
         </ul>
     </header> -->
-        <header class="aui-bar aui-bar-nav">
+        <header>
             <div class="active">首页</div>
-            <div class="">商城</div>
-            <div class="">购物车</div>
-            <div class="">设置</div>
+            <div>商城</div>
+            <div>购物车</div>
+            <div>设置</div>
         </header>
         <div id="main" class="flex-con">
 
@@ -148,8 +146,8 @@
 </html>
 <script type="text/javascript" src="../script/main.js"></script>
 <script type="text/javascript">
-    var exitApp=false;
-    
+    //var exitApp=false;
+
     apiready = function() {
 
         $api.fixStatusBar($api.dom('header'));
@@ -166,13 +164,15 @@
             name: "keyback"
         }, function(ret, err) {
             if (ret) {
+                api.closeWidget();
+                /*
                 if(exitApp){
                     api.closeWidget();
                 }
                 exitApp=true;
                 showToast('再按一次退出程序',function(){
                     exitApp=false;
-                });
+                });*/
             } else {
                 console.log("失败了");
             }
