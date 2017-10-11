@@ -1,128 +1,180 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>底部导航</title>
-    <link rel="stylesheet" type="text/css" href="./css/api.css"/>
-    <link rel="stylesheet" type="text/css" href="./css/style.css"/>
-    <link rel="stylesheet" type="text/css" href="./css/aui.css"/>
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="css/api.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/aui.css">
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="css/public.css">
     <style>
-        header{ background-color: #f2f2f2; }
-        header ul li { height: 30px; line-height: 10px; text-align: center; display: none; color: #323237; position: relative;font-size: 18px;  }
-        header ul li.active{ display: block; }
-        #footer{  background-color: #f2f2f2;font-size: 14px;}
-        #footer ul li{  padding-top: 28px; padding-bottom: 2px; background: url() no-repeat center 2px; background-size: auto 30px; text-align: center; }
-        #footer ul li.active{ color: #6ab494; }
-        #footer ul li:nth-child(1){ background-image: url(./image/index.png); }
-        #footer ul li:nth-child(2){ background-image: url(./image/shop.png); }
-        #footer ul li:nth-child(3){ background-image: url(./image/cart.png); }
-        #footer ul li:nth-child(4){ background-image: url(./image/setting.png); }
-        #footer ul li:nth-child(1).active{ background-image: url(./image/index1.png); }
-        #footer ul li:nth-child(2).active{ background-image: url(./image/shop1.png); }
-        #footer ul li:nth-child(3).active{ background-image: url(./image/cart1.png); }
-        #footer ul li:nth-child(4).active{ background-image: url(./image/setting1.png); }
-        .flex-con{
-          overflow: auto
+        html,
+        body {
+            background-color: #fff;
+            padding-top: 2.25rem;
+        }
+
+        .container {
+            padding: 0 1rem;
+        }
+
+        .login-logo {
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .bg-dark {
+            background: #333333 !important;
+        }
+
+        .aui-slide-node img {
+            width: auto;
+            height: 100%;
+        }
+
+        .form-middle {
+            border: 1px solid #DDDDDD;
+            border-radius: 0.25rem;
+        }
+
+        .form-middle .aui-list {
+            background-image: none;
+        }
+
+        .form-middle .aui-list-item:last-child {
+            background-image: none;
+        }
+
+        .mb1 {
+            margin-bottom: 1rem;
+        }
+
+        .bottom-link {
+            width: 100%;
+            margin-top: 8rem;
+            text-align: center;
+            color: #999999;
+        }
+
+        .bottom-link a {
+            color: #999999;
         }
     </style>
     <script type="text/javascript" src="script/api.js"></script>
     <script type="text/javascript" src="script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="script/aui-toast.js"></script>
     <script type="text/javascript" src="script/jquery-1.11.1.min.js"></script>
-
 </head>
-<body>
-<div id="wrap" class="flex-wrap flex-vertical">
-    <header>
-        <ul>
-            <li class="border-b active" >首页</li>
-            <li class="border-b" >商城</li>
-            <li class="border-b" >购物车</li>
-            <li class="border-b" >设置</li>
-        </ul>
-    </header>
-    <div id="main" class="flex-con">
 
+<body>
+    <div id="app">
+        <header class="aui-bar aui-bar-nav">
+            <div class="aui-title">登录</div>
+        </header>
+        <div class="container">
+            <img class="login-logo" src="image/logo.png" alt="" />
+            <div class="aui-content mb1 form-middle">
+                <ul class="aui-list aui-form-list">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label-icon">
+                                <i class="aui-iconfont aui-icon-my"></i>
+                            </div>
+                            <div class="aui-list-item-input">
+                                <input type="text" placeholder="请输入账号" v-model="username" :value="username">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label-icon">
+                                <i class="aui-iconfont aui-icon-lock"></i>
+                            </div>
+                            <div class="aui-list-item-input">
+                                <input type="password" placeholder="请输入密码" v-model="password" :value="password">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <p>
+                <div class="aui-btn aui-btn-info aui-btn-block" @click="login()">登 &nbsp;&nbsp;录</div>
+            </p>
+            <p class="bottom-link"><a href="">一键登录</a>　|　<a href="findPwd.html">找回密码</a></p>
+        </div>
+        <div class="waiting" v-show="showLoading">
+            <div class="waiting-main">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
     </div>
-    <div id="footer" class="border-t f14">
-        <ul class="flex-wrap" >
-            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con active" >首页</li>
-            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >商城</li>
-            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >购物车</li>
-            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >设置</li>
-        </ul>
-    </div>
-</div>
 </body>
-</html>
 <script type="text/javascript" src="script/main.js"></script>
-<!-- <script type="text/javascript" src="script/index.js"></script> -->
 <script type="text/javascript">
     removeStorageSync('token');
     getToken();
-/*    setTimeout(function(){
-    //  removeStorageSync('member');
-        loginAjax();
-    },100);*/
+    var v = new Vue({
+        el: '#app',
+        data: {
+            username: 'test2',
+            password: '123456',
+            msg: 'message',
+            showLoading:false
+        },
+        methods: {
+            login() {
+              var that=this;
+                this.showLoading=false;
+                callAjax(
+                    'api/Agent/Login',
+                    'post', {
+                        loginID: this.username,
+                        loginPwd: this.password,
+                    },
+                    function(res) {
+                        console.log(JSON.stringify(res));
+                        that.showLoading=false;
+                        showToast(res.message);
+                        if (res.status) {
+                            var member = res.data;
+                            setStorageSync('member', member);
+                            setTimeout(function(){
+                                //改成frames
+                                linkTo('home','html/home.html',false);
+                            },2000);
+                        } else {
 
-    apiready = function () {
-        $api.fixStatusBar( $api.dom('header') );
-        api.setStatusBarStyle({
-            style: 'dark',
-            color: '#6ab494'
-        });
-        funIniGroup();
-        loginAjax();
-    }
+                        }
 
-    function funIniGroup(){
-        var eHeaderLis = $api.domAll('header li'),
-            frames = [];
-        for (var i = 0,len = eHeaderLis.length; i < len; i++) {
-                frames.push( {
-                    name: 'frame'+i,
-                    url: './html/frame'+i+'.html',
-                    bgColor : 'rgba(0,0,0,.2)',
-                    bounces:false
-                } )
-        }
-        api.openFrameGroup({
-            name: 'group',
-            scrollEnabled: true,
-            rect: {
-                x: 0,
-                y: $api.dom('header').offsetHeight,
-                w: api.winWidth,
-                h: $api.dom('#main').offsetHeight
-            },
-            index: 0,
-            frames: frames
-        }, function (ret, err) {
-
-        });
-    }
-
-    // 随意切换按钮
-    function randomSwitchBtn( tag ) {
-        if( tag == $api.dom('#footer li.active') )return;
-        var eFootLis = $api.domAll('#footer li'),
-            eHeaderLis = $api.domAll('header li'),
-            index = 0;
-        for (var i = 0,len = eFootLis.length; i < len; i++) {
-            if( tag == eFootLis[i] ){
-                index = i;
-            }else{
-                $api.removeCls(eFootLis[i], 'active');
-                $api.removeCls(eHeaderLis[i], 'active');
+                    }
+                );
             }
         }
-        $api.addCls( eFootLis[index], 'active');
-        $api.addCls( eHeaderLis[index], 'active');
-        api.setFrameGroupIndex({
-            name: 'group',
-            index: index,
-            reload:true
+    });
+    var exitApp=false;
+    apiready=function(){
+        api.addEventListener({
+            name: "keyback"
+        }, function(ret, err) {
+            if (ret) {
+                if(exitApp){
+                    api.closeWidget();
+                }
+                exitApp=true;
+                showToast('再按一次退出程序',function(){
+                    exitApp=false;
+                });
+            } else {
+                console.log("失败了");
+            }
         });
     }
 </script>
+<!-- <script type="text/javascript" src="../script/login.js"></script> -->
+
+</html>

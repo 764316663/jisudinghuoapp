@@ -283,7 +283,7 @@
               <p class="exp gray f12 fl">不含运费</p>
             </div>
         </footer>
-        <div class="waiting" v-show="loading">
+        <div class="waiting" v-show="showLoading">
             <div class="waiting-main">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
                 <p class="waiting-text">加载中</p>
@@ -292,13 +292,12 @@
     </div>
 </body>
 <script type="text/javascript" src="../script/main.js"></script>
-<script type="text/javascript" src="../script/toast.js"></script>
 <script type="text/javascript">
 
     var v = new Vue({
         el: '#app',
         data: {
-            loading: true,
+            showLoading: true,
             cartList: [],
             total: 0,
             checkAll: true,
@@ -474,7 +473,7 @@
                 },
                 function(res) {
                     //    console.log(JSON.stringify(res));
-                    that.loading = false;
+                    that.showLoading = false;
                     if (res.status) {
                         var cartList = [];
                         for (var i = 0; i < res.data.length; i++) {

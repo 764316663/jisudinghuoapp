@@ -1,27 +1,634 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>端API</title>
-    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <title>商城</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/aui.css">
     <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
     <link rel="stylesheet" type="text/css" href="../css/public.css">
     <style>
+        #app {
+            height: 100%;
+        }
 
+        .container {
+            height: calc(100% - 2.2rem);
+        }
+
+        .wrap {
+            width: 100%;
+            height: calc(100% - 2.25rem);
+        }
+
+        .wlist {
+            width: 28%;
+            height: 100%;
+            box-sizing: border-box;
+            overflow-y: scroll;
+        }
+
+        .wbox {}
+
+        .list1 {
+            padding: 0.35rem 0 0.35rem 0.5rem;
+            border-bottom: 1px solid #fff;
+        }
+
+        .list2 {
+            margin: 0.4rem 0;
+            padding: 0 0.4rem;
+            border-left: 4px solid transparent;
+        }
+
+        .list2Act {
+            border-left: 4px solid #082941;
+        }
+
+        .slist {
+            width: 72%;
+            height: 100%;
+            overflow-y: scroll;
+            box-sizing: border-box;
+            border-left: 1px solid #d3d4d5;
+        }
+
+        .slist .aui-list {
+            background-image: none;
+        }
+
+        .slist .aui-list-item {
+            padding-top: 0.5rem;
+            /*padding-bottom: 0.5rem !important;*/
+            background-image: none;
+        }
+
+        .slist .aui-list .aui-list-item-media {
+            width: 3.25rem;
+            padding: 0;
+        }
+
+        .slist .aui-list-item img {
+            width: 3.25rem;
+            height: 3.25rem;
+        }
+
+        .slist .aui-list-item-title {
+            font-size: 0.7rem;
+        }
+
+        .slist .aui-list-item-inner {
+            padding: 0;
+            padding-left: 0.25rem;
+        }
+
+        .slist .aui-list .aui-list-item-text {
+            font-size: 0.5rem;
+        }
+
+        .slist .aui-info {
+            padding-bottom: 0;
+            margin-top: 0.25rem;
+            margin-right: 0;
+        }
+
+        .goodsinputbox {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .goodsnumbtn {
+            float: left;
+            height: 1.8rem;
+            width: 1.7rem;
+            background: #F1F1F1;
+            margin-left: 0.25rem;
+            text-align: center;
+            line-height: 1.7rem;
+        }
+
+        .goodsnuminput {
+            width: 2.5rem;
+        }
+
+        .goodsnuminput input {
+            width: 100%;
+            height: 1.7rem;
+            text-align: center;
+        }
+
+        .slist .aui-list .aui-list-item:active {
+            background-color: #ffffff;
+        }
+
+        .cartfoot {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 2.25rem;
+            border-top: 1px solid #ccc;
+        }
+
+        .footerBtn {
+            border-radius: 0;
+            border: 0;
+            outline: none;
+            height: 2.25rem;
+            line-height: 2.25rem;
+            width: 30%;
+        }
+
+        .footerlabeltext {
+            line-height: 2.25rem;
+        }
+
+        .totalbox {
+            line-height: 2.3rem;
+        }
+
+        .totalbox p {
+            margin-right: 0.25rem;
+        }
+
+        .totalbox .totaltext {
+            line-height: 2.35rem;
+        }
+
+        .totalbox .exp {
+            line-height: 2.45rem;
+        }
+
+        .btnDis {
+            opacity: .8;
+        }
     </style>
-    <script type="text/javascript" src="script/api.js"></script>
-    <script type="text/javascript" src="script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
     <script type="text/javascript" src="../script/aui-toast.js"></script>
-    <script type="text/javascript" src="script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
 
 </head>
+
 <body>
-    <div class="empty">http://docs.apicloud.com/Client-API/UI-Layout/UISearchBar</div>
+    <!-- <div class="empty">http://docs.apicloud.com/Client-API/UI-Layout/UISearchBar</div> -->
+    <div id="app">
+        <div class="aui-searchbar" id="search">
+            <div class="aui-searchbar-input aui-border-radius" @click="doSearch()">
+                <i class="aui-iconfont aui-icon-search"></i>
+                <form>
+                    <input type="search" disabled="disabled" placeholder="请输入搜索内容" id="search-input">
+                </form>
+            </div>
+        </div>
+        <div class="container">
+            <div class="wrap bgf">
+                <div class="wlist fl">
+                    <div class="wbox" v-for="(v,i) in list2">
+                        <div class="list1 bgcolor" @click="changeList1(i)">{{v.WareHouse}}</div>
+                        <div v-for="(value,index) in v.list" :class="{list2:true,list2Act:index == list2Active && i == list1Active}" v-show="list2[i].open" @click="changeList2(i,index)">{{value.name}}</div>
+                    </div>
+                </div>
+                <div class="slist fr">
+                    <ul class="aui-list aui-media-list">
+                        <li class="aui-list-item" v-for="(v,i) in list3">
+                            <div class="aui-media-list-item-inner" @click="toDetail(v.id,v.StockID,v.name)">
+                                <div class="aui-list-item-media">
+                                    <img :src="v.img" />
+                                </div>
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-text">
+                                        <div class="aui-list-item-title">{{v.name}}</div>
+                                    </div>
+                                    <div class="aui-list-item-text">{{v.TagLine}}</div>
+                                </div>
+                            </div>
+                            <div class="aui-info" style="padding-top:0">
+                                <div class="aui-info-item">
+                                    <span class="price">￥{{v.SalePrice}}</span><span>&nbsp;/{{v.unit}}</span>
+                                </div>
+                                <div class="fr price mr10" v-if="v.stockNum<=0">售罄</div>
+                                <div class="fr gray mr10" v-else-if="v.IsSingleOrder">该商品只能单独下单</div>
+                                <div class="goodsinputbox" v-else-if="v.stockNum>0">
+                                    <p class="goodsnumbtn" @click="goodsNumMinus(i)">-</p>
+                                    <p class="goodsnumbtn goodsnuminput">
+                                        <input type="number" @blur="goodsNumInput(i)" v-model="v.num" />
+                                    </p>
+                                    <p class="goodsnumbtn" @click="goodsNumPlus(i)">+</p>
+                                </div>
+
+
+                            </div>
+                        </li>
+                        <li class="aui-list-item" v-show="!list3.length || showMore==2">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title gray tc">没有更多数据了</div>
+                            </div>
+                        </li>
+                        <!-- <li class="aui-list-item"> -->
+                        <li class="aui-list-item" v-show="showMore==1">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title gray">
+                                    <img src="../image/timg.gif" alt="" class="smLoading">
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <footer class="cartfoot bgf">
+            <button :class="{footerBtn:true, fr:true, bgcolor:true, tc:true, f20:true, db:true }" @click="toCart()">下&nbsp;单</button>
+            <div class="totalbox fr">
+                <p class="totaltext fl f14">合计:</p>
+                <p class="price f18 fl">￥{{total | toFix}}</p>
+                <p class="exp gray f12 fl">不含运费</p>
+            </div>
+        </footer>
+        <div class="waiting" v-show="showLoading">
+            <div class="waiting-main">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
 </body>
-<script type="text/javascript" src="script/main.js"></script>
-<script type="text/javascript" src="../script/toast.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: true,
+            showMore: 0,
+            pageIndex: 1,
+            list1Active: 0,
+            list2Active: 0,
+            list3Active: 0,
+            list2: [],
+            list3: [],
+            total: 0,
+            scrollTop: 0,
+            CartNumber: 0,
+            tobuyGoods: {
+                itemID: [],
+                stockIds: [],
+                num: [],
+                price: []
+            },
+        },
+        methods: {
+            doSearch() {
+
+            },
+            toCart() {
+                var jsfun = 'sToCart();'
+                api.execScript({
+                    name: '',
+                    frameName: 'group',
+                    script: jsfun
+                });
+                /*
+                var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
+                    eHeaderLis = $api.domAll('header .aui-title');
+                    console.log(eFootLis.length);*/
+                api.setFrameGroupIndex({
+                    name: 'group',
+                    index: 2
+                });
+            },
+            toDetail(itemID, stockID, title) {
+                linkTo('goodsDetail', 'goodsDetail.html', true, {
+                    itemID,
+                    stockID,
+                    title
+                });
+            },
+            changeList1(val) {
+                this.list2[val].open = !this.list2[val].open;
+            },
+            changeList2(val1, val2) {
+                this.list1Active = val1;
+                this.list2Active = val2;
+                var cid = this.list2[val1].list[val2].cid;
+                this.pageIndex = 1;
+                this.list3 = [];
+                this.getList3(cid, this.pageIndex);
+                this.showMore = 1;
+            },
+            getCartInfo() {
+                var that = this;
+                var cartGoods = [];
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Order/GetShopingCart',
+                    'get', {
+                        userID: member.UserID
+                    },
+                    function(res) {
+                        if (res.status) {
+                            var items = [];
+                            var nums = [];
+                            var prices = [];
+                            var stockids = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                for (var j = 0; j < res.data[i].CartList.length; j++) {
+                                    var item = {
+                                        ItemID: res.data[i].CartList[j].ItemID,
+                                        Number: res.data[i].CartList[j].Number,
+                                        SalePrice: res.data[i].CartList[j].SalePrice,
+                                        StockID: res.data[i].CartList[j].StockID
+                                    }
+                                    items.push(res.data[i].CartList[j].ItemID);
+                                    nums.push(res.data[i].CartList[j].Number);
+                                    prices.push(res.data[i].CartList[j].SalePrice);
+                                    stockids.push(res.data[i].CartList[j].StockID);
+                                    cartGoods.push(item);
+                                }
+                            }
+                            var tobuyGoods = {
+                                itemID: items,
+                                num: nums,
+                                price: prices,
+                                stockIds: stockids
+                            }
+                            that.tobuyGoods = tobuyGoods;
+                            setStorageSync('cartGoods', cartGoods);
+                            that.getList();
+                        }
+                    }
+                )
+
+            },
+            getList() {
+                this.showLoading = false;
+                var member = getStorageSync('member');
+                var getGood = getStorageSync('getGood');
+                var cartGoods = getStorageSync('cartGoods');
+
+                var that = this;
+                var data = {
+                    wareHouseID: getGood ? getGood.wid : '',
+                    categoryID: getGood ? getGood.cid : '',
+                    userID: member.UserID
+                }
+                callAjax(
+                    'api/good/GetAllItemStockData',
+                    'get',
+                    data,
+                    function(res) {
+                        if (res.status) {
+                            var list2 = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                var List = [];
+                                for (var j = 0; j < res.data[i].CategoryList.length; j++) {
+                                    var list3 = [];
+                                    var listItem = {
+                                        cid: res.data[i].CategoryList[j].CategoryID,
+                                        name: res.data[i].CategoryList[j].CategoryName
+                                    }
+                                    List.push(listItem);
+                                    if (res.data[i].CategoryList[j].IsChecked) {
+                                        for (var k = 0; k < res.data[i].CategoryList[j].StockList.length; k++) {
+                                            var num = 0;
+                                            for (var l = 0; l < cartGoods.length; l++) {
+                                                if (res.data[i].CategoryList[j].StockList[k].ItemID == cartGoods[l].ItemID && res.data[i].CategoryList[j].StockList[k].StockID == cartGoods[l].StockID) {
+                                                    num = cartGoods[l].Number;
+                                                    continue;
+                                                }
+                                            }
+                                            var list3goods = {
+                                                id: res.data[i].CategoryList[j].StockList[k].ItemID,
+                                                StockID: res.data[i].CategoryList[j].StockList[k].StockID,
+                                                name: res.data[i].CategoryList[j].StockList[k].ItemName,
+                                                img: res.data[i].CategoryList[j].StockList[k].ImageUrl + '/200',
+                                                choose: res.data[i].CategoryList[j].StockList[k].StockName,
+                                                MarketPrice: res.data[i].CategoryList[j].StockList[k].MarketPrice,
+                                                SalePrice: res.data[i].CategoryList[j].StockList[k].SalePrice,
+                                                TagLine: res.data[i].CategoryList[j].StockList[k].TagLine,
+                                                unit: res.data[i].CategoryList[j].StockList[k].UnitName,
+                                                num: num,
+                                                stockNum: res.data[i].CategoryList[j].StockList[k].StockNum,
+                                                maxNum: res.data[i].CategoryList[j].StockList[k].MaxNum,
+                                                minNum: res.data[i].CategoryList[j].StockList[k].MinNum,
+                                                IsSingleOrder: res.data[i].CategoryList[j].StockList[k].IsSingleOrder,
+                                                IsPinkage: res.data[i].CategoryList[j].StockList[k].IsPinkage
+                                            }
+                                            list3.push(list3goods);
+                                        }
+                                        var showMore = res.data[i].CategoryList[j].StockList.length > 0 ? 0 : 2;
+                                        that.list3 = list3;
+                                        that.showMore = showMore;
+                                        that.list1Active = i;
+                                        that.list2Active = j;
+                                    }
+
+                                }
+                                var List2Item = {
+                                    open: res.data[i].IsChecked,
+                                    wid: res.data[i].WareHouseID,
+                                    WareHouse: res.data[i].WareHouseName,
+                                    list: List
+                                }
+                                list2.push(List2Item)
+                            }
+                            that.list2 = list2;
+                            that.totalNum();
+                        }
+                    }
+                );
+            },
+            getList3(cid, pageIndex) { //获取商品
+                console.log(cid);
+                var that = this;
+                var cartGoods = getStorageSync('cartGoods');
+                var member = getStorageSync('member');
+                callAjax(
+                    'api/Good/GetItemByCategoryID',
+                    'get', {
+                        cid,
+                        userID: member.UserID,
+                        pageIndex,
+                        pageSize: 10
+                    },
+                    function(res) {
+                        if (res.data.length == 10) {
+                            var showMore = 0;
+                        } else {
+                            var showMore = 2;
+                        }
+                        if (pageIndex == 1) {
+                            var list3 = [];
+                        } else {
+                            var list3 = that.list3;
+                        }
+                        for (var i = 0; i < res.data.length; i++) {
+                            var num = 0;
+                            for (var l = 0; l < cartGoods.length; l++) {
+                                if (res.data[i].ItemID == cartGoods[l].ItemID && res.data[i].StockID == cartGoods[l].StockID) {
+                                    num = cartGoods[l].Number;
+                                    continue;
+                                }
+                            }
+                            var list3goods = {
+                                id: res.data[i].ItemID,
+                                StockID: res.data[i].StockID,
+                                name: res.data[i].ItemName,
+                                img: res.data[i].ImageUrl + '/200',
+                                choose: res.data[i].StockName,
+                                MarketPrice: res.data[i].MarketPrice,
+                                SalePrice: res.data[i].SalePrice,
+                                TagLine: res.data[i].TagLine,
+                                unit: res.data[i].UnitName,
+                                num: num,
+                                stockNum: res.data[i].StockNum,
+                                maxNum: res.data[i].MaxNum,
+                                minNum: res.data[i].MinNum,
+                                IsSingleOrder: res.data[i].IsSingleOrder,
+                                IsPinkage: res.data[i].IsPinkage
+                            }
+                            list3.push(list3goods);
+                        }
+                        that.list3 = list3;
+                        that.showMore = showMore;
+                    }
+                );
+            },
+            scrollBottom() {
+                if (this.showMore) {
+                    return;
+                } else {
+                    this.pageIndex = this.pageIndex + 1;
+                    this.showMore = 1;
+                    var cid = this.list2[this.list1Active].list[this.list2Active].cid;
+                    this.getList3(cid, this.pageIndex);
+                }
+            },
+            goodsNumInput(val) { //数量输入框
+                var num = this.list3[val].num;
+                var min = this.list3[val].minNum;
+                var max = this.list3[val].maxNum > this.list3[val].kucun ? this.list3[val].kucun : this.list3[val].maxNum;
+                if (num) {
+                    num = num > max ? max : (num < min ? min : num)
+                } else {
+                    num = min;
+                }
+                this.list3[val].num = num;
+                this.addCart(this.list3[val].id, this.list3[val].StockID, this.list3[val].num, this.list3[val].SalePrice);
+                this.totalNum();
+            },
+            goodsNumMinus(val) { //数量按钮
+                var num = this.list3[val].num;
+                var onum = num;
+                num--;
+                var min = this.list3[val].minNum;
+                num = num < min ? 0 : num;
+                this.list3[val].num = num;
+                this.totalNum();
+                if (onum != num) {
+                    if (!num) {
+                        var member = getStorageSync('member');
+                        var that = this;
+                        loginAjax(
+                            'api/Good/RemoveCartByStockInfo',
+                            'delete', {
+                                UserID: member.UserID,
+                                ItemID: this.list3[val].id,
+                                StockID: this.list3[val].StockID
+                            },
+                            function(res) {
+                                if (res.status) {
+                                    member.CartNumber = res.data.CartNumber;
+                                    setStorageSync('member', member);
+                                    var cartGoods = getStorageSync('cartGoods');
+                                    console.log(JSON.stringify(cartGoods));
+                                    console.log(that.list3[val].id);
+                                    console.log(that.list3[val].StockID);
+                                    for (var i = 0; i < cartGoods.length; i++) {
+                                        if (that.list3[val].id == cartGoods[i].ItemID && that.list3[val].StockID == cartGoods[i].StockID) {
+                                            console.log(i);
+                                            cartGoods.splice(i, 1);
+                                            break;
+                                        }
+                                    }
+                                    setStorageSync('cartGoods', cartGoods);
+                                    that.totalNum();
+                                }
+                            }
+                        );
+                    } else {
+                        this.addCart(this.list3[val].id, this.list3[val].StockID, this.list3[val].num, this.list3[val].SalePrice);
+                    }
+                }
+
+                //return false;
+            },
+            goodsNumPlus(val) { //数量按钮
+                var num = this.list3[val].num;
+                var onum = num;
+                var max = this.list3[val].maxNum > this.list3[val].kucun ? this.list3[val].kucun : this.list3[val].maxNum;
+                num++;
+                num = num > max ? max : num;
+                if (num != onum) {
+                    this.list3[val].num = num;
+                    this.totalNum();
+                    this.addCart(this.list3[val].id, this.list3[val].StockID, this.list3[val].num, this.list3[val].SalePrice);
+                }
+                //console.log(this.list3);
+            },
+            addCart(itemID, stockId, num, price) {
+                var member = getStorageSync('member')
+                var data = {
+                    "UserID": member.UserID,
+                    "ItemID": itemID,
+                    "StockID": stockId,
+                    "Number": num
+                }
+                var that = this;
+                loginAjax('api/Good/AddCart', 'POST', data, function(res) {
+                    console.log(JSON.stringify(res));
+                    if (res.status) {
+                        member.CartNumber = res.data.CartNumber;
+                        setStorageSync('member', member);
+                        var cartGoods = getStorageSync('cartGoods');
+                        var noHave = true;
+                        for (var i = 0; i < cartGoods.length; i++) {
+                            if (itemID == cartGoods[i].ItemID && stockId == cartGoods[i].StockID) {
+                                cartGoods[i].Number = num;
+                                noHave = false;
+                                break;
+                            }
+                        }
+                        if (noHave) {
+                            cartGoods.push({
+                                ItemID: itemID,
+                                Number: num,
+                                SalePrice: price,
+                                StockID: stockId
+                            });
+                        }
+                        setStorageSync('cartGoods', cartGoods);
+                        that.totalNum();
+                    }
+                })
+            },
+            totalNum() {
+                var cartGoods = getStorageSync('cartGoods');
+                var total = 0;
+                //console.log(JSON.stringify(cartGoods[0]));
+                for (var i = 0; i < cartGoods.length; i++) {
+                    total += cartGoods[i].Number * cartGoods[i].SalePrice;
+                }
+                this.total = total;
+            }
+        },
+        mounted() {
+            this.getCartInfo();
+        }
+    });
+</script>
+
 </html>

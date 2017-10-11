@@ -54,14 +54,13 @@
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
     <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
-    <script type="text/javascript" src="../script/aui-toast.js"></script>
     <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
 
 </head>
 
 <body>
-    <div id="app">
-        <div class="roll bgcolor f14 oh pr">点此绑定微信账号，享有微信消息推送、一键登录、资金保障等特权。</div>
+    <div id="app" class="oh">
+        <!-- <div class="roll bgcolor f14 oh pr">点此绑定微信账号，享有微信消息推送、一键登录、资金保障等特权。</div> -->
         <div class="aui-content">
             <ul class="aui-list aui-list-in">
                 <li class="aui-list-item aui-list-item-middle">
@@ -120,14 +119,14 @@
                         </div>
                     </div>
                 </li>
-                <li class="aui-list-item">
+                <!-- <li class="aui-list-item">
                     <div class="aui-list-item-inner aui-list-item-arrow">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-xiaoxi"></i>
                             <span>在线客服</span>
                         </div>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
         <div class="container">
@@ -138,7 +137,6 @@
     </div>
 </body>
 <script type="text/javascript" src="../script/main.js"></script>
-<script type="text/javascript" src="../script/toast.js"></script>
 <script type="text/javascript">
     var v = new Vue({
         el: '#app',
@@ -161,7 +159,7 @@
                 removeStorageSync('member');
                 api.openWin({
                     name: 'login',
-                    url: 'login.html',
+                    url: '../index.html',
                     pageParam: {
                         name: 'test'
                     },

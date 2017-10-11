@@ -1,0 +1,81 @@
+html, body, #app {
+    height: 100%;
+}
+
+#app {
+    box-sizing: border-box;
+    padding-top: 2.25rem;
+    padding-bottom: 2.5rem;
+}
+
+.swiper-box {
+    width: 100%;
+    height: 100vw;
+}
+
+.swiper-box img {
+    width: 100%;
+    height: 100vw;
+}
+
+.goodsinfo {
+    width: 100%;
+    padding: 0.5rem 0.75rem 0;
+}
+
+.goodsmoney {
+    padding: 0.125rem 0;
+}
+
+.goodsdetailed {
+    border-top: 1px solid #e3e3e3;
+    border-bottom: 1px solid #e3e3e3;
+    padding: 0.125rem 0;
+    justify-content: space-between;
+}
+
+.numberbox {
+    padding: 0.25rem 0;
+}
+
+.numbertext {
+    height: 100%;
+    line-height: 2rem;
+}
+
+.numberopt input {
+    width: 2rem;
+    height: 2rem;
+    display: inline-block;
+    text-align: center;
+    background: #f1f1f2;
+    font-size: 16px;
+}
+
+.numberopt input[type="number"] {
+    width: 4.5rem;
+}
+
+.choosebox {
+    padding: 0.5rem 0.75rem;
+}
+
+.chooseoptions {
+
+}
+.chooseoptions span{
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+  margin-right: 0.25rem;
+  border-radius: 0.25rem;
+  background: #f1f2f2;
+  color: #9ea0a2;
+}
+.goodsdescribe {
+
+}
+.desctitle{
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #eee;
+}

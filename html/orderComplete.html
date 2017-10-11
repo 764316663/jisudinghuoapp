@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单完成</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        *{
+          text-align: center;
+        }
+        #app {
+            height: 100%;
+        }
+        .iconbox{
+            width: 5rem;
+            height: 5rem;
+            margin: 3rem auto 1rem;
+            border-radius: 50%;
+        }
+        .iconbox i{
+            font-size: 3.5rem;
+        }
+        .cont h2,.cont p{
+          margin: 0.25rem auto;
+        }
+        .btnbox{
+          padding: 0 0.75rem;
+        }
+        .btnbox button{
+          width: 48%;
+          height: 2rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header class="aui-bar aui-bar-nav">
+            <a href="javascript:history.go(-1)" class="aui-pull-left aui-btn" id="backBtn">
+                <span class="aui-iconfont aui-icon-left"></span>
+            </a>
+            <div class="aui-title">订单完成</div>
+        </header>
+        <div class="mtitle oh">
+          <div class="iconbox bgcolor tc">
+            <i class="aui-iconfont aui-icon-correct"></i>
+          </div>
+        </div>
+        <div class="cont mb20">
+          <h2 class="black">下单成功</h2>
+          <p class="gray f16">订单号：<span class="price">{{payNo}}</span></p>
+          <p class="gray f16">应付金额：<span class="price">￥{{orderPrice}}</span></p>
+        </div>
+        <div class="btnbox oh">
+          <button class="bgcolor fl f18" @click="complete()">完成</button>
+          <button class="bgcolor fr f18" @click="pay()">支付</button>
+        </div>
+        <div class="waiting" v-show="showLoading">
+            <div class="waiting-main">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+          showLoading:true,
+          payNo:'',
+          orderPrice:0
+        },
+        methods: {
+          apiReady(){
+            this.payNo=api.pageParam.payNo;
+            //closeToWin('goodsDetail');
+            var that=this;
+            var member=getStorageSync('member');
+            loginAjax(
+              'api/Payment/OrderNeedPayInfo',
+              'get',
+              {
+                userID:member.UserID,
+                payNos:that.payNo
+              },
+              function(res){
+                  // console.log(JSON.stringify(res));
+                  that.showLoading=false;
+                  if(res.status){
+                    that.orderPrice=res.data.FinalAmount
+                  }
+              }
+            );
+          },
+          complete(){
+              ;
+          },
+          pay(){
+              ;
+          }
+        },
+        mounted() {
+
+        }
+    });
+    apiready = function() {
+        v.apiReady();
+    }
+</script>
+
+</html>

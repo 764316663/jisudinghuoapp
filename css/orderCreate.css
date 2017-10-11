@@ -2,14 +2,6 @@ html, body, #app {
     height: 100%;
 }
 
-.black {
-    color: #333333;
-}
-
-.gray {
-    color: #AAAAAA;
-}
-
 #app {
     box-sizing: border-box;
     padding-top: 2.25rem;
@@ -51,8 +43,7 @@ html, body, #app {
 }
 
 .titleleft-checkbox {
-    height: 100%;
-    position: relative;
+    float: none;
 }
 
 .labelcheckbox {
@@ -64,7 +55,7 @@ html, body, #app {
 .titlecheckbox {
     top: 50%;
     left: 0;
-    margin-top: -0.5rem;
+    margin-top: -0.7rem;
 }
 
 .titlename {

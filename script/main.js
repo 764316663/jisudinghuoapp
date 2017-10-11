@@ -166,8 +166,8 @@ function loginAjax(url, method, data, cb, contentType){
   }
   else{
     api.openWin({
-      name:'登录',
-      url:'./html/login.html'
+      name:'login',
+      url:'./index.html'
     });
   }
 }
@@ -179,8 +179,26 @@ function linkTo(name, url, reload,pageParam) {
         pageParam:pageParam?pageParam:{},
     });
 }
-
+function closeToWin(name){
+  api.closeToWin({
+      name: name
+  });
+};
 //vue
 Vue.filter('toFix',function(value){
     return parseInt(value).toFixed(2);
 });
+
+function showToast(msg,fn){
+    api.toast({
+        msg: msg,
+        duration:2000,
+        location: 'bottom'
+    });
+    if(fn){
+        setTimeout(function(){
+            fn();
+        },2000);
+    }
+
+}
