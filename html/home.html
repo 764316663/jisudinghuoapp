@@ -27,6 +27,7 @@
             color: #fff;
             font-size: 18px;
             line-height: 2.25rem;
+            display: none;
         }
 /*
         header .aui-title {
@@ -179,7 +180,7 @@
     }
 
     function funIniGroup() {
-        var eHeaderLis = $api.domAll('header .aui-title'),
+        var eHeaderLis = $api.domAll('header>div'),
             frames = [];
         for (var i = 0, len = eHeaderLis.length; i < len; i++) {
             frames.push({
@@ -209,7 +210,7 @@
     function randomSwitchBtn(tag) {
         if (tag == $api.dom('#footer .aui-active')) return;
         var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
-            eHeaderLis = $api.domAll('header .aui-title'),
+            eHeaderLis = $api.domAll('header>div'),
             index = 0;
         for (var i = 0, len = eFootLis.length; i < len; i++) {
             if (tag == eFootLis[i]) {
@@ -231,7 +232,7 @@
     function sToCart() {
         console.log(123);
         var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
-            eHeaderLis = $api.domAll('header .aui-title');
+            eHeaderLis = $api.domAll('header>div');
         $api.removeCls(eFootLis[1], 'aui-active');
         $api.removeCls(eHeaderLis[1], 'active');
         $api.addCls(eFootLis[2], 'aui-active');
