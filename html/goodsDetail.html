@@ -30,7 +30,8 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>商品详情</div>
+                <a class="hicon aui-iconfont aui-icon-left"></a>商品详情
+            </div>
         </header>
         <div class="scroll-view">
             <div class="swiper-box">
@@ -47,9 +48,9 @@
                 <div class="numberbox oh">
                     <p class="numbertext fl f16">订购数量</p>
                     <div class="numberopt fr oh" v-show="chooseInfo[chooseIndex].stockNum>0">
-                        <input type="button" value="-" @click="numMinus()">
+                        <button @click="numMinus()">-</button>
                         <input type="number" :value="num" v-model="num" @blur="numInput()">
-                        <input type="button" value="+" @click="numPlus()">
+                        <button @click="numPlus()">+</button>
                     </div>
                     <p class="numbertext fr f16 price" v-show="chooseInfo[chooseIndex].stockNum<=0">已售罄</p>
                 </div>
@@ -77,8 +78,8 @@
             <div class="aui-bar-tab-item aui-bg-warning aui-text-white" tapmode style="width: auto;" v-on:touchend="addCart()" v-show="!goodsinfo.IsSingleOrder">加入购物车</div>
             <div class="aui-bar-tab-item aui-bg-danger aui-text-white" tapmode style="width: auto;" v-on:touchend="buy()">立即购买</div>
         </footer>
-        <div class="waiting" v-show="showLoading">
-            <div class="waiting-main">
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
                 <p class="waiting-text">加载中</p>
             </div>
@@ -91,6 +92,7 @@
     var v = new Vue({
         el: '#app',
         data: {
+            toast: false,
             showLoading: false,
             itemID: 0,
             stockID: 0,

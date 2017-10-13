@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单完成</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        * {
+            text-align: center;
+        }
+
+        #app {
+            height: 100%;
+        }
+
+        .checked {
+            position: absolute;
+            right: 0;
+            bottom: -0.25rem;
+            font-weight: bold;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left"></a>订单完成</div>
+        </header>
+        <div class="aui-content">
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title f14">金额（元）</div>
+                        <div class="aui-list-item-title f14">{{payMoney}}元</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="aui-content">
+            <ul class="aui-list aui-list-in">
+                <li class="aui-list-header">
+                    支付方式
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title f14">
+                            <i class="iconfont icon-zhifufangshi-copy-copy f20 mr10"></i>余额支付
+                        </div>
+                        <div class="aui-list-item-title f14 pr30 price">
+                            {{UserAmount}}元
+                            <div class="checked">
+                                <i class="aui-iconfont aui-icon-correct price f20"></i>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="btncontainer mt20">
+            <div class="aui-btn aui-btn-block bgcolor" @click="nextStep()">下一步</div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            toast: false,
+            showLoading: true,
+            payNo: '',
+            payMoney: 0,
+            UserAmount: 0
+        },
+        methods: {
+            apiReady() {
+                var that = this;
+                this.payNo = api.pageParam.payNo;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Payment/OrderNeedPayInfo',
+                    'GET', {
+                        userID: member.UserID,
+                        payNos: that.payNo
+                    },
+                    function(res) {
+                        that.showLoading = false;
+                        if (res.status) {
+                            that.payMoney = res.data.FinalAmount;
+                            that.UserAmount = res.data.UserAmount;
+                        }
+                        console.log(JSON.stringify(res));
+                    }
+                );
+            },
+            nextStep() {
+                var that = this;
+                var member = getStorageSync('member');
+                that.showLoading = true;
+                var data = {
+                    UserID: member.UserID,
+                    PayNos: that.payNo
+                }
+                console.log(JSON.stringify(data));
+                loginAjax(
+                    'api/Payment/OrderPay',
+                    'post',
+                    data,
+                    function(res) {
+                        that.showLoading = false;
+                        console.log(JSON.stringify(res));
+                        if (res.status) {
+                            member.Amount = res.data.Amount;
+                            member.CartNumber = res.data.CartNumber;
+                            setStorageSync('member', member)
+                        }
+                        linkTo('orderOk', 'orderOk.html', false, {
+                            orderSuccess: res.status,
+                            orderMessage:res.message
+                        });
+                    }
+                );
+            }
+        },
+        mounted() {
+
+        }
+    });
+    apiready = function() {
+        hPadding();
+        v.apiReady();
+    }
+</script>
+
+</html>

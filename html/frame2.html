@@ -184,23 +184,28 @@
             width: 25%;
         }
 
-        .footerlabeltext{
-          line-height: 2.25rem;
+        .footerlabeltext {
+            line-height: 2.25rem;
         }
-        .totalbox{
-          line-height: 2.3rem;
+
+        .totalbox {
+            line-height: 2.3rem;
         }
-        .totalbox p{
-          margin-right: 0.25rem;
+
+        .totalbox p {
+            margin-right: 0.25rem;
         }
-        .totalbox .totaltext{
-          line-height: 2.35rem;
+
+        .totalbox .totaltext {
+            line-height: 2.35rem;
         }
-        .totalbox .exp{
-          line-height: 2.45rem;
+
+        .totalbox .exp {
+            line-height: 2.45rem;
         }
-        .btnDis{
-          opacity: .8;
+
+        .btnDis {
+            opacity: .8;
         }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
@@ -226,7 +231,7 @@
         										<p class="titlename f16 black">{{v.WareHouseName}}</p>
         								</label>
                     </div>
-                    <p class="fr gray f14 titlempty">清空</p>
+                    <p class="fr gray f14 titlempty" @click="emptyWareHouse(i)">清空</p>
                 </div>
                 <div class="cartgoodsbox" v-for="(value,index) in v.List">
                     <div class="cartgoodsinfo">
@@ -249,7 +254,7 @@
                         </div>
                     </div>
                     <div class="cartoperation">
-                        <div class="fl cartgoodsdel">
+                        <div class="fl cartgoodsdel" @click="deleteGoods(i,index)">
                             <i class="iconfont icon-shanchu"></i>&nbsp;删除
                         </div>
                         <p class="cartunit fr">{{value.UnitName}}</p>
@@ -278,13 +283,13 @@
             </div>
             <button :class="{footerBtn:true, fr:true, bgcolor:true, tc:true, f20:true, db:true,btnDis:dis }" :disabled="dis" @click="toOrderCreate()">下&nbsp;单</button>
             <div class="totalbox fr">
-              <p class="totaltext fl f14">合计:</p>
-              <p class="price f18 fl">￥{{total | toFix}}</p>
-              <p class="exp gray f12 fl">不含运费</p>
+                <p class="totaltext fl f14">合计:</p>
+                <p class="price f18 fl">￥{{total | toFix}}</p>
+                <p class="exp gray f12 fl">不含运费</p>
             </div>
         </footer>
-        <div class="waiting" v-show="showLoading">
-            <div class="waiting-main">
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
                 <p class="waiting-text">加载中</p>
             </div>
@@ -293,34 +298,33 @@
 </body>
 <script type="text/javascript" src="../script/main.js"></script>
 <script type="text/javascript">
-
     var v = new Vue({
         el: '#app',
         data: {
-            showLoading: true,
+            toast: false,
+            showLoading: false,
             cartList: [],
             total: 0,
             checkAll: true,
-            dis:false
+            dis: false
         },
         methods: {
             link(name, url, reload) {
                 linkTo(name, url, reload);
             },
             goodsCheck(w, g) {
-                if(!this.cartList[w].List[g].checked){
-                    this.cartList[w].checked=false;
-                    this.checkAll=false;
-                }
-                else{
-                    var checked=true;
-                    for(var i=0;i<this.cartList[w].List.length;i++){
-                        if(!this.cartList[w].List[i].checked){
-                            checked=false;
+                if (!this.cartList[w].List[g].checked) {
+                    this.cartList[w].checked = false;
+                    this.checkAll = false;
+                } else {
+                    var checked = true;
+                    for (var i = 0; i < this.cartList[w].List.length; i++) {
+                        if (!this.cartList[w].List[i].checked) {
+                            checked = false;
                             break;
                         }
                     }
-                    this.cartList[w].checked=checked;
+                    this.cartList[w].checked = checked;
                     this.isCheck();
                 }
                 this.totalNum();
@@ -328,25 +332,23 @@
                 this.cartChoose();
             },
             wCheck(w) {
-                if(this.cartList[w].checked){
-                    var wCheck=true;
-                    for(var i=0;i<this.cartList[w].List.length;i++){
-                        if(this.cartList[w].List[i].StockNum<=0){
-                            wCheck=false;
-                            this.cartList[w].List[i].checked=false;
-                            this.checkAll=false;
-                        }
-                        else{
-                            this.cartList[w].List[i].checked=true;
+                if (this.cartList[w].checked) {
+                    var wCheck = true;
+                    for (var i = 0; i < this.cartList[w].List.length; i++) {
+                        if (this.cartList[w].List[i].StockNum <= 0) {
+                            wCheck = false;
+                            this.cartList[w].List[i].checked = false;
+                            this.checkAll = false;
+                        } else {
+                            this.cartList[w].List[i].checked = true;
                         }
                     }
-                    this.cartList[w].checked=wCheck;
+                    this.cartList[w].checked = wCheck;
                     this.isCheck();
-                }
-                else{
-                    this.checkAll=false;
-                    for(var i=0;i<this.cartList[w].List.length;i++){
-                        this.cartList[w].List[i].checked=false;
+                } else {
+                    this.checkAll = false;
+                    for (var i = 0; i < this.cartList[w].List.length; i++) {
+                        this.cartList[w].List[i].checked = false;
                     }
                 }
                 this.totalNum();
@@ -354,31 +356,29 @@
                 this.cartChoose();
             },
             allCheck() {
-                if(this.checkAll){
-                   for(var i=0;i<this.cartList.length;i++){
-                       var wChecked=true;
-                       for(var  j=0;j<this.cartList[i].List.length;j++){
-                           if(this.cartList[i].List[j].StockNum>0){
-                               this.cartList[i].List[j].checked=true;
-                           }
-                           else{
-                               this.checkAll=false;
-                               wChecked=false;
-                           }
-                       }
-                       this.cartList[i].checked=wChecked;
-                   }
-                   this.totalNum();
-                }
-                else{
-                    for(var i=0;i<this.cartList.length;i++){
-                        this.cartList[i].checked=false;
-                        for(var  j=0;j<this.cartList[i].List.length;j++){
-                            this.cartList[i].List[j].checked=false;
+                if (this.checkAll) {
+                    for (var i = 0; i < this.cartList.length; i++) {
+                        var wChecked = true;
+                        for (var j = 0; j < this.cartList[i].List.length; j++) {
+                            if (this.cartList[i].List[j].StockNum > 0) {
+                                this.cartList[i].List[j].checked = true;
+                            } else {
+                                this.checkAll = false;
+                                wChecked = false;
+                            }
+                        }
+                        this.cartList[i].checked = wChecked;
+                    }
+                    this.totalNum();
+                } else {
+                    for (var i = 0; i < this.cartList.length; i++) {
+                        this.cartList[i].checked = false;
+                        for (var j = 0; j < this.cartList[i].List.length; j++) {
+                            this.cartList[i].List[j].checked = false;
                         }
                     }
-                    this.dis=true;
-                    this.total=0;
+                    this.dis = true;
+                    this.total = 0;
                 }
                 this.disabledBtn();
                 this.cartChoose();
@@ -401,137 +401,247 @@
                 this.checkAll = checkAll;
             },
             disabledBtn() {
-                var dis=true;
+                var dis = true;
                 disx:
-                for(var i = 0; i < this.cartList.length; i++){
-                    for(var j = 0; j < this.cartList[i].List.length; j++){
-                        if(this.cartList[i].List[j].checked){
-                            dis=false;
-                            break disx;
+                    for (var i = 0; i < this.cartList.length; i++) {
+                        for (var j = 0; j < this.cartList[i].List.length; j++) {
+                            if (this.cartList[i].List[j].checked) {
+                                dis = false;
+                                break disx;
+                            }
                         }
                     }
-                }
-                this.dis=dis;
+                this.dis = dis;
             },
             totalNum() {
-                var total=0;
-                for(var i=0;i<this.cartList.length;i++){
-                    for(var j=0;j<this.cartList[i].List.length;j++){
-                        if(this.cartList[i].List[j].checked){
-                            total+=this.cartList[i].List[j].SalePrice*this.cartList[i].List[j].Number;
+                var total = 0;
+                for (var i = 0; i < this.cartList.length; i++) {
+                    for (var j = 0; j < this.cartList[i].List.length; j++) {
+                        if (this.cartList[i].List[j].checked) {
+                            total += this.cartList[i].List[j].SalePrice * this.cartList[i].List[j].Number;
                         }
                     }
                 }
-                this.total=total;
+                this.total = total;
             },
-            cartChoose(){
-                var chooseCartID=[];
-                var chooseCartNum=[];
-                for(var i=0;i<this.cartList.length;i++){
-                    for(var j=0;j<this.cartList[i].List.length;j++){
-                        if(this.cartList[i].List[j].checked){
+            cartChoose() {
+                var chooseCartID = [];
+                var chooseCartNum = [];
+                for (var i = 0; i < this.cartList.length; i++) {
+                    for (var j = 0; j < this.cartList[i].List.length; j++) {
+                        if (this.cartList[i].List[j].checked) {
                             chooseCartID.push(this.cartList[i].List[j].CartID);
                             chooseCartNum.push(this.cartList[i].List[j].Number);
                         }
                     }
                 }
-                this.chooseCartID=chooseCartID;
-                this.chooseCartNum=chooseCartNum;
+                this.chooseCartID = chooseCartID;
+                this.chooseCartNum = chooseCartNum;
             },
-            numInput(w,g){
-
+            numInput(w, g) {
+                console.log(JSON.stringify(this.cartList[w].List[g]));
+                var num = parseInt(this.cartList[w].List[g].Number);
+                var max = this.cartList[w].List[g].MaxNum > this.cartList[w].List[g].StockNum ? this.cartList[w].List[g].StockNum : this.cartList[w].List[g].MaxNum;
+                var min = this.cartList[w].List[g].MinNum;
+                num = num ? (num > max ? max : (num < min ? min : num)) : min;
+                this.cartList[w].List[g].Number = num;
+                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
             },
-            numMinus(w,g){
-
+            numMinus(w, g) {
+                var num = parseInt(this.cartList[w].List[g].Number);
+                var min = this.cartList[w].List[g].MinNum;
+                num--;
+                num = num < min ? min : num;
+                this.cartList[w].List[g].Number = num;
+                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
             },
-            numPlus(w,g){
-
+            numPlus(w, g) {
+                var num = parseInt(this.cartList[w].List[g].Number);
+                var max = this.cartList[w].List[g].MaxNum > this.cartList[w].List[g].StockNum ? this.cartList[w].List[g].StockNum : this.cartList[w].List[g].MaxNum;
+                num++;
+                num = num > max ? max : num;
+                this.cartList[w].List[g].Number = num;
+                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
             },
-            deleteGoods(){
-
+            addCart(itemID, stockID, num) {
+                var member = getStorageSync('member');
+                var that = this;
+                loginAjax(
+                    'api/Good/AddCart',
+                    'post', {
+                        UserID: member.UserID,
+                        ItemID: itemID,
+                        StockID: stockID,
+                        'Number': num
+                    },
+                    function(res) {
+                        console.log(JSON.stringify(res));
+                        if (res.status) {
+                            member.CartNumber = res.data.CartNumber;
+                            setStorageSync('member', member);
+                            that.totalNum();
+                        }
+                    }
+                );
             },
-            emptyWareHouse(){
-
+            deleteGoods(windex,spindex) {
+                var that = this;
+                var cartid=this.cartList[windex].List[spindex].CartID;
+                var member = getStorageSync('member');
+                showConfirm('确定要删除该商品吗？', function() {
+                    that.showLoading = true;
+                    var data = {
+                        UserID: member.UserID,
+                        CartID: cartid
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                        'api/Good/RemoveCart',
+                        'DELETE',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            //showToast(res.message);
+                            if (res.status) {
+                                member.CartNumber = res.data.CartNumber;
+                                setStorageSync('member', member);
+                                that.cartList[windex].List.splice(spindex,1);
+                                if(!that.cartList[windex].List.length){
+                                    that.cartList.splice(windex,1);
+                                }
+                                that.disabledBtn();
+                                that.isCheck();
+                                that.totalNum();
+                                that.cartChoose();
+                            }
+                        }
+                    );
+                })
             },
-            toOrderCreate(){
-                var cartIDs=this.chooseCartID.join(',');
-                var cartNumbers=this.chooseCartNum.join(',');
-                linkTo('cartOrderCreate','cartOrderCreate.html',true,{
-                    cartIDs:cartIDs,
-                    cartNumbers:cartNumbers
+            emptyWareHouse(index) {
+                var wid=this.cartList[index].WareHouseID;
+                var that = this;
+                showConfirm('确定要清空该仓库吗？', function() {
+                    that.showLoading = true;
+                    var member = getStorageSync('member');
+                    var data = {
+                        UserID: member.UserID,
+                        WareHouseID: wid
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                        'api/Good/RemoveWareHouseCart',
+                        'delete',
+                        data,
+                        function(res) {
+                            that.showLoading = false;
+                            //showToast(res.message);
+                            console.log(JSON.stringify(res));
+                            if (res.status) {
+                                var cartList = that.cartList;
+                                member.CartNumber = res.data.CartNumber;
+                                setStorageSync('member', member);
+                                cartList.splice(index, 1);
+                                that.cartList = cartList;
+                                that.disabledBtn();
+                                that.isCheck();
+                                that.totalNum();
+                                that.cartChoose();
+                            }
+                        }
+                    );
                 });
+            },
+            toOrderCreate() {
+                var cartIDs = this.chooseCartID.join(',');
+                var cartNumbers = this.chooseCartNum.join(',');
+                linkTo('cartOrderCreate', 'cartOrderCreate.html', true, {
+                    cartIDs: cartIDs,
+                    cartNumbers: cartNumbers
+                });
+            },
+            getCartInfo() {
+                var that = this;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Order/GetShopingCart',
+                    'get', {
+                        userID: member.UserID
+                    },
+                    function(res) {
+                        //    console.log(JSON.stringify(res));
+                        that.showLoading = false;
+                        if (res.status) {
+                            var cartList = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                var List = [];
+                                for (var j = 0; j < res.data[i].CartList.length; j++) {
+                                    var item = {
+                                        IsPinkage: res.data[i].CartList[j].IsPinkage,
+                                        IsSingleOrder: res.data[i].CartList[j].IsSingleOrder,
+                                        CartID: res.data[i].CartList[j].CartID,
+                                        itemID: res.data[i].CartList[j].ItemID,
+                                        stockID: res.data[i].CartList[j].StockID,
+                                        ItemName: res.data[i].CartList[j].ItemName,
+                                        ImageUrl: res.data[i].CartList[j].ImageUrl,
+                                        StockName: res.data[i].CartList[j].StockName,
+                                        SalePrice: res.data[i].CartList[j].SalePrice,
+                                        Number: res.data[i].CartList[j].Number,
+                                        UnitName: res.data[i].CartList[j].UnitName,
+                                        StockNum: res.data[i].CartList[j].StockNum,
+                                        MaxNum: res.data[i].CartList[j].MaxNum,
+                                        MinNum: res.data[i].CartList[j].MinNum,
+                                        checked: true,
+                                        TagLine: res.data[i].CartList[j].TagLine,
+                                    }
+                                    if (item.StockNum <= 0) {
+                                        item.checked = false;
+                                        item.Number = 0;
+                                    }
+                                    List.push(item);
+                                }
+                                var ListItem = {
+                                    WareHouseID: res.data[i].WareHouseID,
+                                    WareHouseName: res.data[i].WareHouseName,
+                                    List: List,
+                                    checked: true
+                                }
+                                cartList.push(ListItem);
+                            }
+                            that.cartList = cartList;
+                            that.disabledBtn();
+                            that.isCheck();
+                            that.totalNum();
+                            that.cartChoose();
+                        }
+                    }
+                );
+                callAjax(
+                    'api/Index/GetHotGoodStock',
+                    'get', {
+                        days: 30,
+                        pageIndex: 1,
+                        pageSize: 10
+                    },
+                    function(res) {
+                        //    console.log(JSON.stringify(res));
+                    }
+                );
             }
 
         },
         mounted() {
-            var that = this;
-            var member = getStorageSync('member');
-            loginAjax(
-                'api/Order/GetShopingCart',
-                'get', {
-                    userID: member.UserID
-                },
-                function(res) {
-                    //    console.log(JSON.stringify(res));
-                    that.showLoading = false;
-                    if (res.status) {
-                        var cartList = [];
-                        for (var i = 0; i < res.data.length; i++) {
-                            var List = [];
-                            for (var j = 0; j < res.data[i].CartList.length; j++) {
-                                var item = {
-                                    IsPinkage: res.data[i].CartList[j].IsPinkage,
-                                    IsSingleOrder: res.data[i].CartList[j].IsSingleOrder,
-                                    CartID: res.data[i].CartList[j].CartID,
-                                    itemID: res.data[i].CartList[j].ItemID,
-                                    stockID: res.data[i].CartList[j].StockID,
-                                    ItemName: res.data[i].CartList[j].ItemName,
-                                    ImageUrl: res.data[i].CartList[j].ImageUrl,
-                                    StockName: res.data[i].CartList[j].StockName,
-                                    SalePrice: res.data[i].CartList[j].SalePrice,
-                                    Number: res.data[i].CartList[j].Number,
-                                    UnitName: res.data[i].CartList[j].UnitName,
-                                    StockNum: res.data[i].CartList[j].StockNum,
-                                    MaxNum: res.data[i].CartList[j].MaxNum,
-                                    MinNum: res.data[i].CartList[j].MinNum,
-                                    checked: true,
-                                    TagLine: res.data[i].CartList[j].TagLine,
-                                }
-                                if (item.StockNum <= 0) {
-                                    item.checked = false;
-                                    item.Number = 0;
-                                }
-                                List.push(item);
-                            }
-                            var ListItem = {
-                                WareHouseID: res.data[i].WareHouseID,
-                                WareHouseName: res.data[i].WareHouseName,
-                                List: List,
-                                checked: true
-                            }
-                            cartList.push(ListItem);
-                        }
-                        that.cartList = cartList;
-                        that.disabledBtn();
-                        that.isCheck();
-                        that.totalNum();
-                        that.cartChoose();
-                    }
-                }
-            );
-            callAjax(
-                'api/Index/GetHotGoodStock',
-                'get', {
-                    days: 30,
-                    pageIndex: 1,
-                    pageSize: 10
-                },
-                function(res) {
-                    //    console.log(JSON.stringify(res));
-                }
-            );
+            this.getCartInfo();
         }
     });
+    apiready = function() {
+        api.addEventListener({
+            name: 'getUserCart'
+        }, function(ret, err) {
+            v.getCartInfo();
+        });
+    }
 </script>
 
 </html>

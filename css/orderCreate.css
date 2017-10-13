@@ -4,9 +4,11 @@ html, body, #app {
 
 #app {
     box-sizing: border-box;
-    padding-bottom: 2.2rem;
+    padding-bottom: 3rem;
 }
-
+.scroll-view{
+  /*height:calc(100% - 2.2rem);*/
+}
 .aui-list {
     background-image: none !important;
 }
@@ -24,6 +26,7 @@ html, body, #app {
     border-top: 1px solid #CCCCCC;
     background: #FFFFFF;
     padding-left: 0.75rem;
+    z-index: 500;
 }
 
 .smtext {

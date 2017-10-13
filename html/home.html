@@ -11,39 +11,17 @@
     <link rel="stylesheet" type="text/css" href="../css/aui.css" />
     <link rel="stylesheet" type="text/css" href="../css/public.css" />
     <style>
-        /*header{ background-color: #f2f2f2;height: 20px;padding:15px 0; }*/
-        /*header ul li {  text-align: center; display: none; color: #323237; position: relative;font-size: 18px;  }*/
-        /*.aui-bar-nav{height: 2.25rem;box-sizing: content-box;padding-top: 1rem;}
-        .aui-bar-nav .aui-title{position: relative;}*/
-
-
-        header{
-            /*padding-top: 0.5rem;*/
+        header {
             box-sizing: content-box;
         }
-        header>div{
+
+        header>div {
             display: none;
         }
-        header>div.active{
+
+        header>div.active {
             display: block;
         }
-        /*#main{
-          margin-top: 2.25rem;
-        }*/
-/*
-        header .aui-title {
-            display: none;
-
-        }
-
-        header .aui-title.active {
-            display: block;
-        }
-
-        header ul li.active {
-            display: block;
-        }*/
-        /*#footer{  background-color: #f2f2f2;font-size: 14px;position: relative;}*/
 
         #footer {
             position: relative;
@@ -106,14 +84,6 @@
 
 <body>
     <div id="wrap" class="flex-wrap flex-vertical">
-        <!-- <header>
-        <ul>
-            <li class="border-b active" >首页</li>
-            <li class="border-b" >商城</li>
-            <li class="border-b" >购物车</li>
-            <li class="border-b" >设置</li>
-        </ul>
-    </header> -->
         <header>
             <div class="active">首页</div>
             <div>商城</div>
@@ -149,29 +119,37 @@
 </html>
 <script type="text/javascript" src="../script/main.js"></script>
 <script type="text/javascript">
-    //var exitApp=false;
-
     apiready = function() {
 
         hPadding();
         funIniGroup();
 
         loginAjax();
-
+        api.addEventListener({
+            name: 'toc'
+        }, function(ret, err) {
+            if (ret) {
+                randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[2]);
+            } else {
+                console.log("失败了");
+            }
+        });
 
         api.addEventListener({
             name: "keyback"
         }, function(ret, err) {
             if (ret) {
                 api.closeWidget();
-                /*
-                if(exitApp){
-                    api.closeWidget();
-                }
-                exitApp=true;
-                showToast('再按一次退出程序',function(){
-                    exitApp=false;
-                });*/
+            } else {
+                console.log("失败了");
+            }
+        });
+
+        api.addEventListener({
+            name: 'backHome'
+        }, function(ret, err) {
+            if (ret) {
+                randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[0]);
             } else {
                 console.log("失败了");
             }
@@ -221,20 +199,29 @@
         }
         $api.addCls(eFootLis[index], 'aui-active');
         $api.addCls(eHeaderLis[index], 'active');
+        if (index == 1) {
+            api.sendEvent({
+                name: 'getMallCart'
+            });
+        } else if (index == 2) {
+            api.sendEvent({
+                name: 'getUserCart'
+            });
+        }
         api.setFrameGroupIndex({
             name: 'group',
             index: index,
-            reload: true
+            reload: false
         });
     }
-
-    function sToCart() {
-        console.log('sToCart');
-        var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
-            eHeaderLis = $api.domAll('header>div');
-        $api.removeCls(eFootLis[1], 'aui-active');
-        $api.removeCls(eHeaderLis[1], 'active');
-        $api.addCls(eFootLis[2], 'aui-active');
-        $api.addCls(eHeaderLis[2], 'active');
-    }
+    /*
+        function sToCart() {
+            console.log('sToCart');
+            var eFootLis = $api.domAll('#footer .aui-bar-tab-item'),
+                eHeaderLis = $api.domAll('header>div');
+            $api.removeCls(eFootLis[1], 'aui-active');
+            $api.removeCls(eHeaderLis[1], 'active');
+            $api.addCls(eFootLis[2], 'aui-active');
+            $api.addCls(eHeaderLis[2], 'active');
+        }*/
 </script>

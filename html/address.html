@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>收货地址</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .searchbox {
+            width: 100%;
+            height: 2.2rem;
+        }
+
+        #search {
+            width: 80%;
+        }
+
+        .searchbtn {
+            width: 20%;
+            height: 2.2rem;
+        }
+
+        .searchbtn div {
+            width: 80%;
+            height: 1.4rem;
+            background-color: #fff;
+            margin: 0.4rem 0.2rem;
+            line-height: 1.4rem;
+            border-radius: 0.125rem;
+        }
+
+        .addresslist {
+            width: 100%;
+            height: calc(100% - 6.95rem);
+        }
+
+        .aui-row {
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .titlecheckbox {
+            top: 40%;
+            margin-top: -0.5rem;
+        }
+
+        .titlename {
+            padding-left: 1.2rem;
+        }
+
+        .addicon i {
+            margin-left: 20px;
+        }
+
+        .aui-list-item {
+            background-image: none;
+        }
+
+        .aui-list .aui-list-item:active {
+            background-color: #fff;
+        }
+
+        .aui-list-item:last-child {
+            background-image: none;
+        }
+
+        .aui-list .aui-list-item.background:active {
+            background-color: #f1f2f2;
+        }
+
+        footer {
+            width: 100%;
+            height: 2.5rem;
+            position: fixed;
+            bottom: 0;
+            padding: 0.25rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+    </script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left"></a>收货地址
+            </div>
+        </header>
+        <div class="searchbox">
+            <div class="aui-searchbar fl bgcolor" id="search">
+                <div class="aui-searchbar-input aui-border-radius">
+                    <i class="aui-iconfont aui-icon-search"></i>
+                    <input type="search" placeholder="请输入搜索内容" id="search-input">
+                </div>
+            </div>
+            <div class="searchbtn fr oh bgcolor">
+                <div class="tc black">搜 索</div>
+            </div>
+        </div>
+        <div class="addresslist scroll-view">
+            <ul class="aui-list aui-media-list background">
+                <li class="aui-list-item bgf mt5" v-for="(v,i) in list">
+                    <div class="aui-list-item-inner pb5">
+                        <div @click="returnAdd(i)">
+                            <div class="aui-list-item-title oh">
+                                <div class="fl">{{v.name}}</div>
+                                <div class="fr">{{v.phone}}</div>
+                            </div>
+                            <p class="addresstext pb5">{{v.ProvinceName+v.CityName+v.TownName+v.Address}}</p>
+                        </div>
+                        <div class="aui-row pt5">
+                            <div class="fl">
+                                <div class="titleleft-checkbox">
+                                    <label>
+                    										<div class="labelcheckbox titlecheckbox">
+                    											  <input type="checkbox" class="checkbox-input" :checked="v.isdefault" name="defadd" @change="changeDefault(i)" />
+                    											  <span class="checkbox-class">
+                    												    <i class="aui-iconfont aui-icon-correct"></i>
+                    											  </span>
+                    										</div>
+                    										<p class="titlename f16 black">设为默认地址</p>
+                    								</label>
+                                </div>
+                            </div>
+                            <p class="fr f20 addicon">
+                                <i class="iconfont icon-bianji" @click="addEdit(i)"></i>
+                                <i class="iconfont icon-shanchu" @click="delAdd(i)"></i>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item background" v-show="showMore==1">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title gray">
+                            <img src="../image/timg.gif" alt="" class="smLoading">
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+
+        <footer class="bottombtnbox bgf">
+            <div class="aui-btn bottombtn aui-btn-block">默认按钮(warning)</div>
+        </footer>
+
+
+
+
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            toast: false,
+            showLoading: false,
+            showMore: 1,
+            list: [],
+            getAdd:false
+        },
+        methods: {
+            getList(keyword) {
+                this.showMore = 1;
+                var that = this;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Agent/GetAdddressList',
+                    'get', {
+                        userID: member.UserID,
+                        keyword: keyword ? keyword : '',
+                    },
+                    function(res) {
+                        //console.log(JSON.stringify(res));
+                        that.showMore = 0;
+                        if (res.status) {
+                            var list = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    id: res.data[i].AddressID,
+                                    name: res.data[i].Name,
+                                    phone: res.data[i].Mobile,
+                                    ProvinceName: res.data[i].ProvinceName,
+                                    CityName: res.data[i].CityName,
+                                    TownName: res.data[i].TownName,
+                                    Address: res.data[i].Address,
+                                    PostalCode: res.data[i].PostalCode,
+                                    isdefault: res.data[i].IsDefault
+                                }
+                                list.push(item);
+                            }
+                            that.list = list;
+                        }
+                    }
+                );
+            },
+            changeDefault(index) {
+                console.log(JSON.stringify(this.list[index]));
+                var List = this.list;
+                var member = getStorageSync('member');
+                var that = this;
+                this.showLoading = true;
+                loginAjax(
+                    'api/Agent/SetAddressDefault',
+                    'post', {
+                        UserID: member.UserID,
+                        AddressID: that.list[index].id
+                    },
+                    function(res) {
+                        that.showLoading = false;
+                        showToast(res.message);
+                        console.log(JSON.stringify(res));
+                        if (res.status) {
+                            for (var i = 0; i < that.list.length; i++) {
+                                if (i == index) {
+                                    that.list[i].isdefault = true;
+                                } else {
+                                    that.list[i].isdefault = false;
+                                }
+
+                            }
+                        }
+                    }
+                );
+            },
+            returnAdd(index){
+                if(!this.getAdd){
+                    return;
+                }
+                var orderAddress=this.list[index];
+                setStorageSync('orderAddress',orderAddress);
+                api.sendEvent({
+                    name: 'returnAdd'
+                });
+                api.closeWin();
+            },
+            addEdit(index){
+
+            },
+            delAdd(index){
+                var that=this;
+                var list=this.list;
+                showConfirm('确定要删除该地址吗？',function(){
+                    that.showLoading=true;
+                    var member=getStorageSync('member');
+                    var data={
+                      UserID: member.UserID,
+                      AddressID: list[index].id
+                    }
+                    loginAjax(
+                      'api/Agent/AddressDelete',
+                      'delete',
+                      data,
+                      function(res){
+                          console.log(JSON.stringify(res));
+                          that.showLoading=false;
+                          showToast(res.message);
+                          if(res.status){
+                              list.splice(index,1);
+                              that.list=list;
+                          }
+                      }
+                    );
+                });
+            },
+            apiReady() {
+                this.getList();
+                this.getAdd=api.pageParam.getAdd
+            }
+        }
+    });
+    apiready = function() {
+        v.apiReady();
+    }
+</script>
+
+</html>

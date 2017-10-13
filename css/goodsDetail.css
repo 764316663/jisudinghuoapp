@@ -6,6 +6,9 @@ html, body, #app {
     box-sizing: border-box;
     padding-bottom: 2.5rem;
 }
+.scroll-view{
+  height: calc(100% - 2.5rem);
+}
 
 .swiper-box {
     width: 100%;
@@ -42,7 +45,8 @@ html, body, #app {
     line-height: 2rem;
 }
 
-.numberopt input {
+.numberopt input,.numberopt button {
+    border-radius: 0;
     width: 2rem;
     height: 2rem;
     display: inline-block;

@@ -157,33 +157,35 @@ function callAjax(url, method, data, cb, contentType, bool) {
         getToken(url, method, data, cb, contentType);
     }
 }
-function loginAjax(url, method, data, cb, contentType){
-  var member=getStorageSync('member');
-  if(member){
-    callAjax(url, method, data, cb, contentType);
-  }
-  else{
-    api.openWin({
-      name:'login',
-      url:'./index.html'
-    });
-  }
+
+function loginAjax(url, method, data, cb, contentType) {
+    var member = getStorageSync('member');
+    if (member) {
+        callAjax(url, method, data, cb, contentType);
+    } else {
+        api.openWin({
+            name: 'login',
+            url: './index.html'
+        });
+    }
 }
-function linkTo(name, url, reload,pageParam) {
+
+function linkTo(name, url, reload, pageParam) {
     api.openWin({
         name: name,
         url: url,
         reload: reload,
-        pageParam:pageParam?pageParam:{},
+        pageParam: pageParam ? pageParam : {},
     });
 }
-function closeToWin(name){
-  api.closeToWin({
-      name: name
-  });
+
+function closeToWin(name) {
+    api.closeToWin({
+        name: name
+    });
 };
-function hPadding(){
-    console.log('hPadding');
+
+function hPadding() {
     $api.fixStatusBar($api.dom('header'));
     api.setStatusBarStyle({
         style: 'light',
@@ -192,20 +194,36 @@ function hPadding(){
 }
 
 //vue
-Vue.filter('toFix',function(value){
-    return parseInt(value).toFixed(2);
+Vue.filter('toFix', function(value) {
+    return parseFloat(value).toFixed(2);
 });
 
-function showToast(msg,fn){
+function showToast(msg, fn) {
+    v.toast=true;
     api.toast({
         msg: msg,
-        duration:2000,
+        duration: 2000,
         location: 'bottom'
     });
-    if(fn){
-        setTimeout(function(){
+    setTimeout(function() {
+        v.toast=false;
+        if (fn) {
             fn();
-        },2000);
-    }
+        }
+    }, 2000);
+}
 
+function showConfirm(msg,fn){
+    api.confirm({
+        title: '系统提示',
+        msg: msg,
+        buttons: ['确定', '取消']
+    }, function(ret, err) {
+        var index = ret.buttonIndex;
+        if(index==1){
+            if(fn){
+                return typeof fn == "function" && fn()
+            }
+        }
+    });
 }

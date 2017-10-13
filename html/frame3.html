@@ -129,10 +129,8 @@
                 </li> -->
             </ul>
         </div>
-        <div class="container">
-            <p>
-                <div class="aui-btn aui-btn-block bgcolor" v-on:click="logout()">退出登录</div>
-            </p>
+        <div class="btncontainer">
+            <div class="aui-btn aui-btn-block bgcolor" v-on:click="logout()">退出登录</div>
         </div>
     </div>
 </body>
@@ -146,14 +144,7 @@
         methods: {
             toAddress(){//收货地址
               console.log('address');
-            /*    api.openWin({
-                    name: 'page1',
-                    url: './page1.html',
-                    pageParam: {
-                        name: 'test'
-                    }
-                });*/
-
+              linkTo('address','address.html',false,{getAdd:false});
             },
             logout(){//退出登录
                 removeStorageSync('member');

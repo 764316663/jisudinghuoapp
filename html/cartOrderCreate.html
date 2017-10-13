@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>开发</title>
+    <title>填写订单</title>
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
@@ -29,7 +29,8 @@
 <body>
     <div id="app">
         <header>
-            <div><a class="hicon aui-iconfont aui-icon-left"></a>填写订单</div>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left"></a>填写订单</div>
         </header>
         <div class="scroll-view">
             <div class="aui-content aui-margin-b-15">
@@ -122,12 +123,12 @@
             <span class="f10 gray smtext">不含运费</span>
             <p class="subtn fr f16" v-on:click="orderCompile()">提交订单</p>
         </footer>
-        <!-- <div class="waiting" v-show="showLoading">
-            <div class="waiting-main">
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
                 <p class="waiting-text">加载中</p>
             </div>
-        </div> -->
+        </div>
     </div>
 </body>
 <script type="text/javascript" src="../script/picker.min.js"></script>
@@ -136,9 +137,10 @@
     var v = new Vue({
         el: '#app',
         data: {
+            toast: false,
             showLoading: true,
-            cartIDs:'',
-            cartNumbers:'',
+            cartIDs: '',
+            cartNumbers: '',
             weight: 0,
             price: 0,
             address: {
@@ -160,19 +162,19 @@
             addTrue: false,
             boxshow: false,
             courierMsg: '',
-            expIndex:0,
-            pickerIndex:0,
-            totalNum:0
+            expIndex: 0,
+            pickerIndex: 0,
+            totalNum: 0
         },
         methods: {
             showPicker(index) {
-                this.expIndex=index;
-                var expID=this.LogisticList[index].key;
+                this.expIndex = index;
+                var expID = this.LogisticList[index].key;
                 var newArr = this.LogisticList[index].array;
-                var arrIndex=0;
-                for(var i=0;i<newArr.length;i++){
-                    if(newArr[i].key==expID){
-                        arrIndex=i;
+                var arrIndex = 0;
+                for (var i = 0; i < newArr.length; i++) {
+                    if (newArr[i].key == expID) {
+                        arrIndex = i;
                         break;
                     }
                 }
@@ -182,207 +184,237 @@
                 });
             },
             toAddress() {
-                setStorageSync('from', 'address');
-                location.href = "../../person/address/address.html";
+                linkTo('address', 'address.html', false, {
+                    getAdd: true
+                });
+            },
+            setAddressDefault() {
+                var orderAddress = getStorageSync('orderAddress');
+                if (orderAddress) {
+                    this.address = {
+                        name: orderAddress.name,
+                        phone: orderAddress.phone,
+                        address: orderAddress.ProvinceName + orderAddress.CityName + orderAddress.TownName + orderAddress.Address,
+                    };
+                    this.AddressParam = {
+                        postalCode: '',
+                        provinceName: orderAddress.ProvinceName,
+                        cityName: orderAddress.CityName,
+                        countyName: orderAddress.TownName,
+                        detailInfo: orderAddress.Address,
+                        telNumber: orderAddress.phone,
+                        userName: orderAddress.name
+                    };
+                    this.provinceName = orderAddress.ProvinceName;
+                    this.wxadd = false;
+                    this.addtrue = false;
+                    /*
+                    for (var i = 0; i < this.LogisticList.length; i++) {
+                        this.courier(this.LogisticList[i].wareHouseID);
+                    }
+                    this.totalNum();*/
+                }
             },
             changeAddTrue() {
                 this.addTrue = !this.addTrue;
             },
             total() {
-                var total=this.price;
-                for(var i=0;i<this.LogisticList.length;i++){
-                    total+=this.LogisticList[i].CourierMoney?this.LogisticList[i].CourierMoney:0;
+                var total = this.price;
+                for (var i = 0; i < this.LogisticList.length; i++) {
+                    total += this.LogisticList[i].CourierMoney ? this.LogisticList[i].CourierMoney : 0;
                 }
-                this.totalNum=total;
+                this.totalNum = total;
             },
 
             courier() {
-                var that=this;
-                var member=getStorageSync('member');
-                var wareHouse=this.LogisticList[this.expIndex];
-                wareHouse.expressName=wareHouse.array[this.pickerIndex].text;
-                wareHouse.key=wareHouse.array[this.pickerIndex].key;
-                var wareHouseID=wareHouse.wareHouseID;
-                var logisticID=wareHouse.array[this.pickerIndex].key;
-                var cartIDs=wareHouse.CartIDs;
-                var cartNumbers=wareHouse.CartNumbers;
-                var provinceName=this.provinceName;
-                var data={
-                  userID:member.UserID,
-                  wareHouseID,
-                  logisticID,
-                  cartIDs,
-                  cartNumbers,
-                  provinceName
+                var that = this;
+                var member = getStorageSync('member');
+                var wareHouse = this.LogisticList[this.expIndex];
+                wareHouse.expressName = wareHouse.array[this.pickerIndex].text;
+                wareHouse.key = wareHouse.array[this.pickerIndex].key;
+                var wareHouseID = wareHouse.wareHouseID;
+                var logisticID = wareHouse.array[this.pickerIndex].key;
+                var cartIDs = wareHouse.CartIDs;
+                var cartNumbers = wareHouse.CartNumbers;
+                var provinceName = this.provinceName;
+                var data = {
+                    userID: member.UserID,
+                    wareHouseID,
+                    logisticID,
+                    cartIDs,
+                    cartNumbers,
+                    provinceName
                 }
                 callAjax(
-                  'api/Order/GetCartExpressFee',
-                  'get',
-                  data,
-                  function(res){
-                    if(res.status){
-                      wareHouse.CourierContent=res.data.tips;
-                      wareHouse.CourierMoney=res.data.expressFee;
+                    'api/Order/GetCartExpressFee',
+                    'get',
+                    data,
+                    function(res) {
+                        if (res.status) {
+                            wareHouse.CourierContent = res.data.tips;
+                            wareHouse.CourierMoney = res.data.expressFee;
+                        } else {
+                            wareHouse.CourierContent = res.message;
+                            wareHouse.key = '-1';
+                            wareHouse.CourierMoney = '';
+                        }
+                        that.total();
                     }
-                    else{
-                      wareHouse.CourierContent=res.message;
-                      wareHouse.key='-1';
-                      wareHouse.CourierMoney='';
-                    }
-                    that.total();
-                  }
                 );
 
             },
             orderCompile() {
                 var that = this;
-                var LogisticIDs=[];
-                var Remarks=[];
-                for(var i=0;i<this.LogisticList.length;i++){
-                  if(this.LogisticList[i].key=='-1'){
-                    showToast('请选择快递公司');
-                    return false;
-                  }
-                  LogisticIDs.push(this.LogisticList[i].key);
-                  Remarks.push(this.LogisticList[i].remark);
+                var LogisticIDs = [];
+                var Remarks = [];
+                for (var i = 0; i < this.LogisticList.length; i++) {
+                    if (this.LogisticList[i].key == '-1') {
+                        showToast('请选择快递公司');
+                        return false;
+                    }
+                    LogisticIDs.push(this.LogisticList[i].key);
+                    Remarks.push(this.LogisticList[i].remark);
                 }
+
                 if (!this.address.address) {
                     showToast('请选择收货地址');
                 } else {
+                  console.log(JSON.stringify(LogisticIDs));
+                  console.log(JSON.stringify(Remarks));
+                    this.showLoading = true;
                     var member = getStorageSync('member');
-                    var data={
-                      userID:member.UserID,
-                      cartIDs: this.cartIDs,
-                      cartNumbers: this.cartNumbers,
-                      LogisticIDs:LogisticIDs.join(','),
-                      remark:Remarks.join(','),
-                      IsSyncAddress:false,
-                      addressParam:this.AddressParam
+                    var data = {
+                        userID: member.UserID,
+                        cartIDs: this.cartIDs,
+                        cartNumbers: this.cartNumbers,
+                        LogisticIDs: LogisticIDs.join(','),
+                        remark: Remarks.join(','),
+                        IsSyncAddress: false,
+                        addressParam: this.AddressParam
                     }
                     console.log(JSON.stringify(data));
                     loginAjax(
-                      'api/Order/AddCartToOrder',
-                      'post',
-                      data,
-                      function(res){
-                          console.log(JSON.stringify(res));
-                          showToast(res.message);
-                          if(res.status){
-                              setStorageSync('member',res.data.UserInfo);
-                              removeStorageSync('orderAddress');
-                              /*setTimeout(function(){
-                                  linkTo()
-                              },2000);*/
-                          }
-                          else{
+                        'api/Order/AddCartToOrder',
+                        'post',
+                        data,
+                        function(res) {
+                            that.showLoading = false;
+                            console.log(JSON.stringify(res));
+                            showToast(res.message);
+                            if (res.status) {
+                                setStorageSync('member', res.data.UserInfo);
+                                removeStorageSync('orderAddress');
+                                setTimeout(function() {
+                                    linkTo('orderComplete', 'orderComplete.html', true, {
+                                        payNo: res.data.PayNo
+                                    });
+                                }, 2000);
+                            } else {
 
-                          }
-                      },
-                      'application/json'
+                            }
+                        }
                     );
                 }
             },
-            apiReady(){
-              var that=this;
-              that.cartIDs = api.pageParam.cartIDs;
-              that.cartNumbers = api.pageParam.cartNumbers;
-              var member = getStorageSync('member');
-              loginAjax(
-                  'api/Order/GetOrderCheck',
-                  'get', {
-                      userID: member.UserID,
-                      cartNumbers: api.pageParam.cartNumbers,
-                      cartIDs: api.pageParam.cartIDs
-                  },
-                  function(res) {
-                      that.showLoading = false;
-                      if (res.status) {
-                          var weight = res.data.TotalWeight;
-                          var price = res.data.TotalPrice;
-                          var LogisticList = [];
-                          for (var i = 0; i < res.data.LogisticList.length; i++) {
-                              var array = [];
-                              for (var j = 0; j < res.data.LogisticList[i].LogisticList.length; j++) {
-                                  var arrayItem = {
-                                      key: res.data.LogisticList[i].LogisticList[j].LogisticID,
-                                      text: res.data.LogisticList[i].LogisticList[j].LogisticName
-                                  }
-                                  array.push(arrayItem);
-                              }
-                              var LogisticItem = {
-                                  CartIDs: res.data.LogisticList[i].CartIDs,
-                                  CartNumbers: res.data.LogisticList[i].CartNumbers,
-                                  wareHouseID: res.data.LogisticList[i].WareHouseID,
-                                  wareHouseName: res.data.LogisticList[i].WareHouseName,
-                                  array: array,
-                                  index: 0,
-                                  key: '-1',
-                                  CourierMoney: '',
-                                  CourierContent: '',
-                                  expressName: '--请选择--',
-                                  remark: '',
-                                  expTrue: false
-                              }
-                              LogisticList.push(LogisticItem);
-                          }
-                          var address = {
-                              name: res.data.DefaultAddress.Name,
-                              phone: res.data.DefaultAddress.Mobile,
-                              address: res.data.DefaultAddress.ProvinceName + res.data.DefaultAddress.CityName + res.data.DefaultAddress.TownName + res.data.DefaultAddress.Address
-                          }
-                          that.address = address;
-                          that.AddressParam = {
-                              postalCode: res.data.DefaultAddress.PostalCode,
-                              provinceName: res.data.DefaultAddress.ProvinceName,
-                              cityName: res.data.DefaultAddress.CityName,
-                              countyName: res.data.DefaultAddress.TownName,
-                              detailInfo: res.data.DefaultAddress.Address,
-                              telNumber: res.data.DefaultAddress.Mobile,
-                              userName: res.data.DefaultAddress.Name
-                          }
-                          that.weight = weight;
-                          that.price = price;
-                          that.LogisticList = LogisticList;
-                          that.provinceName = res.data.DefaultAddress.ProvinceName;
-                          that.GoodsNum = res.data.CartNumber;
-                          that.total();
-                          newPicker();
-                      }
+            apiReady() {
+                var that = this;
+                that.cartIDs = api.pageParam.cartIDs;
+                that.cartNumbers = api.pageParam.cartNumbers;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Order/GetOrderCheck',
+                    'get', {
+                        userID: member.UserID,
+                        cartNumbers: api.pageParam.cartNumbers,
+                        cartIDs: api.pageParam.cartIDs
+                    },
+                    function(res) {
+                        that.showLoading = false;
+                        if (res.status) {
+                            var weight = res.data.TotalWeight;
+                            var price = res.data.TotalPrice;
+                            var LogisticList = [];
+                            for (var i = 0; i < res.data.LogisticList.length; i++) {
+                                var array = [];
+                                for (var j = 0; j < res.data.LogisticList[i].LogisticList.length; j++) {
+                                    var arrayItem = {
+                                        key: res.data.LogisticList[i].LogisticList[j].LogisticID,
+                                        text: res.data.LogisticList[i].LogisticList[j].LogisticName
+                                    }
+                                    array.push(arrayItem);
+                                }
+                                var LogisticItem = {
+                                    CartIDs: res.data.LogisticList[i].CartIDs,
+                                    CartNumbers: res.data.LogisticList[i].CartNumbers,
+                                    wareHouseID: res.data.LogisticList[i].WareHouseID,
+                                    wareHouseName: res.data.LogisticList[i].WareHouseName,
+                                    array: array,
+                                    index: 0,
+                                    key: '-1',
+                                    CourierMoney: '',
+                                    CourierContent: '',
+                                    expressName: '--请选择--',
+                                    remark: '',
+                                    expTrue: false
+                                }
+                                LogisticList.push(LogisticItem);
+                            }
+                            var address = {
+                                name: res.data.DefaultAddress.Name,
+                                phone: res.data.DefaultAddress.Mobile,
+                                address: res.data.DefaultAddress.ProvinceName + res.data.DefaultAddress.CityName + res.data.DefaultAddress.TownName + res.data.DefaultAddress.Address
+                            }
+                            that.address = address;
+                            that.AddressParam = {
+                                postalCode: res.data.DefaultAddress.PostalCode,
+                                provinceName: res.data.DefaultAddress.ProvinceName,
+                                cityName: res.data.DefaultAddress.CityName,
+                                countyName: res.data.DefaultAddress.TownName,
+                                detailInfo: res.data.DefaultAddress.Address,
+                                telNumber: res.data.DefaultAddress.Mobile,
+                                userName: res.data.DefaultAddress.Name
+                            }
+                            that.weight = weight;
+                            that.price = price;
+                            that.LogisticList = LogisticList;
+                            that.provinceName = res.data.DefaultAddress.ProvinceName;
+                            that.GoodsNum = res.data.CartNumber;
+                            that.total();
+                            newPicker();
+                        }
 
-                  }
-              );
+                    }
+                );
             }
         },
         mounted() {
 
         }
     });
-    apiready=function(){
-      hPadding();
-      v.apiReady();
+    apiready = function() {
+        hPadding();
+        v.apiReady();
+        api.addEventListener({
+            name: 'returnAdd'
+        }, function(ret, err) {
+            v.setAddressDefault();
+        });
     }
-    /*
-    var a=setInterval(function(){
-        if(api){
-            v.con();
-        }
-        else{
-            console.log(false);
-        }
-    },100);*/
+
     function newPicker(index) {
         var picker = new Picker({
-            data: [[]],
+            data: [
+                []
+            ],
             selectedIndex: [index ? index : 0],
             title: '选择快递'
         });
 
-        picker.on('picker.select',function(selectedVal, selectedIndex){
-            v.pickerIndex=selectedIndex;
+        picker.on('picker.select', function(selectedVal, selectedIndex) {
+            v.pickerIndex = selectedIndex;
             v.courier();
         });
-        picker.on('picker.change', function (index, selectedIndex){
-        });
+        picker.on('picker.change', function(index, selectedIndex) {});
         window.picker = picker;
     }
 </script>

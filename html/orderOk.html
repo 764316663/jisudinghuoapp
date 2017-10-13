@@ -57,21 +57,19 @@
 <body>
     <div id="app">
         <header>
-            <div><a class="hicon aui-iconfont aui-icon-left"></a>订单完成</div>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left"></a>支付{{orderSuccess?'成功':'失败'}}
+            </div>
         </header>
         <div class="mtitle oh">
             <div class="iconbox bgcolor tc">
-                <i class="aui-iconfont aui-icon-correct"></i>
+                <i class="aui-iconfont aui-icon-correct" v-if="orderSuccess"></i>
+                <i class="aui-iconfont aui-icon-close" v-else></i>
             </div>
         </div>
         <div class="cont mb20">
             <h2 class="black">下单成功</h2>
-            <p class="gray f16">订单号：<span class="price">{{payNo}}</span></p>
-            <p class="gray f16">应付金额：<span class="price">￥{{orderPrice}}</span></p>
-        </div>
-        <div class="btnbox oh">
-            <button class="bgcolor fl f18" @click="complete()">完成</button>
-            <button class="bgcolor fr f18" @click="pay()">支付</button>
+            <p class="gray f16">还有&nbsp;<span class="price">{{time}}</span>&nbsp;秒跳转到首页&nbsp;<a class="black" @click="backHome()">立即跳转</a></p>
         </div>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
@@ -87,36 +85,31 @@
     var v = new Vue({
         el: '#app',
         data: {
-          toast:false,
-            showLoading: true,
-            payNo: '',
-            orderPrice: 0
+            toast: false,
+            orderSuccess: true,
+            orderMessage:'',
+            showLoading:false,
+            time:3
         },
         methods: {
             apiReady() {
-                this.payNo = api.pageParam.payNo;
-                //closeToWin('goodsDetail');
                 var that = this;
-                var member = getStorageSync('member');
-                loginAjax(
-                    'api/Payment/OrderNeedPayInfo',
-                    'get', {
-                        userID: member.UserID,
-                        payNos: that.payNo
-                    },
-                    function(res) {
-                        // console.log(JSON.stringify(res));
-                        that.showLoading = false;
-                        if (res.status) {
-                            that.orderPrice = res.data.FinalAmount
-                        }
+                this.orderSuccess=api.pageParam.orderSuccess;
+                this.orderMessage=api.pageParam.orderMessage;
+                setInterval(function(){
+                    that.time--;
+                    if(!that.time){
+                      that.backHome();
                     }
-                );
+                },1000);
             },
-            complete() {;
-            },
-            pay() {
-                linkTo('orderPay','orderPay.html',true,{payNo:this.payNo});
+            backHome(){
+                api.sendEvent({
+                    name: 'backHome'
+                });
+                api.closeToWin({
+                    name: 'home'
+                });
             }
         },
         mounted() {

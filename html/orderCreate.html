@@ -29,7 +29,8 @@
 <body>
     <div id="app">
         <header>
-            <div><a class="hicon aui-iconfont aui-icon-left"></a>填写订单</div>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left"></a>填写订单</div>
         </header>
         <div class="scroll-view">
             <div class="aui-content aui-margin-b-15">
@@ -122,8 +123,8 @@
             <span class="f10 gray smtext">不含运费</span>
             <p class="subtn fr f16" v-on:click="orderCompile()">提交订单</p>
         </footer>
-        <div class="waiting" v-show="showLoading">
-            <div class="waiting-main">
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
                 <p class="waiting-text">加载中</p>
             </div>
@@ -132,15 +133,15 @@
 </body>
 <script type="text/javascript" src="../script/picker.min.js"></script>
 <script type="text/javascript" src="../script/main.js"></script>
-<script type="text/javascript" src="../script/apiheader.js"></script>
 <script type="text/javascript">
     var v = new Vue({
         el: '#app',
         data: {
+            toast: false,
+            showLoading: true,
             itemID: 0,
             stockID: 0,
             num: 0,
-            showLoading: true,
             weight: 0,
             price: 0,
             address: {
@@ -165,7 +166,7 @@
             courierMsg: '',
             pickerIndex: 0,
             totalNum: 0,
-            CourierMoney:'',
+            CourierMoney: '',
             CourierContent: '',
             remark: '',
             pickerIndex: 0,
@@ -176,19 +177,49 @@
                 picker.show();
             },
             toAddress() {
-                setStorageSync('from', 'address');
-                location.href = "../../person/address/address.html";
+                linkTo('address', 'address.html', false, {
+                    getAdd: true
+                });
+            },
+            setAddressDefault() {
+                var orderAddress = getStorageSync('orderAddress');
+                if (orderAddress) {
+                    this.address = {
+                        name: orderAddress.name,
+                        phone: orderAddress.phone,
+                        address: orderAddress.ProvinceName + orderAddress.CityName + orderAddress.TownName + orderAddress.Address,
+                    };
+                    this.AddressParam = {
+                        postalCode: '',
+                        provinceName: orderAddress.ProvinceName,
+                        cityName: orderAddress.CityName,
+                        countyName: orderAddress.TownName,
+                        detailInfo: orderAddress.Address,
+                        telNumber: orderAddress.phone,
+                        userName: orderAddress.name
+                    };
+                    this.provinceName = orderAddress.ProvinceName;
+                    this.wxadd = false;
+                    this.addtrue = false;
+                    /*
+                    for (var i = 0; i < this.LogisticList.length; i++) {
+                        this.courier(this.LogisticList[i].wareHouseID);
+                    }
+                    this.totalNum();*/
+                }
             },
             changeAddTrue() {
                 this.addTrue = !this.addTrue;
             },
             total() {
-                var total = this.price+this.CourierMoney;
+                var total = this.price + this.CourierMoney;
                 this.totalNum = total;
             },
 
             courier() {
-                if(this.LogisticList[this.pickerIndex].value==-1){return;}
+                if (this.LogisticList[this.pickerIndex].value == -1) {
+                    return;
+                }
                 var that = this;
                 var member = getStorageSync('member');
                 this.expressName = this.LogisticList[this.pickerIndex].text;
@@ -206,14 +237,14 @@
                     'get',
                     data,
                     function(res) {
-                      console.log(JSON.stringify(res));
+                        console.log(JSON.stringify(res));
                         if (res.status) {
-                            that.CourierMoney=res.data.expressFee;
-                            that.CourierContent=res.message;
+                            that.CourierMoney = res.data.expressFee;
+                            that.CourierContent = res.message;
                         } else {
-                            that.CourierMoney='';
-                            that.CourierContent=res.message;
-                            that.LogisticList[that.pickerIndex].value=-1;
+                            that.CourierMoney = '';
+                            that.CourierContent = res.message;
+                            that.LogisticList[that.pickerIndex].value = -1;
                         }
                         that.total();
                     }
@@ -222,44 +253,43 @@
             },
             orderCompile() {
                 var that = this;
-                if(!this.address.address){
+                if (!this.address.address) {
                     showToast('请输入收货地址');
-                }
-                else if(this.LogisticList[this.pickerIndex].value==-1){
+                } else if (this.LogisticList[this.pickerIndex].value == -1) {
                     showToast('请选择快递公司');
-                }
-                else{
-                  var member = getStorageSync('member');
-                  var orderFinishModel = {
-                    UserID: member.UserID,
-                    ItemID: that.itemID,
-                    StockID: that.stockID,
-                    BuyNumber: that.num,
-                    Remarks : that.remark,
-                    LogisticID: that.LogisticList[that.pickerIndex].value,
-                    IsSyncAddress:that.addtrue,
-                    AddressParam: that.AddressParam
-                  }
-                  //console.log(JSON.stringify(orderFinishModel));
-                  that.showLoading=true;
-                  loginAjax(
-                    'api/Order/BuyNowOrderFinish',
-                    'post',
-                    orderFinishModel,
-                    function(res){
-                      console.log(JSON.stringify(res));
-                      that.showLoading=false;
-                      showToast(res.message);
-                      if(res.status){
-                          setTimeout(function(){
-                              linkTo('orderComplete','orderComplete.html',true,{payNo:res.data.PayNo});
-                          },2000);
-                      }
-                      else{
+                } else {
+                    var member = getStorageSync('member');
+                    var orderFinishModel = {
+                            UserID: member.UserID,
+                            ItemID: that.itemID,
+                            StockID: that.stockID,
+                            BuyNumber: that.num,
+                            Remarks: that.remark,
+                            LogisticID: that.LogisticList[that.pickerIndex].value,
+                            IsSyncAddress: that.addtrue,
+                            AddressParam: that.AddressParam
+                        }
+                        //console.log(JSON.stringify(orderFinishModel));
+                    that.showLoading = true;
+                    loginAjax(
+                        'api/Order/BuyNowOrderFinish',
+                        'post',
+                        orderFinishModel,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            showToast(res.message);
+                            if (res.status) {
+                                setTimeout(function() {
+                                    linkTo('orderComplete', 'orderComplete.html', true, {
+                                        payNo: res.data.PayNo
+                                    });
+                                }, 1500);
+                            } else {
 
-                      }
-                    }
-                  );
+                            }
+                        }
+                    );
                 }
             },
             apiReady() {
@@ -279,7 +309,7 @@
                     'GET',
                     data,
                     function(res) {
-                        console.log(JSON.stringify(res));
+                        //console.log(JSON.stringify(res));
                         that.showLoading = false;
                         if (res.status) {
                             that.WareHouseID = res.data.WareHouseID;
@@ -311,6 +341,7 @@
                                 telNumber: res.data.DefaultAddress.Mobile,
                                 userName: res.data.DefaultAddress.Name
                             };
+                            that.total();
                             newPicker(LogisticList, 0);
                         } else {
                             showToast(res.message);
@@ -326,6 +357,11 @@
     apiready = function() {
         hPadding();
         v.apiReady();
+        api.addEventListener({
+            name: 'returnAdd'
+        }, function(ret, err) {
+            v.setAddressDefault();
+        });
     }
 
     function newPicker(arr, index) {
@@ -335,7 +371,7 @@
             title: '选择快递'
         });
         picker.on('picker.select', function(selectedVal, selectedIndex) {
-          console.log('picker.select');
+            console.log('picker.select');
             v.pickerIndex = selectedIndex;
             v.courier();
         });
