@@ -392,7 +392,12 @@
         }
     });
     apiready = function() {
-        hPadding();
+        hPadding(function(){
+          var headerh=$('header').outerHeight();
+          var windowh=$('body').height();
+          var footerh=$('footer').outerHeight();
+          $('.scroll-view').height(windowh-headerh-footerh+'px');
+        });
         v.apiReady();
         api.addEventListener({
             name: 'returnAdd'

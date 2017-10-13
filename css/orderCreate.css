@@ -4,10 +4,10 @@ html, body, #app {
 
 #app {
     box-sizing: border-box;
-    padding-bottom: 3rem;
+    padding-bottom: 2.75rem;
 }
 .scroll-view{
-  /*height:calc(100% - 2.2rem);*/
+  height:calc(100% - 2.5rem);
 }
 .aui-list {
     background-image: none !important;

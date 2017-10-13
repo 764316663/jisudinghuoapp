@@ -40,5 +40,27 @@
     </div>
 </body>
 <script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+  var v = new Vue({
+    el:'#app',
+    data:{
 
+    },
+    methods:{
+      apiReady(){
+
+      }
+    }
+  });
+
+apiready = function() {
+    hPadding();
+    v.apiReady();
+    // api.addEventListener({
+    //     name: 'returnAdd'
+    // }, function(ret, err) {
+    //     v.setAddressDefault();
+    // });
+}
+</script>
 </html>

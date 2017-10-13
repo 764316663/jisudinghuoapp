@@ -185,14 +185,16 @@ function closeToWin(name) {
     });
 };
 
-function hPadding() {
+function hPadding(fn) {
     $api.fixStatusBar($api.dom('header'));
     api.setStatusBarStyle({
         style: 'light',
         color: '#ffffff'
     });
+    if(fn){
+      fn();
+    }
 }
-
 //vue
 Vue.filter('toFix', function(value) {
     return parseFloat(value).toFixed(2);
