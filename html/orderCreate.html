@@ -30,7 +30,8 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>填写订单</div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>填写订单
+            </div>
         </header>
         <div class="scroll-view">
             <div class="aui-content aui-margin-b-15">
@@ -237,7 +238,7 @@
                     'get',
                     data,
                     function(res) {
-                        console.log(JSON.stringify(res));
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
                             that.CourierMoney = res.data.expressFee;
                             that.CourierContent = res.message;
@@ -276,7 +277,7 @@
                         'post',
                         orderFinishModel,
                         function(res) {
-                            console.log(JSON.stringify(res));
+                            // console.log(JSON.stringify(res));
                             that.showLoading = false;
                             showToast(res.message);
                             if (res.status) {
@@ -355,11 +356,14 @@
         }
     });
     apiready = function() {
-        hPadding();
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+        });
         v.apiReady();
-        api.addEventListener({
-            name: 'returnAdd'
-        }, function(ret, err) {
+        listenEvent('returnAdd', function() {
             v.setAddressDefault();
         });
     }
@@ -371,7 +375,7 @@
             title: '选择快递'
         });
         picker.on('picker.select', function(selectedVal, selectedIndex) {
-            console.log('picker.select');
+            // console.log('picker.select');
             v.pickerIndex = selectedIndex;
             v.courier();
         });

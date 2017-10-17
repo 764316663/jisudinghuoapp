@@ -101,7 +101,7 @@
                 </ul>
             </div>
             <div class="aui-btn aui-btn-info aui-btn-block" @click="login()">登 &nbsp;&nbsp;录</div>
-            <p class="bottom-link"><a href="">一键登录</a>　|　<a href="findPwd.html">找回密码</a></p>
+            <p class="bottom-link"><a>一键登录</a>　|　<a @click="findPwd()">找回密码</a></p>
         </div>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
@@ -119,7 +119,7 @@
         el: '#app',
         data: {
             username: 'test2',
-            password: '123456',
+            password: '123123',
             msg: 'message',
             showLoading:false,
             toast:false
@@ -151,6 +151,9 @@
 
                     }
                 );
+            },
+            findPwd(){
+                linkTo('findPwd','html/findPwd.html',true,{});
             }
         }
     });

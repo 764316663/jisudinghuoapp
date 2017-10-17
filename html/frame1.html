@@ -632,9 +632,7 @@
         }
     });
     apiready=function(){
-      api.addEventListener({
-          name: 'getMallCart'
-      }, function(ret, err) {
+      listenEvent('getMallCart', function() {
           v.getCartInfo();
       });
     }

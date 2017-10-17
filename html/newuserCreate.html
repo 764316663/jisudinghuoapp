@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>为子代理开户</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <link rel="stylesheet" type="text/css" href="../css/goodsDetail.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .contentbox {
+            padding: 0.75rem;
+        }
+
+        .content {
+            border-radius: 0.25rem;
+            border: 1px solid #d3d4d5;
+        }
+
+        .rh {
+            width: 60% !important;
+        }
+
+        .smbox {
+            width: 40%;
+            padding: 0.25rem;
+            box-sizing: border-box;
+        }
+
+        .smbox * {
+            width: 100%;
+            height: 1.7rem;
+            line-height: 1.7rem;
+            overflow: hidden;
+        }
+
+        .aui-list,
+        .aui-list-item:last-child {
+            background-image: none;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>为子代理开户
+            </div>
+        </header>
+        <div class="contentbox">
+            <div class="content">
+                <div class="aui-content">
+                    <ul class="aui-list aui-form-list f14">
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-label">手机号码：</div>
+                                <div class="aui-list-item-input">
+                                    <input class="f14" type="number" placeholder="手机号码" v-model="phone" oninput="if(value.length>11)value=value.slice(0,11)">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-label">用户名：</div>
+                                <div class="aui-list-item-input">
+                                    <input class="f14" type="text" placeholder="用户名" v-model="username" oninput="if(value.length>10)value=value.slice(0,11)">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-label">登录密码</div>
+                                <div class="aui-list-item-input">
+                                    <input class="f14" type="password" placeholder="用户密码" v-model="password">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-label">开户等级：</div>
+                                <div class="aui-list-item-input">
+                                    <input class="f14" type="text" disabled :value="LevelName">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-label">验证码：</div>
+                                <div class="aui-list-item-input">
+                                    <input class="f14 rh fl" type="text" placeholder="右侧图片验证码" v-model="picCode">
+                                    <div class="smbox fl">
+                                        <img :src="codeImg" alt="" @click="changePicCode()">
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="btncontainer">
+            <div class="aui-btn aui-btn-block bgcolor" @click="sub()">确定</div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            toast: false,
+            showLoading: false,
+            phone: '',
+            username: '',
+            password: '',
+            LevelName: '司令官[520.00元]',
+            picCode: '',
+            codeImg: '',
+        },
+        methods: {
+            apiReady() {
+                this.LevelID = api.pageParam.LevelID;
+                this.LevelName = api.pageParam.LevelName;
+            },
+            sub() {
+                var myreg = /^((1[0-9]{1})+\d{9})$/;
+                if (!this.phone) {
+                    showToast('请输入手机号码');
+                } else if (!myreg.test(this.phone)) {
+                    showToast('手机号码格式不正确');
+                } else if (!this.username) {
+                    showToast('请输入用户名');
+                } else if (this.npwd != this.cpwd) {
+                    showToast('请输入6-20位新密码');
+                } else if (!this.picCode) {
+                    showToast('请输入图片验证码');
+                } else {
+                    var that = this;
+                    var member = getStorageSync('member');
+                    that.showLoading = true;
+                    var data = {
+                        UserID: member.UserID,
+                        LevelID: that.LevelID,
+                        LoginID: that.phone,
+                        UserName: that.username,
+                        LoginPwd: that.password,
+                        ValidCode: that.picCode
+                    }
+                    callAjax(
+                        'api/Agent/HelpNewUserRegister',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            that.showLoading=false;
+                            showToast(res.message);
+                            if (res.status) {
+                                setTimeout(function() {
+
+                                }, 1500)
+                            }
+                        },
+                        'application/json'
+                    )
+                }
+            },
+            changePicCode() {
+                var that = this;
+                // that.showLoading = true;
+                callAjax(
+                    'api/Agent/ValidateCode',
+                    'get', {
+                        validType: 2
+                    },
+                    function(res) {
+                        that.showLoading = false;
+                        that.codeImg = res;
+                    }
+                );
+            },
+        },
+        mounted() {
+            this.changePicCode();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

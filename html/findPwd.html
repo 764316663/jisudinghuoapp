@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>商品详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <link rel="stylesheet" type="text/css" href="../css/goodsDetail.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .contentbox {
+            padding: 0.75rem;
+        }
+
+        .content {
+            border-radius: 0.25rem;
+            border: 1px solid #d3d4d5;
+        }
+
+        .rh {
+            width: 60% !important;
+        }
+
+        .smbox {
+            width: 40%;
+            padding: 0.25rem;
+            box-sizing: border-box;
+        }
+
+        .smbox * {
+            width: 100%;
+            height: 1.7rem;
+            line-height: 1.7rem;
+            overflow: hidden;
+        }
+
+        .aui-list,
+        .aui-list-item:last-child {
+            background-image: none;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>找回密码
+            </div>
+        </header>
+        <div class="contentbox">
+            <div class="content">
+                <div class="aui-content">
+                    <ul class="aui-list aui-form-list">
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-input">
+                                    <input type="text" placeholder="手机号码" v-model="phone" oninput="if(value.length>11)value=value.slice(0,11)">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-input">
+                                    <input type="password" placeholder="新登录密码" v-model="npwd">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-input">
+                                    <input type="password" placeholder="确认登录密码" v-model="cpwd">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner rh">
+                                <div class="aui-list-item-input">
+                                    <input type="number" placeholder="右侧图片验证码" v-model="picCode" oninput="if(value.length>4)value=value.slice(0,4)">
+                                </div>
+                            </div>
+                            <div class="smbox">
+                                <img :src="codeImg" alt="" @click="changePicCode()">
+                            </div>
+                        </li>
+                        <li class="aui-list-item">
+                            <div class="aui-list-item-inner rh">
+                                <div class="aui-list-item-input">
+                                    <input type="number" placeholder="短信10分钟内有效" v-model="mobCode" oninput="if(value.length>6)value=value.slice(0,6)">
+                                </div>
+                            </div>
+                            <div class="smbox">
+                                <div class="aui-btn aui-btn-info aui-btn-outlined" @click="getPhoneCode()">{{msg}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="btncontainer">
+            <div class="aui-btn aui-btn-block bgcolor" @click="sub()">确定</div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            toast: false,
+            showLoading: false,
+            phone: '',
+            npwd: '',
+            cpwd: '',
+            picCode: '',
+            mobCode: '',
+            codeImg: '',
+            msg: '发送短信',
+            canSend: true
+        },
+        methods: {
+            apiReady() {
+
+            },
+            sub() {
+                var myreg = /^((1[0-9]{1})+\d{9})$/;
+                if (!this.phone) {
+                    showToast('请输入手机号码');
+                } else if (!myreg.test(this.phone)) {
+                    showToast('手机号码格式不正确');
+                } else if (!this.npwd) {
+                    showToast('请输入6-20位新密码');
+                } else if (this.npwd != this.cpwd) {
+                    showToast('两次输入的密码不同');
+                } else if (!this.picCode) {
+                    showToast('请输入图片验证码');
+                } else if (!this.mobCode) {
+                    showToast('请输入短信验证码');
+                } else {
+                    var that = this;
+                    that.showLoading = true;
+                    var data = {
+                        LoginID: that.phone,
+                        LoginPwd: that.npwd,
+                        ValidCode: that.picCode,
+                        MessageCode: that.mobCode
+                    }
+                    callAjax(
+                        'api/Agent/FindPwd',
+                        'post',
+                        data,
+                        function(res) {
+                            that.showLoading = false;
+                            showToast(res.message);
+                            if (res.status) {
+                                setTimeout(function() {
+                                    closeWin();
+                                }, 1500);
+                            }
+                        }
+                    );
+                }
+            },
+            changePicCode() {
+                var that = this;
+                that.showLoading = true;
+                callAjax(
+                    'api/Agent/ValidateCode',
+                    'get', {
+                        validType: 1
+                    },
+                    function(res) {
+                        that.showLoading = false;
+                        that.codeImg = res;
+                    }
+                );
+            },
+            getPhoneCode() {
+                var myreg = /^((1[0-9]{1})+\d{9})$/;
+                if (!this.canSend) {
+                    return;
+                } else if (!this.phone) {
+                    showToast('请输入手机号码');
+                } else if (!myreg.test(this.phone)) {
+                    showToast('手机号码格式不正确');
+                } else if (!this.picCode) {
+                    showToast('请输入图片验证码');
+                } else {
+                    this.showLoading = true;
+                    var that = this;
+                    callAjax(
+                        'api/Agent/ValidateUser',
+                        'post', {
+                            LoginID: that.phone,
+                            ValidCode: that.picCode
+                        },
+                        function(res) {
+                          console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            showToast(res.message);
+                            if (res.status) {
+                                var num = 60;
+                                clearInterval(timer);
+                                var timer = setInterval(function() {
+                                    num--;
+                                    if (!num) {
+                                        clearInterval(timer);
+                                        that.msg = '发送短信',
+                                            that.canSend = true;
+                                        return;
+                                    }
+                                    that.msg = '已发送(' + num + ')',
+                                        that.canSend = false;
+                                }, 1000);
+                            }
+                        }
+                    );
+                }
+
+            }
+        },
+        mounted() {
+            this.changePicCode();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

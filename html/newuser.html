@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>新代理开户</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .title {
+            height: 2.5rem;
+            line-height: 2.5rem;
+            padding: 0 0.75rem;
+        }
+
+        .newimg {
+            width: 100%;
+            height: 100vw;
+            box-sizing: border-box;
+            padding: 0.5rem;
+        }
+
+        .newimg img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .newbtnbox {
+            padding: 0 0.5rem;
+            justify-content: space-between;
+        }
+
+        .newbtnbox .aui-btn {
+            width: 48%;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>新代理开户
+            </div>
+        </header>
+        <p class="title">扫描二维码，注册为代理商</p>
+        <p class="title bgf" @click="showPicker()"><span class="price">*</span>开户等级：{{levelarr[levelIndex].text}}</p>
+        <div class="newimg">
+            <img :src="InvitePic" alt="">
+        </div>
+        <div class="newbtnbox flex-row">
+            <div class="aui-btn aui-btn-block bgcolor" @click="toNewuserCreate()">为代理开户</div>
+            <div class="aui-btn aui-btn-block bgcolor">分享二维码</div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: true,
+            toast: false,
+            InvitePic: '',
+            levelarr: [{}],
+            levelIndex: 0
+        },
+        methods: {
+            apiReady() {
+
+            },
+            getCode(LevelID) {
+                var that = this;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Agent/GetInviteUserQrCode',
+                    'get', {
+                        userID: member.UserID,
+                        levelID: LevelID
+                    },
+                    function(res) {
+                        // console.log(res.data);
+                        that.InvitePic = res.data;
+                        that.showLoading = false;
+                    }
+                );
+            },
+            showPicker() {
+                picker.show();
+            },
+            toNewuserCreate(){
+                linkTo('newuserCreate','newuserCreate.html',true,{
+                    LevelID:this.levelarr[this.levelIndex].value,
+                    LevelName:this.levelarr[this.levelIndex].text
+                });
+            }
+        },
+        mounted() {
+            var that = this;
+            callAjax(
+                'api/Agent/GetUserLevel',
+                'get', {},
+                function(res) {
+                    // console.log(JSON.stringify(res));
+                    if (res.status) {
+                        /*  var levelarr = [{
+                              LevelName: 'res.data[i].LevelName',
+                              LevelPrice: 'res.data[i].LevelPrice.toFixed(2)',
+                              text: "res.data[i].LevelName + '[' + res.data[i].LevelPrice.toFixed(2) + '元]'",
+                              value: 'res.data[i].LevelID'
+                          }];*/
+                        var levelarr = [];
+                        for (var i = 0; i < res.data.length; i++) {
+                            var item = {
+                                // LevelID: res.data[i].LevelID,
+                                LevelName: res.data[i].LevelName,
+                                LevelPrice: res.data[i].LevelPrice.toFixed(2),
+                                text: res.data[i].LevelName + '[' + res.data[i].LevelPrice.toFixed(2) + '元]',
+                                value: res.data[i].LevelID
+                            }
+                            levelarr.push(item);
+                        }
+                        that.levelarr = levelarr;
+                        newPicker(levelarr);
+                        that.getCode(res.data[0].LevelID);
+                    }
+                }
+            );
+        }
+    });
+
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+
+    function newPicker(arr, index) {
+        var picker = new Picker({
+            data: [arr],
+            selectedIndex: [index ? index : 0],
+            title: '开户等级'
+        });
+        picker.on('picker.select', function(selectedVal, selectedIndex) {
+            v.levelIndex = selectedIndex;
+            console.log(v.levelIndex);
+        });
+        picker.on('picker.change', function(index, selectedIndex) {
+
+        });
+        window.picker = picker;
+    }
+</script>
+
+</html>

@@ -41,35 +41,35 @@
         }
 
         #footer ul li:nth-child(1) {
-            background-image: url(./image/index.png);
+            background-image: url(./image/tabbar/index.png);
         }
 
         #footer ul li:nth-child(2) {
-            background-image: url(./image/shop.png);
+            background-image: url(./image/tabbar/shop.png);
         }
 
         #footer ul li:nth-child(3) {
-            background-image: url(./image/cart.png);
+            background-image: url(./image/tabbar/cart.png);
         }
 
         #footer ul li:nth-child(4) {
-            background-image: url(./image/setting.png);
+            background-image: url(./image/tabbar/setting.png);
         }
 
         #footer ul li:nth-child(1).active {
-            background-image: url(./image/index1.png);
+            background-image: url(./image/tabbar/index1.png);
         }
 
         #footer ul li:nth-child(2).active {
-            background-image: url(./image/shop1.png);
+            background-image: url(./image/tabbar/shop1.png);
         }
 
         #footer ul li:nth-child(3).active {
-            background-image: url(./image/cart1.png);
+            background-image: url(./image/tabbar/cart1.png);
         }
 
         #footer ul li:nth-child(4).active {
-            background-image: url(./image/setting1.png);
+            background-image: url(./image/tabbar/setting1.png);
         }
 
         .flex-con {
@@ -125,34 +125,14 @@
         funIniGroup();
 
         loginAjax();
-        api.addEventListener({
-            name: 'toc'
-        }, function(ret, err) {
-            if (ret) {
-                randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[2]);
-            } else {
-                console.log("失败了");
-            }
+        listenEvent('toc',function(){
+          randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[2]);
         });
-
-        api.addEventListener({
-            name: "keyback"
-        }, function(ret, err) {
-            if (ret) {
-                api.closeWidget();
-            } else {
-                console.log("失败了");
-            }
+        listenEvent('keyback',function(){
+          api.closeWidget();
         });
-
-        api.addEventListener({
-            name: 'backHome'
-        }, function(ret, err) {
-            if (ret) {
-                randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[0]);
-            } else {
-                console.log("失败了");
-            }
+        listenEvent('backHome',function(){
+          randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[0]);
         });
     }
 

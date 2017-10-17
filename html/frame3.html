@@ -63,7 +63,7 @@
         <!-- <div class="roll bgcolor f14 oh pr">点此绑定微信账号，享有微信消息推送、一键登录、资金保障等特权。</div> -->
         <div class="aui-content">
             <ul class="aui-list aui-list-in">
-                <li class="aui-list-item aui-list-item-middle">
+                <li class="aui-list-item aui-list-item-middle" @click="userName()">
                     <div class="aui-list-item-inner aui-list-item-arrow">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-suo"></i>
@@ -72,7 +72,7 @@
                     </div>
                 </li>
                 <li class="aui-list-item">
-                    <div class="aui-list-item-inner aui-list-item-arrow">
+                    <div class="aui-list-item-inner aui-list-item-arrow" @click="password()">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-shenfen"></i>
                             <span>修改密码</span>
@@ -83,7 +83,7 @@
         </div>
         <div class="aui-content">
             <ul class="aui-list aui-list-in">
-                <li class="aui-list-item" v-on:click="toAddress()">
+                <li class="aui-list-item" @click="toAddress()">
                     <div class="aui-list-item-inner aui-list-item-arrow">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-dizhi-copy"></i>
@@ -91,7 +91,7 @@
                         </div>
                     </div>
                 </li>
-                <li class="aui-list-item">
+                <li class="aui-list-item" @click="collection()">
                     <div class="aui-list-item-inner aui-list-item-arrow">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-shoucang"></i>
@@ -103,7 +103,7 @@
         </div>
         <div class="aui-content aui-margin-b-15">
             <ul class="aui-list aui-list-in">
-                <li class="aui-list-item aui-list-item-middle">
+                <li class="aui-list-item aui-list-item-middle" @click="notice()">
                     <div class="aui-list-item-inner aui-list-item-arrow">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-gonggao"></i>
@@ -111,7 +111,7 @@
                         </div>
                     </div>
                 </li>
-                <li class="aui-list-item">
+                <li class="aui-list-item aui-list-item-middle" @click="feedback()">
                     <div class="aui-list-item-inner aui-list-item-arrow">
                         <div class="aui-list-item-title">
                             <i class="iconfont icon-icon6"></i>
@@ -130,7 +130,7 @@
             </ul>
         </div>
         <div class="btncontainer">
-            <div class="aui-btn aui-btn-block bgcolor" v-on:click="logout()">退出登录</div>
+            <div class="aui-btn aui-btn-block bgcolor" @click="logout()">退出登录</div>
         </div>
     </div>
 </body>
@@ -142,20 +142,34 @@
 
         },
         methods: {
+            userName(){
+                linkTo('username','username.html',true,{});
+            },
+            password(){
+                linkTo('password','password.html',true,{});
+            },
             toAddress(){//收货地址
-              console.log('address');
-              linkTo('address','address.html',false,{getAdd:false});
+                linkTo('address','address.html',false,{getAdd:false});
+            },
+            collection(){
+                linkTo('collection','collection.html',true,{});
+            },
+            notice(){
+                linkTo('notice','notice.html',true,{});
+            },
+            feedback(){
+                linkTo('feedback','feedback.html',true,{});
             },
             logout(){//退出登录
                 removeStorageSync('member');
+                linkTo('login','../index.html',true,{});
+                /*
                 api.openWin({
                     name: 'login',
                     url: '../index.html',
-                    pageParam: {
-                        name: 'test'
-                    },
+                    pageParam: {},
                     reload:true
-                });
+                });*/
             },
         }
     });

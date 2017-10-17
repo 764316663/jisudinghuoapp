@@ -12,13 +12,32 @@
     <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
     <link rel="stylesheet" type="text/css" href="../css/public.css">
     <style>
-        #app{
-          height: 100%;
-        }
-        .container{
-          height: calc(100% - 2.25rem);
+        #app {
+            height: 100%;
         }
 
+        .scroll-view {
+            height: calc(100% - 2.25rem);
+        }
+
+        .userbg {
+            width: 100%;
+            height: 8.5rem;
+            background: url(../image/infoBG.png) no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .userimg {
+            width: 5rem;
+            height: 5rem;
+            margin: 1rem auto 0.5rem;
+            border-radius: 50%;
+        }
+
+        .userimg img {
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
     <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
@@ -27,40 +46,108 @@
 
 </head>
 
-<body>
+<body class="bgf">
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>我的信息
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>我的信息
             </div>
         </header>
-        <div class="container">
-
+        <div class="scroll-view">
+            <div class="userbg oh">
+                <div class="userimg oh">
+                    <img :src="member.Avatar" alt="">
+                </div>
+                <p class="tc white f18">{{member.UserName}}</p>
+            </div>
+            <div class="aui-content">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">我的账号</div>
+                            <div class="aui-list-item-right">{{member.LoginID}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">我的归属</div>
+                            <div class="aui-list-item-right">{{member.BelongName || ''}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">我的上级</div>
+                            <div class="aui-list-item-right">{{member.ParentName || ''}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">注册时间</div>
+                            <div class="aui-list-item-right">{{member.CreateDate || ''}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item" v-if="member.OtherSystemSaleResult">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">易订货个人业绩</div>
+                            <div class="aui-list-item-right">{{member.OtherSystemSaleResult}}元</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item" v-if="member.OtherSystemTeamSaleResult">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">易订货团队业绩</div>
+                            <div class="aui-list-item-right">{{member.OtherSystemTeamSaleResult}}元</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">我的业绩</div>
+                            <div class="aui-list-item-right">总业绩:{{member.TotalSaleResult || 0}}元</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">我的代理</div>
+                            <div class="aui-list-item-right"></div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">我的授权</div>
+                            <div class="aui-list-item-right">{{member.LevelName || ''}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </body>
 <script type="text/javascript" src="../script/main.js"></script>
 <script type="text/javascript">
-  var v = new Vue({
-    el:'#app',
-    data:{
+    var v = new Vue({
+        el: '#app',
+        data: {
+            member:{}
+        },
+        methods: {
+            apiReady() {
 
-    },
-    methods:{
-      apiReady(){
+            }
+        },
+        mounted(){
+            var member=getStorageSync('member');
+            member.CreateDate = member.CreateDate.split(' ')[0];
+            this.member=member;
+        }
+    });
 
-      }
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
     }
-  });
-
-apiready = function() {
-    hPadding();
-    v.apiReady();
-    // api.addEventListener({
-    //     name: 'returnAdd'
-    // }, function(ret, err) {
-    //     v.setAddressDefault();
-    // });
-}
 </script>
+
 </html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我的信息</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .scroll-view {
+            height: calc(100% - 4.25rem);
+        }
+
+        .orderState {
+            height: 2rem;
+            border-bottom: 2px solid #eee;
+            box-sizing: border-box;
+        }
+
+        .orderstateItem,
+        .orderSearch {
+            height: 2rem;
+            line-height: 2rem;
+            flex: 2;
+        }
+
+        .orderstateAct {
+            border-bottom: 2px solid #03a9f4;
+        }
+
+        .orderSearch {
+            flex: 1;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body class="bgf">
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>我的信息
+            </div>
+        </header>
+        <div class="orderState flex-row">
+            <div class="orderstateItem tc orderstateAct">1</div>
+            <div class="orderstateItem">1</div>
+            <div class="orderstateItem">1</div>
+            <div class="orderstateItem">1</div>
+            <div class="orderSearch tc"><i class="iconfont icon-sousuo"></i></div>
+        </div>
+        <div class="scroll-view">
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-media-list">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">text</div>
+                            <div class="aui-list-item-title">信息</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-media">
+                                <img src="../image/infoBG.png" alt="">
+                            </div>
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-text">
+                                    <div class="aui-list-item-title">带有媒体的列表二</div>
+                                    <div class="aui-list-item-right">08:00</div>
+                                </div>
+                                <div class="aui-list-item-text">
+                                    这里是内容区域，新版中的列表布局可以很轻松的帮助开发者完成常见列表样式。
+                                </div>
+                                <div class="aui-info aui-margin-t-5" style="padding:0">
+                                    <div class="aui-info-item">
+                                        <img src="../image/infoBG.png" style="width:1rem" class="aui-img-round" /><span class="aui-margin-l-5">流浪男</span>
+                                    </div>
+                                    <div class="aui-info-item">2015-07-14 10:31</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            member: {}
+        },
+        methods: {
+            apiReady() {
+                console.log('apiready');
+            }
+        },
+        mounted() {
+            this.member = getStorageSync('member');
+        }
+    });
+
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

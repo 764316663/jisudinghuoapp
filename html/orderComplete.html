@@ -57,7 +57,9 @@
 <body>
     <div id="app">
         <header>
-            <div><a class="hicon aui-iconfont aui-icon-left"></a>订单完成</div>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="linkTo('home','home.html',true)"></a>订单完成
+            </div>
         </header>
         <div class="mtitle oh">
             <div class="iconbox bgcolor tc">
@@ -66,7 +68,7 @@
         </div>
         <div class="cont mb20">
             <h2 class="black">下单成功</h2>
-            <p class="gray f16">订单号：<span class="price">{{payNo}}</span></p>
+            <p class="gray f16" v-for="(v,i) in payNo">订单号：<span class="price">{{v}}</span></p>
             <p class="gray f16">应付金额：<span class="price">￥{{orderPrice}}</span></p>
         </div>
         <div class="btnbox oh">
@@ -89,12 +91,12 @@
         data: {
           toast:false,
             showLoading: true,
-            payNo: '',
+            payNo: [],
             orderPrice: 0
         },
         methods: {
             apiReady() {
-                this.payNo = api.pageParam.payNo;
+                this.payNo = api.pageParam.payNo.split(',');
                 //closeToWin('goodsDetail');
                 var that = this;
                 var member = getStorageSync('member');
@@ -102,7 +104,7 @@
                     'api/Payment/OrderNeedPayInfo',
                     'get', {
                         userID: member.UserID,
-                        payNos: that.payNo
+                        payNos: that.payNo.join(',')
                     },
                     function(res) {
                         // console.log(JSON.stringify(res));
@@ -116,7 +118,7 @@
             complete() {;
             },
             pay() {
-                linkTo('orderPay','orderPay.html',true,{payNo:this.payNo});
+                linkTo('orderPay','orderPay.html',true,{payNo:this.payNo.join(',')});
             }
         },
         mounted() {
@@ -126,6 +128,8 @@
     apiready = function() {
         hPadding();
         v.apiReady();
+        closeWin('orderCreate');
+        closeWin('cartOrderCreate');
     }
 </script>
 

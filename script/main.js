@@ -13,15 +13,8 @@ window.onload=function(){
 var rootDocment = 'https://yarkool.jisudinghuo.com/'
 var client_id = 'yarkool';
 var Authorization = 'eWFya29vbDpZYXJrb29sMTY4Lg==';
-/*
-document.addEventListener('plusready', function() {
-    //	console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。");
-    window.startApp = function() {
-        console.log('ststs');
-    }
-});
-*/
 
+//StorageSync
 function setStorageSync(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
 };
@@ -35,6 +28,7 @@ function removeStorageSync(key) {
     window.localStorage.removeItem(key);
 }
 
+//getToken
 function getToken(url, method, data, cb, contentType) {
     var contentType = contentType;
     var token = getStorageSync('token');
@@ -130,6 +124,7 @@ function getToken(url, method, data, cb, contentType) {
     }
 }
 
+//Ajax
 function callAjax(url, method, data, cb, contentType, bool) {
     var contentType = contentType;
     if (bool) {
@@ -170,6 +165,12 @@ function loginAjax(url, method, data, cb, contentType) {
     }
 }
 
+function upLoadImg(imgUrl) {
+
+}
+
+
+//Window
 function linkTo(name, url, reload, pageParam) {
     api.openWin({
         name: name,
@@ -179,51 +180,86 @@ function linkTo(name, url, reload, pageParam) {
     });
 }
 
+function closeWin(name) {
+    if (name) {
+      console.log('closeWin--'+name);
+        api.closeWin({
+            name: name
+        });
+    } else {
+        api.closeWin();
+    }
+
+};
+
 function closeToWin(name) {
     api.closeToWin({
         name: name
     });
 };
 
+
+//Dom
 function hPadding(fn) {
     $api.fixStatusBar($api.dom('header'));
     api.setStatusBarStyle({
         style: 'light',
         color: '#ffffff'
     });
-    if(fn){
-      fn();
+    if (fn) {
+        fn();
     }
 }
+
+//event
+function sendEvent(name) {
+    api.sendEvent({
+        name: name
+    });
+};
+
+function listenEvent(name, fn) {
+    api.addEventListener({
+        name: name
+    }, function(ret, err) {
+        if (ret) {
+            fn();
+        } else {
+            console.log("失败了");
+        }
+    });
+}
+
 //vue
 Vue.filter('toFix', function(value) {
     return parseFloat(value).toFixed(2);
 });
 
+//Plug-in unit
 function showToast(msg, fn) {
-    v.toast=true;
+    v.toast = true;
     api.toast({
         msg: msg,
         duration: 2000,
         location: 'bottom'
     });
     setTimeout(function() {
-        v.toast=false;
+        v.toast = false;
         if (fn) {
             fn();
         }
     }, 2000);
 }
 
-function showConfirm(msg,fn){
+function showConfirm(msg, fn) {
     api.confirm({
         title: '系统提示',
         msg: msg,
         buttons: ['确定', '取消']
     }, function(ret, err) {
         var index = ret.buttonIndex;
-        if(index==1){
-            if(fn){
+        if (index == 1) {
+            if (fn) {
                 return typeof fn == "function" && fn()
             }
         }

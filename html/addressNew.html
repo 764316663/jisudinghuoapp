@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>收货地址</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .searchbox {
+            width: 100%;
+            height: 2.2rem;
+        }
+
+        #search {
+            width: 80%;
+        }
+
+        .searchbtn {
+            width: 20%;
+            height: 2.2rem;
+        }
+
+        .searchbtn div {
+            width: 80%;
+            height: 1.4rem;
+            background-color: #fff;
+            margin: 0.4rem 0.2rem;
+            line-height: 1.4rem;
+            border-radius: 0.125rem;
+        }
+
+        .addresslist {
+            width: 100%;
+            height: calc(100% - 6.95rem);
+        }
+
+        .aui-row {
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .titlecheckbox {
+            top: 40%;
+            margin-top: -0.5rem;
+        }
+
+        .titlename {
+            padding-left: 1.2rem;
+        }
+
+        .addicon i {
+            margin-left: 20px;
+        }
+
+        .aui-list-item {
+            background-image: none;
+        }
+
+        .aui-list .aui-list-item:active {
+            background-color: #fff;
+        }
+
+        .aui-list-item:last-child {
+            background-image: none;
+        }
+
+        .aui-list .aui-list-item.background:active {
+            background-color: #f1f2f2;
+        }
+
+        .aui-list .aui-list-item-label {
+            width: 45%;
+        }
+
+        footer {
+            width: 100%;
+            height: 2.5rem;
+            position: fixed;
+            bottom: 0;
+            padding: 0.25rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+    </script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{addEdit?'修改':'新增'}}收货地址
+            </div>
+        </header>
+        <div class="aui-content">
+            <ul class="aui-list aui-form-list">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">收货人</div>
+                        <div class="aui-list-item-input">
+                            <input type="text" class="tr" placeholder="请输入收货人" v-model="name">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">联系方式</div>
+                        <div class="aui-list-item-input">
+                            <input type="number" oninput="if(value.length>11)value=value.slice(0,11)" class="tr" placeholder="请输入收货人手机号" v-model="phone">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">收货地址</div>
+                        <div class="aui-list-item-input" @click="showPicker()">
+                            <input type="text" class="tr" :value="region.join(' ')" disabled="true">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">详细地址</div>
+                        <div class="aui-list-item-input">
+                            <input type="text" class="tr" placeholder="请输入详细地址" v-model="address">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">邮政编码</div>
+                        <div class="aui-list-item-input">
+                            <input type="number" oninput="if(value.length>6)value=value.slice(0,6)" class="tr" placeholder="请输入邮政编码" v-model="postcode">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label">设为默认地址</div>
+                        <div class="aui-list-item-input tr">
+                            <input type="checkbox" class="aui-switch" v-model="isdefault">
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <footer class="bottombtnbox bgf">
+            <div class="aui-btn bottombtn aui-btn-block" @click="sub()">保存</div>
+        </footer>
+
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            toast: false,
+            showLoading: false,
+            addEdit: false,
+            id: '',
+            name: '',
+            phone: '',
+            address: '',
+            postcode: '',
+            isdefault: false,
+            region: ['--请选择--'],
+            newAddTrue: false
+        },
+        methods: {
+            sub() {
+                var myreg = /^((1[0-9]{1})+\d{9})$/;
+                var member = getStorageSync('member');
+                var that = this;
+                if (!this.name) {
+                    showToast('请输入收货人姓名');
+                } else if (!this.phone) {
+                    showToast('请输入收货人手机号码');
+                } else if (!myreg.test(this.phone)) {
+                    showToast('手机号格式不正确');
+                } else if (!this.region[2]) {
+                    showToast('请选择收货地址');
+                } else if (!this.address) {
+                    showToast('请输入详细收件地址');
+                } else if (!this.newAddTrue) {
+                    showToast('地址库已发生变化，请重新选择地址');
+                } else {
+                    this.showLoading = true;
+                    var data = {
+                        UserID: member.UserID,
+                        AddressID: this.id || 0,
+                        Name: this.name,
+                        ProvinceName: this.region[0],
+                        CityName: this.region[1],
+                        TownName:this.region[2],
+                        Address: this.address,
+                        Mobile: this.phone,
+                        PostalCode: this.postcode,
+                        IsDefault:this.isdefault
+                    };
+                    callAjax(
+                      'api/Agent/TypeInAddress',
+                      'post',
+                      data,
+                      function(res){
+                          console.log(res);
+                          that.showLoading=false;
+                          showToast(res.message);
+                          if(res.status){
+                              sendEvent('loadAdd');
+                              setTimeout(function(){
+                                  closeWin();
+                              },1500);
+                          }
+                      }
+                    );
+                }
+            },
+            showPicker() {
+                console.log('show');
+                picker.show();
+            },
+            apiReady() {
+                var that = this;
+                var ed = api.pageParam.addEdit;
+                this.addEdit = ed;
+                if (ed) {
+                    this.id = api.pageParam.id;
+                    this.name = api.pageParam.name;
+                    this.phone = api.pageParam.phone;
+                    this.address = api.pageParam.Address;
+                    this.postcode = api.pageParam.PostalCode;
+                    this.isdefault = api.pageParam.isdefault;
+                    this.region = [api.pageParam.ProvinceName, api.pageParam.CityName, api.pageParam.TownName];
+                }
+                var addJSON = [
+                    [],
+                    [],
+                    []
+                ];
+                var multiArray = [
+                    [],
+                    [],
+                    []
+                ];
+                var region = [];
+                var multiIndex = [0, 0, 0];
+                var newAddTrue = false;
+                var id1 = '';
+                callAjax(
+                    'api/index/GetRegionList',
+                    'get', {
+                        parentID: '0',
+                        regionName: ''
+                    },
+                    function(res) {
+                        var have1 = false;
+                        for (var i = 0; i < res.length; i++) {
+                            var item0 = {
+                                value: res[i].Value,
+                                text: res[i].Text
+                            }
+                            multiArray[0].push(item0);
+                            addJSON[0].push(res[i].Value);
+                            if (ed && api.pageParam.ProvinceName == res[i].Text) {
+                                region[0] = res[i].Text;
+                                multiIndex[0] = i;
+                                id1 = res[i].Value;
+                                have1 = true;
+                            }
+                        }
+                        var id2 = '';
+                        callAjax(
+                            'api/index/GetRegionList',
+                            'get', {
+                                parentID: ed && have1 ? id1 : res[0].Value,
+                                regionName: ''
+                            },
+                            function(res) {
+                                var have2 = false;
+                                for (var j = 0; j < res.length; j++) {
+                                    var item1 = {
+                                        value: res[j].Value,
+                                        text: res[j].Text
+                                    }
+                                    multiArray[1].push(item1);
+                                    addJSON[1].push(res[j].Value);
+                                    if (ed && api.pageParam.CityName == res[j].Text) {
+                                        region[1] = res[j].Text;
+                                        multiIndex[1] = j;
+                                        have2 = true;
+                                        id2 = res[j].Value;
+                                    }
+                                }
+                                callAjax(
+                                    'api/index/GetRegionList',
+                                    'get', {
+                                        parentID: ed && have2 ? id2 : res[0].Value,
+                                        regionName: ''
+                                    },
+                                    function(res) {
+                                        for (var k = 0; k < res.length; k++) {
+                                            var item2 = {
+                                                value: res[k].Value,
+                                                text: res[k].Text
+                                            }
+                                            multiArray[2].push(item2);
+                                            addJSON[2].push(res[k].Value);
+                                            if (ed && api.pageParam.TownName == res[k].Text) {
+                                                region[2] = res[k].Text;
+                                                multiIndex[2] = k;
+                                                newAddTrue = true;
+                                            }
+                                        }
+                                        that.multiArray = multiArray;
+                                        that.addJSON = addJSON;
+                                        that.multiIndex = multiIndex;
+                                        that.newAddTrue = newAddTrue;
+                                        that.region = ed ? region : ['--请选择--'];
+                                        newPicker();
+                                    }
+                                );
+                            }
+                        )
+                    }
+                );
+            },
+            getList(index, id) {
+                var multiArray = this.multiArray;
+                var multiIndex = this.multiIndex;
+                var that = this;
+                callAjax(
+                    'api/index/GetRegionList',
+                    'get', {
+                        parentID: id,
+                        regionName: ''
+                    },
+                    function(res) {
+                        var arr1 = [];
+                        for (var i = 0; i < res.length; i++) {
+                            var item1 = {
+                                value: res[i].Value,
+                                text: res[i].Text
+                            }
+                            arr1.push(item1);
+                        }
+                        multiArray[index + 1] = arr1;
+                        multiIndex[index + 1] = 0;
+                        that.multiArray = multiArray;
+                        that.multiIndex = multiIndex;
+                        picker.refillColumn(index + 1, arr1);
+                        picker.scrollColumn(index + 1, 0);
+                        if (!index) {
+                            callAjax(
+                                'api/index/GetRegionList',
+                                'get', {
+                                    parentID: res[0].Value,
+                                    regionName: ''
+                                },
+                                function(res) {
+                                    var arr2 = [];
+                                    for (var j = 0; j < res.length; j++) {
+                                        var item2 = {
+                                            value: res[j].Value,
+                                            text: res[j].Text
+                                        }
+                                        arr2.push(item2);
+                                    }
+                                    multiArray[2] = arr2;
+                                    multiIndex[2] = 0;
+                                    that.multiArray = multiArray;
+                                    that.multiIndex = multiIndex;
+                                    picker.refillColumn(2, arr2);
+                                    picker.scrollColumn(2, 0);
+                                }
+                            );
+                        } else {
+
+                        }
+                    }
+                );
+            }
+        }
+    });
+    apiready = function() {
+        v.apiReady();
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+        });
+    }
+
+    function newPicker() {
+        var picker = new Picker({
+            data: [v.multiArray[0], v.multiArray[1], v.multiArray[2]],
+            selectedIndex: [v.multiIndex[0], v.multiIndex[1], v.multiIndex[2]],
+            title: '选择地址'
+        });
+        picker.on('picker.select', function(selectedVal, selectedIndex) {
+            v.region = [
+                v.multiArray[0][selectedIndex[0]].text,
+                v.multiArray[1][selectedIndex[1]].text,
+                v.multiArray[2][selectedIndex[2]].text
+            ];
+            v.newAddTrue = true;
+        });
+        picker.on('picker.change', function(index, selectedIndex) {
+            v.multiIndex[index] = selectedIndex;
+            if (index < 2) {
+                v.getList(index, v.multiArray[index][selectedIndex].value);
+            }
+        });
+        window.picker = picker;
+    }
+</script>
+
+</html>

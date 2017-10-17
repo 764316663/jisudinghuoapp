@@ -30,7 +30,7 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>商品详情
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{title}}
             </div>
         </header>
         <div class="scroll-view">
@@ -147,6 +147,7 @@
                                 }
                             }
                             // console.log(JSON.stringify(chooseInfo));
+                            // that.title=res.data.ApiGoodItem.ItemName;
                             that.goodsinfo = goodsinfo;
                             that.chooseInfo = chooseInfo;
                             that.showLoading = false;
@@ -228,7 +229,12 @@
         }
     });
     apiready = function() {
-        hPadding();
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+        });
         v.apiReady();
     }
 </script>

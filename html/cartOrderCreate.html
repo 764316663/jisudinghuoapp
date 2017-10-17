@@ -30,7 +30,8 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>填写订单</div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>填写订单
+            </div>
         </header>
         <div class="scroll-view">
             <div class="aui-content aui-margin-b-15">
@@ -208,11 +209,6 @@
                     this.provinceName = orderAddress.ProvinceName;
                     this.wxadd = false;
                     this.addtrue = false;
-                    /*
-                    for (var i = 0; i < this.LogisticList.length; i++) {
-                        this.courier(this.LogisticList[i].wareHouseID);
-                    }
-                    this.totalNum();*/
                 }
             },
             changeAddTrue() {
@@ -264,24 +260,21 @@
 
             },
             orderCompile() {
-                var that = this;
-                var LogisticIDs = [];
-                var Remarks = [];
-                for (var i = 0; i < this.LogisticList.length; i++) {
-                    if (this.LogisticList[i].key == '-1') {
-                        showToast('请选择快递公司');
-                        return false;
-                    }
-                    LogisticIDs.push(this.LogisticList[i].key);
-                    Remarks.push(this.LogisticList[i].remark);
-                }
-
                 if (!this.address.address) {
                     showToast('请选择收货地址');
                 } else {
-                  console.log(JSON.stringify(LogisticIDs));
-                  console.log(JSON.stringify(Remarks));
                     this.showLoading = true;
+                    var that = this;
+                    var LogisticIDs = [];
+                    var Remarks = [];
+                    for (var i = 0; i < this.LogisticList.length; i++) {
+                        if (this.LogisticList[i].key == '-1') {
+                            showToast('请选择快递公司');
+                            return false;
+                        }
+                        LogisticIDs.push(this.LogisticList[i].key);
+                        Remarks.push(this.LogisticList[i].remark?this.LogisticList[i].remark:'无');
+                    }
                     var member = getStorageSync('member');
                     var data = {
                         userID: member.UserID,
@@ -292,7 +285,6 @@
                         IsSyncAddress: false,
                         addressParam: this.AddressParam
                     }
-                    console.log(JSON.stringify(data));
                     loginAjax(
                         'api/Order/AddCartToOrder',
                         'post',
@@ -302,13 +294,14 @@
                             console.log(JSON.stringify(res));
                             showToast(res.message);
                             if (res.status) {
-                                setStorageSync('member', res.data.UserInfo);
+                                member.CartNumber = res.data.CartNumber;
+                                setStorageSync('member', member);
                                 removeStorageSync('orderAddress');
                                 setTimeout(function() {
                                     linkTo('orderComplete', 'orderComplete.html', true, {
-                                        payNo: res.data.PayNo
+                                        payNo: res.data.PayNos
                                     });
-                                }, 2000);
+                                }, 1500);
                             } else {
 
                             }
@@ -392,16 +385,14 @@
         }
     });
     apiready = function() {
-        hPadding(function(){
-          var headerh=$('header').outerHeight();
-          var windowh=$('body').height();
-          var footerh=$('footer').outerHeight();
-          $('.scroll-view').height(windowh-headerh-footerh+'px');
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
         });
         v.apiReady();
-        api.addEventListener({
-            name: 'returnAdd'
-        }, function(ret, err) {
+        listenEvent('returnAdd', function() {
             v.setAddressDefault();
         });
     }

@@ -40,7 +40,8 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>订单完成</div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="linkTo('home','html/home.html',false)"></a>订单完成
+            </div>
         </header>
         <div class="aui-content">
             <ul class="aui-list aui-list-in">
@@ -112,7 +113,7 @@
                             that.payMoney = res.data.FinalAmount;
                             that.UserAmount = res.data.UserAmount;
                         }
-                        console.log(JSON.stringify(res));
+                        // console.log(JSON.stringify(res));
                     }
                 );
             },
@@ -124,14 +125,13 @@
                     UserID: member.UserID,
                     PayNos: that.payNo
                 }
-                console.log(JSON.stringify(data));
                 loginAjax(
                     'api/Payment/OrderPay',
                     'post',
                     data,
                     function(res) {
                         that.showLoading = false;
-                        console.log(JSON.stringify(res));
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
                             member.Amount = res.data.Amount;
                             member.CartNumber = res.data.CartNumber;
@@ -139,7 +139,7 @@
                         }
                         linkTo('orderOk', 'orderOk.html', false, {
                             orderSuccess: res.status,
-                            orderMessage:res.message
+                            orderMessage: res.message
                         });
                     }
                 );
@@ -152,6 +152,7 @@
     apiready = function() {
         hPadding();
         v.apiReady();
+        closeWin('orderComplete');
     }
 </script>
 

@@ -58,7 +58,7 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>支付{{orderSuccess?'成功':'失败'}}
+                <a class="hicon aui-iconfont aui-icon-left" @click="linkTo('home','html/home.html',false)"></a>支付{{orderSuccess?'成功':'失败'}}
             </div>
         </header>
         <div class="mtitle oh">
@@ -68,7 +68,7 @@
             </div>
         </div>
         <div class="cont mb20">
-            <h2 class="black">下单成功</h2>
+            <h2 class="black">{{orderMessage}}</h2>
             <p class="gray f16">还有&nbsp;<span class="price">{{time}}</span>&nbsp;秒跳转到首页&nbsp;<a class="black" @click="backHome()">立即跳转</a></p>
         </div>
         <div class="waiting" v-if="showLoading || toast">
@@ -119,6 +119,7 @@
     apiready = function() {
         hPadding();
         v.apiReady();
+        closeWin('orderPay');
     }
 </script>
 

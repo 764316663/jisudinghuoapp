@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>修改密码</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .scroll-view {
+            height: calc(100% - 2.25rem);
+        }
+        .bordernone{
+          background-image: none !important;
+        }
+        .nonedata{
+          width: 100%;
+        }
+        .smLoadbox{
+          margin: 0 auto;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body class="bgf">
+    <div id="app">
+        <header ref="header">
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>消息通知(未测试)
+            </div>
+        </header>
+        <div class="scroll-view">
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle" v-for="(v,i) in list">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title">{{v.content}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item bordernone" v-show="showMore==3">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title gray tc nonedata">没有更多数据了</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item bordernone" v-show="showMore==0">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title gray smLoadbox">
+                                <img src="../image/timg.gif" alt="" class="smLoading">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="waiting" v-if="showLoading || toast">
+                <div class="waiting-main" v-if="showLoading">
+                    <img src="../image/timg.gif" alt="" class="waiting-gif">
+                    <p class="waiting-text">加载中</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            list:[],
+            showMore:0
+        },
+        methods: {
+            apiReady() {
+                var that = this;
+                var member = getStorageSync('member');
+                callAjax(
+                    'api/Notice/GetNoticeTypeList',
+                    'get', {
+                        userID: member.UserID
+                    },
+                    function(res) {
+                        console.log(JSON.stringify(res));
+                        if (res.status) {
+                            that.showMore=2;
+                            var list = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    listID: res.data[i].NoticeTypeID,
+                                    content: res.data[i].NoticeTypeName,
+                                    news: res.data[i].UnReadNum
+                                }
+                                list.push(item);
+                            }
+                            that.list=list;
+                        }
+                    }
+                );
+            },
+            toList(index){
+
+            }
+        },
+        mounted() {
+
+        }
+    });
+
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

@@ -100,18 +100,18 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left"></a>收货地址
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>收货地址
             </div>
         </header>
         <div class="searchbox">
             <div class="aui-searchbar fl bgcolor" id="search">
                 <div class="aui-searchbar-input aui-border-radius">
                     <i class="aui-iconfont aui-icon-search"></i>
-                    <input type="search" placeholder="请输入搜索内容" id="search-input">
+                    <input type="search" placeholder="请输入搜索内容" id="search-input" v-model="searchKey">
                 </div>
             </div>
             <div class="searchbtn fr oh bgcolor">
-                <div class="tc black">搜 索</div>
+                <div class="tc black" @click="searchAdd()">搜 索</div>
             </div>
         </div>
         <div class="addresslist scroll-view">
@@ -158,7 +158,7 @@
 
 
         <footer class="bottombtnbox bgf">
-            <div class="aui-btn bottombtn aui-btn-block">默认按钮(warning)</div>
+            <div class="aui-btn bottombtn aui-btn-block" @click="addNew()">新增地址</div>
         </footer>
 
 
@@ -182,7 +182,8 @@
             showLoading: false,
             showMore: 1,
             list: [],
-            getAdd:false
+            getAdd:false,
+            searchKey:''
         },
         methods: {
             getList(keyword) {
@@ -259,8 +260,14 @@
                 });
                 api.closeWin();
             },
+            addNew(){
+                linkTo('addressNew','addressNew.html',true,{addEdit:false});
+            },
             addEdit(index){
-
+                var params=this.list[index];
+                params.addEdit=true;
+                //console.log(JSON.stringify(this.list[index]));
+                linkTo('addressNew','addressNew.html',true,params);
             },
             delAdd(index){
                 var that=this;
@@ -288,6 +295,9 @@
                     );
                 });
             },
+            searchAdd(){
+                this.getList(this.searchKey);
+            },
             apiReady() {
                 this.getList();
                 this.getAdd=api.pageParam.getAdd
@@ -296,8 +306,16 @@
     });
     apiready = function() {
         v.apiReady();
-        hPadding(true);
-        //reserHeight();
+        hPadding(function(){
+          var headerh=$('header').outerHeight();
+          var windowh=$('body').height();
+          var searchh=$('.searchbox').height();
+          var footerh=$('footer').outerHeight();
+          $('.scroll-view').height(windowh-headerh-footerh-searchh+'px');
+        });
+        listenEvent('loadAdd',function(){
+          v.getList();
+        });
     }
 </script>
 
