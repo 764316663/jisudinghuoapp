@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>为子代理开户</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <link rel="stylesheet" type="text/css" href="../css/goodsDetail.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .title {
+            height: 2.2rem;
+            line-height: 2.3rem;
+            padding: 0 1rem;
+        }
+
+        .title input {
+            height: 2.2rem;
+        }
+
+        .tips {
+            padding: 1rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>激活账户
+            </div>
+        </header>
+        <p class="title f16">转账后请复制交易订单号输入</p>
+        <div class="title bgf mb20">
+            <input type="text" placeholder="支付宝的交易订单号" v-model="tradeNo">
+        </div>
+        <div class="btncontainer">
+            <div class="aui-btn aui-btn-block bgcolor" @click="sub()">激活账户</div>
+        </div>
+        <div class="tips f14">
+            <p class="price black">提示：</p>
+            <p class="black">1、公司唯一指定充值支付宝账号为：{{OfficialPayAccount}}</p>
+            <p class="black">2、您开户等级为：{{level}}，需要交纳{{Amount}}元，已付了{{AmountBalance}}元，还需要付{{AmountNeedPay}}元才能开通</p>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            toast: false,
+            showLoading: false,
+            LevelID:'',
+            OfficialPayAccount: '',
+            level: '',
+            Amount: '',
+            AmountBalance: '',
+            AmountNeedPay: '',
+            tradeNo: ''
+        },
+        methods: {
+            apiReady() {
+                this.LoginID = api.pageParam.LoginID;
+                closeWin('newuserCreate');
+                console.log(api.pageParam.LoginID);
+                //this.LevelName = api.pageParam.LevelName;
+                var that = this;
+                callAjax(
+                    'api/Account/GetRegisterRechargeRemark',
+                    'get', {
+                        loginID: api.pageParam.LoginID
+                    },
+                    function(res) {
+                      console.log(JSON.stringify(res));
+                        if (res.status) {
+                            that.showLoading = false;
+                            that.OfficialPayAccount = res.data.OfficialPayAccount;
+                            that.level = res.data.LevelName;
+                            that.Amount = res.data.LevelPrice;
+                            that.AmountBalance = res.data.AccountBalance;
+                            that.AmountNeedPay = res.data.NeedPayAmount;
+                        }
+                    }
+                );
+            },
+            sub() {
+                var myreg = /^((1[0-9]{1})+\d{9})$/;
+                if (!this.tradeNo) {
+                    showToast('请输入支付宝交易单号');
+                } else {
+                    var that = this;
+                    that.showLoading = true;
+                    var data = {
+                      LoginID: that.LoginID,
+                      TradeNo: that.tradeNo
+                    }
+                    callAjax(
+                        'api/Agent/RegisterPay',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            showToast(res.message);
+                            if (res.status) {
+                                setTimeout(function() {
+                                    closeWin();
+                                }, 1500);
+                            }
+                        }
+                    )
+                }
+            },
+            changePicCode() {
+                var that = this;
+                // that.showLoading = true;
+                callAjax(
+                    'api/Agent/ValidateCode',
+                    'get', {
+                        validType: 2
+                    },
+                    function(res) {
+                        that.showLoading = false;
+                        that.codeImg = res;
+                    }
+                );
+            },
+        },
+        mounted() {
+            this.changePicCode();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

@@ -58,7 +58,7 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="linkTo('home','html/home.html',false)"></a>支付{{orderSuccess?'成功':'失败'}}
+                <a class="hicon aui-iconfont aui-icon-left" @click="backHome()"></a>支付{{orderSuccess?'成功':'失败'}}
             </div>
         </header>
         <div class="mtitle oh">
@@ -117,6 +117,9 @@
         }
     });
     apiready = function() {
+        listenEvent('keyback',function(){
+          v.backHome();
+        });
         hPadding();
         v.apiReady();
         closeWin('orderPay');

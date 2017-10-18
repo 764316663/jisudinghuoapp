@@ -14,6 +14,7 @@
     <style>
         #app {
             height: 100%;
+            /*background: #efeff4;*/
         }
 
         .scroll-view {
@@ -40,6 +41,18 @@
         .orderSearch {
             flex: 1;
         }
+
+        .orange {
+            color: #ff931a !important;
+        }
+
+        .aui-list-item:last-child {
+            background-image: none;
+        }
+
+        .aui-list-item:active {
+            background-color: #fff !important;
+        }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
     <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
@@ -48,52 +61,83 @@
 
 </head>
 
-<body class="bgf">
+<body>
     <div id="app">
         <header>
             <div>
                 <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>我的信息
             </div>
         </header>
-        <div class="orderState flex-row">
-            <div class="orderstateItem tc orderstateAct">1</div>
-            <div class="orderstateItem">1</div>
-            <div class="orderstateItem">1</div>
-            <div class="orderstateItem">1</div>
+        <div class="orderState flex-row bgf">
+            <div v-for="(v,i) in statusType" :class="{orderstateItem:true, tc:true, orderstateAct:(checknum == i)}" @click="changeStatus(i)">{{v.text}}</div>
             <div class="orderSearch tc"><i class="iconfont icon-sousuo"></i></div>
         </div>
         <div class="scroll-view">
-            <div class="aui-content aui-margin-b-15">
-                <ul class="aui-list aui-media-list">
+            <div class="aui-content">
+                <ul v-for="(v,i) in orderList" class="aui-list aui-media-list mb10 bimgnone">
                     <li class="aui-list-item">
-                        <div class="aui-list-item-inner">
-                            <div class="aui-list-item-title">text</div>
-                            <div class="aui-list-item-title">信息</div>
+                        <div class="aui-list-item-inner flex-row">
+                            <div class="aui-list-item-title f14">订单编号：{{v.indent}}</div>
+                            <div class="aui-list-item-title orange f14">{{v.status}}</div>
                         </div>
                     </li>
-                    <li class="aui-list-item">
+                    <li class="aui-list-item" v-for="(value,index) in v.goodlist" @click="toOrderDetail(i)">
                         <div class="aui-media-list-item-inner">
                             <div class="aui-list-item-media">
-                                <img src="../image/infoBG.png" alt="">
+                                <img :src="value.pic+'/200'" alt="">
                             </div>
                             <div class="aui-list-item-inner">
                                 <div class="aui-list-item-text">
-                                    <div class="aui-list-item-title">带有媒体的列表二</div>
-                                    <div class="aui-list-item-right">08:00</div>
+                                    <div class="aui-list-item-title f14">{{value.name}}</div>
                                 </div>
-                                <div class="aui-list-item-text">
-                                    这里是内容区域，新版中的列表布局可以很轻松的帮助开发者完成常见列表样式。
+                                <div class="aui-list-item-text f12 gray">
+                                    规格:{{value.stockname}} , 数量:{{value.num}}{{value.unitname}} , 单价:{{value.price}}
                                 </div>
                                 <div class="aui-info aui-margin-t-5" style="padding:0">
-                                    <div class="aui-info-item">
-                                        <img src="../image/infoBG.png" style="width:1rem" class="aui-img-round" /><span class="aui-margin-l-5">流浪男</span>
-                                    </div>
-                                    <div class="aui-info-item">2015-07-14 10:31</div>
+                                    <div class="aui-info-item price f14">￥{{value.total | toFix1}}</div>
                                 </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title tr f14 black">
+                                共计<span class="price">{{v.num}}</span>件商品，合计<span class="price">￥{{v.amount}}</span>
+                            </div>
+                            <div class="tr mt5">
+                                <div class="aui-btn aui-btn-outlined" v-if="v.statusCode==1" @click="orderCancel(i)">取消订单</div>
+                                <div class="aui-btn aui-btn-outlined" v-if="v.statusCode==1" @click="orderPay(i)">立即支付</div>
+                                <div class="aui-btn aui-btn-outlined" v-if="v.statusCode==2" @click="orderFalse(i)">申请作废</div>
+                                <div class="aui-btn aui-btn-outlined" v-if="v.statusCode==3 || v.statusCode==8" @click="orderLogistics(i)">查看物流</div>
+                                <div class="aui-btn aui-btn-outlined" v-if="v.statusCode==3" @click="orderModify(i)">确认收货</div>
+                                <div class="aui-btn aui-btn-outlined" v-if="v.statusCode==4 || v.statusCode==9" @click="orderDelete(i)">删除订单</div>
                             </div>
                         </div>
                     </li>
                 </ul>
+                <div class="aui-list-item mb10" v-show="showMore==2">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title gray tc">没有更多数据了</div>
+                    </div>
+                </div>
+                <div class="aui-list-item mb10" v-show="showMore==1">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title gray">
+                            <img src="../image/timg.gif" alt="" class="smLoading">
+                        </div>
+                    </div>
+                </div>
+                <div class="aui-list-item mb10" v-show="showMore==0">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title gray tc">下拉加载更多</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
             </div>
         </div>
     </div>
@@ -103,15 +147,240 @@
     var v = new Vue({
         el: '#app',
         data: {
-            member: {}
+            showLoading: false,
+            toast: false,
+            statusType: [],
+            checknum: 0, //当前index值
+            checkvalue: 0, //当前状态
+            nolist: true,
+            showMore: 1,
+            scrollTop: 0,
+            pageIndex: 1,
+            orderList: [],
         },
         methods: {
             apiReady() {
-                console.log('apiready');
-            }
+
+            },
+            getList(status, pageIndex) {
+                if (pageIndex != 1 && this.showMore == 2) {
+                    return;
+                }
+                this.showMore = 1;
+                var member = getStorageSync('member');
+                var that = this;
+                var data = {
+                    userID: member.UserID,
+                    orderStatus: status,
+                    pageIndex: pageIndex,
+                    pageSize: 10,
+                }
+                loginAjax(
+                    'api/Account/GetOrderList',
+                    'get',
+                    data,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        if (res.status) {
+                            var orderList = that.orderList;
+                            var index = that.checknum;
+                            if (res.data.length == 0 && pageIndex == 1) {
+                                that.nolist = false;
+                            } else {
+                                that.nolist = true;
+                            }
+                            if (pageIndex == 1) {
+                                orderList = [];
+                            }
+                            for (var i = 0; i < res.data.length; i++) {
+                                var goodlist = [];
+                                for (var j = 0; j < res.data[i].ApiOrderItemList.length; j++) {
+                                    var total = res.data[i].ApiOrderItemList[j].Price * res.data[i].ApiOrderItemList[j].Number;
+                                    var goods = {
+                                        pic: res.data[i].ApiOrderItemList[j].ImageUrl,
+                                        name: res.data[i].ApiOrderItemList[j].ItemName,
+                                        stockname: res.data[i].ApiOrderItemList[j].StockName,
+                                        num: res.data[i].ApiOrderItemList[j].Number,
+                                        unitname: res.data[i].ApiOrderItemList[j].UnitName,
+                                        price: res.data[i].ApiOrderItemList[j].Price,
+                                        total: total
+                                    }
+                                    goodlist.push(goods);
+                                }
+                                var order = {
+                                    indent: res.data[i].PayNo,
+                                    IsCheck: res.data[i].IsCheck,
+                                    orderID: res.data[i].OrderID,
+                                    status: res.data[i].OrderStatusText,
+                                    statusCode: res.data[i].OrderStatus,
+                                    amount: res.data[i].OrderAmount.toFixed(2),
+                                    num: res.data[i].TotalNumber,
+                                    goodlist: goodlist
+                                }
+                                orderList.push(order);
+                            }
+                            that.orderList = orderList;
+                            that.pageIndex++;
+                            if (res.data.length < 10) {
+                                that.showMore = 2;
+                            } else {
+                                that.showMore = 0;
+                            }
+                        }
+                    }
+                );
+            },
+            changeStatus(index) {
+                if (this.checknum == index) {
+                    return;
+                }
+                $('.scroll-view').scrollTop(0);
+                this.checknum = index;
+                this.pageIndex = 1;
+                this.getList(this.statusType[index].value, this.pageIndex);
+            },
+            toOrderDetail(index){
+                linkTo('orderDetail','orderDetail.html',true,{orderID:this.orderList[index].orderID});
+            },
+            orderCancel(index) {
+                var that = this;
+                var member = getStorageSync('member');
+                showConfirm('确定要取消订单吗？', function() {
+                    console.log(JSON.stringify(that.orderList[index]));
+                    var data = {
+                        UserID: member.UserID,
+                        OrderID: that.orderList[index].orderID,
+                        OrderLogType: 9
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                        'api/Account/ModifyIndentInfo',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            showToast(res.message);
+                            if (res.status) {
+                                that.orderList[index].status = '已关闭';
+                                that.orderList[index].statusCode = 9;
+                            }
+                        }
+                    );
+                });
+            },
+            orderPay(index) {
+
+            },
+            orderFalse(index) {
+                var that = this;
+                var member = getStorageSync('member');
+                showConfirm('确定要作废订单吗？', function() {
+                    console.log(JSON.stringify(that.orderList[index]));
+                    var data = {
+                        UserID: member.UserID,
+                        OrderID: that.orderList[index].orderID,
+                        OrderLogType: 5
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                        'api/Account/ModifyIndentInfo',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            showToast(res.message);
+                            if (res.status) {
+                                that.orderList[index].status = '已作废';
+                                that.orderList[index].statusCode = 4;
+                                member.Amount = res.data.Amount;
+                                setStorageSync('member', member);
+                            }
+                        }
+                    );
+                });
+            },
+            orderLogistics(index) {
+
+            },
+            orderModify(index) { //确认收货
+                var that = this;
+                var member = getStorageSync('member');
+                showConfirm('确定已收货？', function() {
+                    console.log(JSON.stringify(that.orderList[index]));
+                    var data = {
+                        UserID: member.UserID,
+                        OrderID: that.orderList[index].orderID,
+                        OrderLogType: 10
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                        'api/Account/ModifyIndentInfo',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            showToast(res.message);
+                            if (res.status) {
+                                that.orderList[index].status = '已完成';
+                                that.orderList[index].statusCode = 8;
+                            }
+                        }
+                    );
+                });
+            },
+            orderDelete(index) {
+                var that = this;
+                var member = getStorageSync('member');
+                showConfirm('确定要删除订单吗？', function() {
+                    console.log(JSON.stringify(that.orderList[index]));
+                    var data = {
+                        UserID: member.UserID,
+                        OrderID: that.orderList[index].orderID,
+                        OrderLogType: 6
+                    }
+                    console.log(JSON.stringify(data));
+                    loginAjax(
+                        'api/Account/ModifyIndentInfo',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            showToast(res.message);
+                            if (res.status) {
+                                that.orderList.splice(index, 1);
+                            }
+                        }
+                    );
+                });
+            },
+
         },
         mounted() {
-            this.member = getStorageSync('member');
+            var member = getStorageSync('member');
+            var that = this;
+            loginAjax(
+                'api/Account/GetOrderStatus',
+                'get', {
+                    userID: member.UserID
+                },
+                function(res) {
+                    // console.log(JSON.stringify(res));
+                    if (res.status) {
+                        var statusType = [];
+                        for (var i = 0; i < res.data.length; i++) {
+                            var status = {
+                                value: res.data[i].Value,
+                                text: res.data[i].Text
+                            }
+                            statusType.push(status);
+                        }
+                        that.statusType = statusType;
+                        that.checkvalue = res.data[0].Value;
+                        that.showLoading = false;
+                        that.getList(res.data[0].Value, 1);
+                    }
+                }
+            );
         }
     });
 
@@ -119,10 +388,19 @@
         hPadding(function() {
             var headerh = $('header').outerHeight();
             var windowh = $('body').height();
-            $('.scroll-view').height(windowh - headerh + 'px');
+            var stateh = $('.orderState').outerHeight();
+            $('.scroll-view').height(windowh - headerh - stateh + 'px');
         });
         v.apiReady();
     }
+    $('.scroll-view').scroll(function() {
+        var boxh = $(this).height();
+        var boxt = $(this).scrollTop();
+        var bodyh = $('.aui-content').height();
+        if (boxh + boxt == bodyh) {
+            v.getList(v.statusType[v.checknum].value, v.pageIndex);
+        }
+    });
 </script>
 
 </html>

@@ -175,16 +175,17 @@
                         'post',
                         data,
                         function(res) {
-                            console.log(JSON.stringify(res));
+                            // console.log(JSON.stringify(res));
                             that.showLoading=false;
                             showToast(res.message);
                             if (res.status) {
                                 setTimeout(function() {
-
+                                    linkTo('recharge','recharge.html',true,{
+                                        LoginID:that.phone
+                                    });
                                 }, 1500)
                             }
-                        },
-                        'application/json'
+                        }
                     )
                 }
             },

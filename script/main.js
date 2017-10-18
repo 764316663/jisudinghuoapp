@@ -234,6 +234,9 @@ function listenEvent(name, fn) {
 Vue.filter('toFix', function(value) {
     return parseFloat(value).toFixed(2);
 });
+Vue.filter('toFix1', function(value) {
+    return parseFloat(value).toFixed(2)*1;
+});
 
 //Plug-in unit
 function showToast(msg, fn) {

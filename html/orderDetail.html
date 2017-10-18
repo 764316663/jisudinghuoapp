@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+            /*background: #efeff4;*/
+        }
+
+        .top {
+            width: 100%;
+            height: 4rem;
+        }
+
+        .top img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .title {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+        }
+
+        .addbox {
+            -webkit-align-items: flex-start !important;
+            align-items: flex-start !important;
+            padding: 0.25rem 0;
+        }
+
+        .addiconbox {
+            width: 12%;
+            padding-right: 0.5rem;
+        }
+
+        .addicon {
+            font-size: 24px !important;
+        }
+
+        .aui-list,
+        .aui-list-item:last-child {
+            background-image: none !important;
+        }
+
+        .tborder {
+            border-left: 2px solid #fd961b;
+            color: #fd961b !important;
+            font-size: 16px;
+            /*font-weight: bold;*/
+        }
+
+        .aui-list .aui-list-item-media {
+            width: 3.5rem;
+        }
+
+        .footer {
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        .footer .aui-btn {
+            border-radius: 0;
+        }
+        .aui-list-item:active{
+          background-color: #fff !important;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>订单详情
+            </div>
+        </header>
+        <div class="scroll-view">
+            <div class="top pr">
+                <img src="../image/orderBG.png" alt="">
+                <div class="title">
+                    <p class="f16 white">{{status}}</p>
+                    <p class="f12 white">SHOPPED BY SELLER</p>
+                </div>
+            </div>
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title f14">订单编号：{{orderCode}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner aui-list-item-arrow flex-start addbox">
+                            <div class="aui-list-item-title addiconbox">
+                                <i class="aui-iconfont aui-icon-location addicon"></i>
+                            </div>
+                            <div class="aui-list-item-title f14">
+                                <p class="black">{{address.name}} {{address.phone}}</p>
+                                <p class="black">{{address.address}}</p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-media-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title pl15 tborder">商品清单</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item" v-for="(v,i) in goodlist">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-media">
+                                <img :src="v.src+'/200'">
+                            </div>
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-text">
+                                    <div class="aui-list-item-title f14">{{v.name}}</div>
+                                    <div class="aui-list-item-right price f14">￥{{v.price}}</div>
+                                </div>
+                                <div class="aui-list-item-text f12">规格:{{v.choose}} , 数量:{{v.num}}{{v.unit}}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title pl15 tborder">订单信息</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item pt10 pb10">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner db">
+                                <div class="aui-list-item-title f14 m5">商品数量 : {{orderNum}}</div>
+                                <div class="aui-list-item-title f14 m5">商品金额 : ￥{{goodsMoney}}</div>
+                                <div class="aui-list-item-title f14 m5">运费金额 : ￥{{ExpressFee}}</div>
+                                <div class="aui-list-item-title f14 m5">订单金额 : ￥{{orderMoney}}</div>
+                                <div class="aui-list-item-title f14 m5">下单时间 : {{orderTime}}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title pl15 tborder">物流信息</div>
+                            <div class="aui-list-item-right">{{track.status}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item pt10 pb10">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner db">
+                                <div class="aui-list-item-title f14 m5">物流公司 : {{track.company}}</div>
+                                <div class="aui-list-item-title f14 m5">物流单号 : {{track.order ? track.order :  '暂无物流信息'}}</div>
+                                <div class="aui-list-item-title f14 m5">发货日期 : {{track.time ? track.time : '暂无物流信息'}}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title pl15 tborder">备注信息</div>
+                            <div class="aui-list-item-right">{{descNum}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="aui-btn aui-btn-block bgcolor">再次购买</div>
+        </footer>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            orderID: '',
+            status: '',
+            orderCode: '',
+            address: {},
+            goodlist: [{}],
+            orderNum: 0,
+            goodsMoney: 0,
+            ExpressFee: 0,
+            orderMoney: 0,
+            orderTime: 0,
+            track: {},
+            descNum: 0
+        },
+        methods: {
+            apiReady() {
+                var member = getStorageSync('member');
+                this.orderID = api.pageParam.orderID;
+                var that = this;
+                loginAjax(
+                    'api/Account/GetOrderDetail',
+                    'get', {
+                        userID: member.UserID,
+                        orderID: api.pageParam.orderID
+                    },
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        that.showLoading = false;
+                        if (res.status) {
+                            var goodlist = [];
+                            for (var i = 0; i < res.data.ApiOrderItemList.length; i++) {
+                                var good = {
+                                    src: res.data.ApiOrderItemList[i].ImageUrl,
+                                    name: res.data.ApiOrderItemList[i].ItemName,
+                                    choose: res.data.ApiOrderItemList[i].StockName,
+                                    num: res.data.ApiOrderItemList[i].Number,
+                                    unit: res.data.ApiOrderItemList[i].UnitName,
+                                    price: res.data.ApiOrderItemList[i].Price,
+                                }
+                                goodlist.push(good);
+                            }
+                            that.goodlist = goodlist;
+                            that.status = res.data.OrderStatusText;
+                            that.orderID = res.data.OrderID;
+                            that.orderCode = res.data.PayNo;
+                            that.orderTime = res.data.CreateDate;
+                            that.orderNum = res.data.TotalNumber;
+                            that.orderMoney = res.data.OrderAmount;
+                            that.goodsMoney = res.data.GoodAmount;
+                            that.ExpressFee = res.data.ExpressFee;
+                            that.descNum = res.data.OrderCommentNum;
+                            that.IsCheck = res.data.IsCheck;
+                            that.track = {
+                                status: res.data.OrderStatusText,
+                                company: res.data.LogisticName,
+                                order: res.data.ExpressNum,
+                                time: res.data.ShipmentsDate
+                            };
+                            that.address = {
+                                name: res.data.Receiver,
+                                phone: res.data.Mobile,
+                                address: res.data.ProvinceName + res.data.CityName + res.data.TownName + res.data.Address,
+                                ProvinceName: res.data.ProvinceName,
+                                CityName: res.data.CityName,
+                                TownName: res.data.TownName,
+                                Address: res.data.Address,
+                            }
+                        }
+                    }
+                );
+            },
+
+        },
+        mounted() {
+            var member = getStorageSync('member');
+            var that = this;
+
+        }
+    });
+
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('.footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>
