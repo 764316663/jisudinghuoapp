@@ -164,24 +164,22 @@
                     'get',
                     data,
                     function(res) {
-                        that.showLoading = false;
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
-                            var orderList = that.data.orderList;
+                            var orderList = that.orderList;
+                            var index = that.checknum;
                             if (res.data.length == 0 && pageIndex == 1) {
-                                that.setData({
-                                    nolist: false
-                                })
+                                that.nolist = false;
                             } else {
-                                that.setData({
-                                    nolist: true
-                                })
+                                that.nolist = true;
                             }
                             if (pageIndex == 1) {
-                                orderList[index] = [];
+                                orderList = [];
                             }
                             for (var i = 0; i < res.data.length; i++) {
                                 var goodlist = [];
                                 for (var j = 0; j < res.data[i].ApiOrderItemList.length; j++) {
+                                    var total = res.data[i].ApiOrderItemList[j].Price * res.data[i].ApiOrderItemList[j].Number;
                                     var goods = {
                                         pic: res.data[i].ApiOrderItemList[j].ImageUrl,
                                         name: res.data[i].ApiOrderItemList[j].ItemName,
@@ -189,6 +187,7 @@
                                         num: res.data[i].ApiOrderItemList[j].Number,
                                         unitname: res.data[i].ApiOrderItemList[j].UnitName,
                                         price: res.data[i].ApiOrderItemList[j].Price,
+                                        total: total
                                     }
                                     goodlist.push(goods);
                                 }
@@ -202,18 +201,14 @@
                                     num: res.data[i].TotalNumber,
                                     goodlist: goodlist
                                 }
-                                orderList[index].push(order)
+                                orderList.push(order);
                             }
+                            that.orderList = orderList;
+                            that.pageIndex++;
                             if (res.data.length < 10) {
-                                that.setData({
-                                    showMore: 2,
-                                    orderList
-                                })
+                                that.showMore = 2;
                             } else {
-                                that.setData({
-                                    showMore: 0,
-                                    orderList
-                                })
+                                that.showMore = 0;
                             }
                         }
                     }
@@ -352,6 +347,14 @@
         });
         v.apiReady();
     }
+    $('.scroll-view').scroll(function(){
+          var boxh = $(this).height();
+          var boxt = $(this).scrollTop();
+          var bodyh = $('.aui-content').height();
+          if (boxh + boxt == bodyh) {
+              v.getOrderList(v.pageIndex);
+          }
+    });
 </script>
 
 </html>

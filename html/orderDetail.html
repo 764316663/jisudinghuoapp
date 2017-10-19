@@ -65,9 +65,10 @@
         }
 
         .footer {
-            position: fixed;
+            /*position: fixed;*/
             width: 100%;
-            bottom: 0;
+            flex-wrap: nowrap;
+            /*bottom: 0;*/
         }
 
         .footer .aui-btn {
@@ -193,8 +194,9 @@
                 </ul>
             </div>
         </div>
-        <footer class="footer">
-            <div class="aui-btn aui-btn-block bgcolor">再次购买</div>
+        <footer class="footer flex-row">
+            <div class="aui-btn aui-btn-block aui-btn-outlined" v-show="status=='待付款'" @click="orderCancel()">取消订单</div>
+            <div class="aui-btn aui-btn-block bgcolor" @click="buyAgain()">再次购买</div>
         </footer>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
@@ -306,10 +308,52 @@
                         sourceTrackmoney: this.ExpressFee,
                         orderID: this.orderID,
                     }
-                    linkTo('orderChange','orderChange.html',true,info);
+                    linkTo('orderChange', 'orderChange.html', true, info);
                 }
+            },
+            orderCancel() { //取消订单
+                var that = this;
+                var member = getStorageSync('member');
+                showConfirm('确定要取消订单吗？', function() {
+                    var data = {
+                        UserID: member.UserID,
+                        OrderID: that.orderID,
+                        OrderLogType: 9
+                    }
+                    loginAjax(
+                        'api/Account/ModifyIndentInfo',
+                        'post',
+                        data,
+                        function(res) {
+                            // console.log(JSON.stringify(res));
+                            showToast(res.message);
+                            setTimeout(function() {
+                                that.apiReady();
+                            }, 1500);
+                            // if (res.status) {
+                            //     that.status = '已关闭';
+                            //     that.orderList[index].statusCode = 9;
+                            // }
+                        }
+                    );
+                });
+            },
+            buyAgain() {
+                var that = this;
+                var member = getStorageSync('member');
+                var data = {
+                    userID: member.UserID,
+                    orderID: that.orderID,
+                }
+                loginAjax(
+                    'api/Order/BuyThisOrderAgain',
+                    'post',
+                    data,
+                    function(res) {
+                        console.log(JSON.stringify(res));
+                    }
+                );
             }
-
         },
         mounted() {
             var member = getStorageSync('member');

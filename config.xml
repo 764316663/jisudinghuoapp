@@ -58,9 +58,9 @@
 
     <permission name="hardware"/>
 
-    <!-- <feature name="wx">
-        <param name="urlScheme" value="wx824355b1e30a2abf"/>
-        <param name="apiKey" value="wx824355b1e30a2abf"/>
-        <param name="apiSecret" value="ddcbcede834e853fcdb2c00f56bad6d4"/>
-    </feature> -->
+    <feature name="wx">
+        <param name="urlScheme" value="wx3be29e1b537c026e"/>
+        <param name="apiKey" value="wx3be29e1b537c026e"/>
+        <param name="apiSecret" value="f45492f0c523fd6840d7e5a6f1967e3b"/>
+    </feature>
 </widget>
