@@ -41,8 +41,8 @@
 
         .list2 {
             margin: 0.4rem 0;
-            padding: 0 0.4rem;
-            border-left: 6px solid transparent;
+            padding: 0 0.25rem;
+            border-left: 4px solid transparent;
         }
 
         .list2Act {
@@ -189,8 +189,8 @@
             <div class="wrap bgf">
                 <div class="wlist fl">
                     <div class="wbox" v-for="(v,i) in list2">
-                        <div class="list1 bgcolor" @click="changeList1(i)">{{v.WareHouse}}</div>
-                        <div v-for="(value,index) in v.list" :class="{list2:true,list2Act:index == list2Active && i == list1Active}" v-show="list2[i].open" @click="changeList2(i,index)">{{value.name}}</div>
+                        <div class="list1 f16 bgcolor" @click="changeList1(i)">{{v.WareHouse}}</div>
+                        <div v-for="(value,index) in v.list" :class="{f14:true,list2:true,list2Act:index == list2Active && i == list1Active}" v-show="list2[i].open" @click="changeList2(i,index)">{{value.name}}</div>
                     </div>
                 </div>
                 <div class="slist fr">

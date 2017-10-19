@@ -58,7 +58,8 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="linkTo('home','home.html',true)"></a>订单完成
+                <!-- <a class="hicon aui-iconfont aui-icon-left" @click="linkTo('home','home.html',true)"></a>订单完成 -->
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>订单完成
             </div>
         </header>
         <div class="mtitle oh">
@@ -115,7 +116,8 @@
                     }
                 );
             },
-            complete() {;
+            complete() {
+                closeWin();
             },
             pay() {
                 linkTo('orderPay','orderPay.html',true,{payNo:this.payNo.join(',')});
@@ -128,8 +130,10 @@
     apiready = function() {
         hPadding();
         v.apiReady();
-        closeWin('orderCreate');
-        closeWin('cartOrderCreate');
+        setTimeout(function(){
+            closeWin('orderCreate');
+            closeWin('cartOrderCreate');
+        },500);
     }
 </script>
 

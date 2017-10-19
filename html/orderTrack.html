@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>物流信息</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+            /*background: #efeff4;*/
+        }
+
+        .title {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+        }
+
+        .aui-list,
+        .aui-list-item:last-child {
+            background-image: none !important;
+        }
+
+        .tborder {
+            border-left: 2px solid #fd961b;
+            color: #fd961b !important;
+            font-size: 16px;
+            /*font-weight: bold;*/
+        }
+
+        .aui-list-item:active {
+            background-color: #fff !important;
+        }
+
+        .status {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .bl1 {
+            border-left: 1px solid #a7a9ac;
+        }
+
+        .ciritem {
+            width: 0.6rem;
+            height: 0.6rem;
+            position: absolute;
+            top: 0.7rem;
+            left: -0.32rem;
+            background-color: #a7a9ac;
+            border-radius: 50%;
+        }
+
+        .ciritem.first {
+            background-color: #fc9a30;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>物流信息
+            </div>
+        </header>
+        <div class="tc f16 gray pt30" v-if="notrack">暂无物流信息</div>
+        <div class="scroll-view" v-if="!notrack">
+            <div class="aui-content">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title pl15 tborder">订单信息</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item pt10 pb10">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner db">
+                                <div class="aui-list-item-title f14 m5">发货日期 : {{time}}</div>
+                                <div class="aui-list-item-title f14 m5">物流公司 : {{company}}</div>
+                                <div class="aui-list-item-title f14 m5">物流单号 : {{order}} <span class="price" @click="copy()">点击复制</span></div>
+                                <div class="aui-list-item-title f14 m5">{{copymsg}}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="aui-content">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item aui-list-item-middle">
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <div class="aui-list-item-title pl15 tborder">物流状态</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item pt10 pb10">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-inner db">
+                                <div class="ml10 bl1" v-for="(v,i) in track">
+                                    <div class="aui-list-item-title f14 status pr">
+                                        <p class="black">{{v.content}}</p>
+                                        <p class="black">{{v.time}}</p>
+                                        <div :class="{ciritem:true,first:i==0}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            time: '',
+            company: '',
+            order: '',
+            track: [{}],
+            notrack: false,
+            reason: '',
+            copymsg: ''
+        },
+        methods: {
+            apiReady() {
+                var member = getStorageSync('member');
+                var that = this;
+                this.orderID = api.pageParam.orderID;
+                loginAjax(
+                    'api/Account/OrderLogisticsInfo',
+                    'get', {
+                        userID: member.UserID,
+                        orderID: api.pageParam.orderID
+                    },
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        that.showLoading = false;
+                        if (res.status) {
+                            var track = [];
+                            if (res.data.LogisticsInfo.Traces.length == 0) {
+                                var reason = res.data.LogisticsInfo.Reason
+                            } else {
+                                var reason = ''
+                            }
+                            for (var i = 0; i < res.data.LogisticsInfo.Traces.length; i++) {
+                                var item = {
+                                    content: res.data.LogisticsInfo.Traces[i].AcceptStation,
+                                    time: res.data.LogisticsInfo.Traces[i].AcceptTime
+                                }
+                                track.unshift(item);
+                                that.order = res.data.LogisticsInfo.LogisticCode;
+                                that.company = res.data.OrderInfo.Name;
+                                that.track = track;
+                                that.time = res.data.OrderInfo.ShipmentsDate;
+                                that.notrack = false;
+                                that.reason = reason;
+                            }
+                        } else {
+                            that.notrack = true;
+                        }
+                    }
+                );
+            },
+            copy() {
+                var that=this;
+                var clipBoard = api.require('clipBoard');
+                clipBoard.set({
+                    value: that.order
+                }, function(ret, err) {
+                    if (ret) {
+                      showToast('复制成功！请到快递100小程序查询物流');
+                      that.copymsg='复制成功！请到快递100小程序查询物流';
+                    } else {
+                        console.log(JSON.stringify(err));
+                    }
+                });
+            }
+        },
+        mounted() {
+            var member = getStorageSync('member');
+            var that = this;
+
+        }
+    });
+
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

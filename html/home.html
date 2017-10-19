@@ -27,53 +27,18 @@
             position: relative;
             border-top: 1px solid #f2f2f2;
         }
-
-        #footer ul li {
-            padding-top: 28px;
-            padding-bottom: 2px;
-            background: url() no-repeat center 2px;
-            background-size: auto 30px;
-            text-align: center;
+        .aui-bar-tab-item img{
+          width: 1.5rem;
+          height: 1.5rem;
         }
-
-        #footer ul li.active {
-            color: #6ab494;
+        .aui-bar-tab-item .actshow,.aui-bar-tab-item.aui-active .acthide{
+          display: none;
         }
-
-        #footer ul li:nth-child(1) {
-            background-image: url(./image/tabbar/index.png);
+        .aui-bar-tab-item.aui-active .actshow{
+          display: block;
         }
-
-        #footer ul li:nth-child(2) {
-            background-image: url(./image/tabbar/shop.png);
-        }
-
-        #footer ul li:nth-child(3) {
-            background-image: url(./image/tabbar/cart.png);
-        }
-
-        #footer ul li:nth-child(4) {
-            background-image: url(./image/tabbar/setting.png);
-        }
-
-        #footer ul li:nth-child(1).active {
-            background-image: url(./image/tabbar/index1.png);
-        }
-
-        #footer ul li:nth-child(2).active {
-            background-image: url(./image/tabbar/shop1.png);
-        }
-
-        #footer ul li:nth-child(3).active {
-            background-image: url(./image/tabbar/cart1.png);
-        }
-
-        #footer ul li:nth-child(4).active {
-            background-image: url(./image/tabbar/setting1.png);
-        }
-
         .flex-con {
-            overflow: auto
+            overflow: auto;
         }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
@@ -95,21 +60,29 @@
         </div>
         <footer class="aui-bar aui-bar-tab" id="footer">
             <div class="aui-bar-tab-item aui-active" tapmode onclick="randomSwitchBtn( this );">
-                <i class="aui-iconfont aui-icon-home"></i>
+                <!-- <i class="aui-iconfont aui-icon-home"></i> -->
+                <img class="mcenter actshow" src="../image/tabbar/index1.png" alt="">
+                <img class="mcenter acthide" src="../image/tabbar/index.png" alt="">
                 <div class="aui-bar-tab-label">首页</div>
             </div>
             <div class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn( this );">
-                <i class="aui-iconfont aui-icon-menu"></i>
+                <!-- <i class="aui-iconfont aui-icon-menu"></i> -->
+                <img class="mcenter actshow" src="../image/tabbar/shop1.png" alt="">
+                <img class="mcenter acthide" src="../image/tabbar/shop.png" alt="">
                 <div class="aui-bar-tab-label">商城</div>
             </div>
             <div class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn( this );">
                 <div class="aui-badge">99</div>
-                <i class="aui-iconfont aui-icon-cart"></i>
+                <!-- <i class="aui-iconfont aui-icon-cart"></i> -->
+                <img class="mcenter actshow" src="../image/tabbar/cart1.png" alt="">
+                <img class="mcenter acthide" src="../image/tabbar/cart.png" alt="">
                 <div class="aui-bar-tab-label">购物车</div>
             </div>
             <div class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn( this );">
                 <div class="aui-dot"></div>
-                <i class="aui-iconfont aui-icon-my"></i>
+                <!-- <i class="aui-iconfont aui-icon-my"></i> -->
+                <img class="mcenter actshow" src="../image/tabbar/setting1.png" alt="">
+                <img class="mcenter acthide" src="../image/tabbar/setting.png" alt="">
                 <div class="aui-bar-tab-label">设置</div>
             </div>
         </footer>

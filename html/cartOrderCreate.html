@@ -52,7 +52,7 @@
             </div>
             <div class="aui-content aui-margin-b-15">
                 <ul class="aui-list aui-list-in no-list-item-active">
-                    <li class="aui-list-item" v-on:click="toAddress()">
+                    <li class="aui-list-item" @click="toAddress()">
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <div class="aui-list-item-title">收货信息</div>
                             <div class="aui-list-item-right f14 black">选择地址</div>
@@ -64,7 +64,7 @@
                                 <div class="titleleft-checkbox" v-show="boxshow">
                                     <label>
                     										<div class="labelcheckbox titlecheckbox">
-                    										  	<input type="checkbox" class="checkbox-input" :checked="addTrue" v-on:change="changeAddTrue()" />
+                    										  	<input type="checkbox" class="checkbox-input" :checked="addTrue" @change="changeAddTrue()" />
                     										  	<span class="checkbox-class">
                     									  			<i class="aui-iconfont aui-icon-correct"></i>
                     								  			</span>
@@ -81,7 +81,7 @@
             </div>
             <div class="aui-content" v-for="(v,i) in LogisticList">
                 <ul class="aui-list aui-list-in no-list-item-active">
-                    <li class="aui-list-item" v-on:click="showPicker(i)">
+                    <li class="aui-list-item" @click="showPicker(i)">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-title">{{v.wareHouseName}}</div>
                             <div class="aui-list-item-right f16 black">{{v.expressName}}</div>
@@ -122,7 +122,7 @@
             <span class="black f16">应付金额：</span>
             <span class="price f16">￥{{totalNum}}</span>
             <span class="f10 gray smtext">不含运费</span>
-            <p class="subtn fr f16" v-on:click="orderCompile()">提交订单</p>
+            <p class="subtn fr f16" @click="orderCompile()">提交订单</p>
         </footer>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
@@ -273,18 +273,21 @@
                             return false;
                         }
                         LogisticIDs.push(this.LogisticList[i].key);
-                        Remarks.push(this.LogisticList[i].remark?this.LogisticList[i].remark:'无');
+                        Remarks.push(this.LogisticList[i].remark);
+                        // Remarks.push(this.LogisticList[i].remark?this.LogisticList[i].remark:'无');
                     }
+                    var remark=Remarks.join(',');
                     var member = getStorageSync('member');
                     var data = {
                         userID: member.UserID,
                         cartIDs: this.cartIDs,
                         cartNumbers: this.cartNumbers,
                         LogisticIDs: LogisticIDs.join(','),
-                        remark: Remarks.join(','),
+                        remark: remark,
                         IsSyncAddress: false,
                         addressParam: this.AddressParam
                     }
+                    console.log(JSON.stringify(data));
                     loginAjax(
                         'api/Order/AddCartToOrder',
                         'post',

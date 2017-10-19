@@ -152,7 +152,10 @@
     apiready = function() {
         hPadding();
         v.apiReady();
-        closeWin('orderComplete');
+        setTimeout(function(){
+            closeWin('orderComplete');
+        },500);
+
     }
 </script>
 

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .searchbox {
+            width: 100%;
+            height: 2.2rem;
+        }
+
+        #search {
+            width: 80%;
+        }
+
+        .searchbtn {
+            width: 20%;
+            height: 2.2rem;
+        }
+
+        .searchbtn div {
+            width: 80%;
+            height: 1.4rem;
+            background-color: #fff;
+            margin: 0.4rem 0.2rem;
+            line-height: 1.4rem;
+            border-radius: 0.125rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>搜索
+            </div>
+        </header>
+        <div class="searchbox">
+            <div class="aui-searchbar fl bgcolor" id="search">
+                <div class="aui-searchbar-input aui-border-radius">
+                    <i class="aui-iconfont aui-icon-search"></i>
+                    <input type="search" placeholder="收件人名称/手机号/快递单号" id="search-input" v-model="searchKey">
+                </div>
+            </div>
+            <div class="searchbtn fr oh bgcolor">
+                <div class="tc black" @click="searchOrder()">搜 索</div>
+            </div>
+        </div>
+        <div class="scroll-view" v-show="orderHistory.length">
+        <!-- <div class="scroll-view"> -->
+            <div class="aui-content aui-margin-b-15 bgf">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item" v-for="(v,i) in orderHistory" @click="linkTo('orderSearchDetail','orderSearchDetail.html',true,{key:v})">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">{{v}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item bimgnone">
+                        <div class="aui-list-item-inner aui-list-item-center aui-list-item-btn">
+                            <div class="aui-btn aui-btn-outlined" @click="chearHistory()">清除历史记录</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            searchKey: '',
+            orderHistory: []
+        },
+        methods: {
+            apiReady() {
+
+            },
+            searchOrder() {
+                if (!this.searchKey) {
+                    showToast('请输入需要搜索的信息');
+                } else {
+                    var flag=true;
+                    if (this.orderHistory.length) {
+                        for (var i = 0; i < this.orderHistory.length; i++) {
+                            if(this.searchKey==this.orderHistory[i]){
+                                flag=false;
+                            }
+                        }
+                    }
+                    if(flag){
+                        this.orderHistory.unshift(this.searchKey);
+                    }
+                    setStorageSync('orderHistory',this.orderHistory);
+                    linkTo('orderSearchDetail','orderSearchDetail.html',true,{key:this.searchKey});
+                }
+            },
+            chearHistory(){
+                this.orderHistory=[];
+                removeStorageSync('orderHistory');
+            }
+        },
+        mounted() {
+            this.orderHistory = getStorageSync('orderHistory') || [];
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var searchh = $('.searchbox').outerHeight();
+            $('.scroll-view').height(windowh - headerh - searchh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

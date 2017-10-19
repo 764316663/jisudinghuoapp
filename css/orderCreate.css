@@ -4,7 +4,6 @@ html, body, #app {
 
 #app {
     box-sizing: border-box;
-    padding-bottom: 2.75rem;
 }
 .scroll-view{
   height:calc(100% - 2.5rem);

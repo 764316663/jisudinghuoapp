@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>填写订单</title>
+    <title>修改地址</title>
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
@@ -30,7 +30,7 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>填写订单
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>变更订单收货地址
             </div>
         </header>
         <div class="scroll-view">
@@ -38,14 +38,21 @@
                 <ul class="aui-list aui-list-in no-list-item-active">
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
-                            <div class="aui-list-item-title">重量合计</div>
-                            <div class="aui-list-item-right price f16">{{weight}}kg</div>
+                            <div class="aui-list-item-title">原 收货信息</div>
                         </div>
                     </li>
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
-                            <div class="aui-list-item-title">订单金额</div>
-                            <div class="aui-list-item-right price f16">￥{{price | toFix}}</div>
+                            <div class="addbox">
+                                <p class="f14 gray">收件人：{{sourceAddress.name}}&nbsp;&nbsp;{{sourceAddress.phone}}</p>
+                                <p class="f14 gray">地址：{{sourceAddress.address}}</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">运费</div>
+                            <div class="aui-list-item-right price f16">￥{{sourceTrackmoney}}</div>
                         </div>
                     </li>
                 </ul>
@@ -54,46 +61,31 @@
                 <ul class="aui-list aui-list-in no-list-item-active">
                     <li class="aui-list-item" @click="toAddress()">
                         <div class="aui-list-item-inner aui-list-item-arrow">
-                            <div class="aui-list-item-title">收货信息</div>
+                            <div class="aui-list-item-title">变更 收货信息</div>
                             <div class="aui-list-item-right f14 black">选择地址</div>
                         </div>
                     </li>
                     <li class="aui-list-item" v-show="address.address">
                         <div class="aui-list-item-inner">
                             <div class="addbox">
-                                <div class="titleleft-checkbox" v-show="address.address">
-                                    <label>
-                    										<div class="labelcheckbox titlecheckbox">
-                    										  	<input type="checkbox" class="checkbox-input" :checked="addTrue" @change="changeAddTrue()" />
-                    										  	<span class="checkbox-class">
-                    									  			<i class="aui-iconfont aui-icon-correct"></i>
-                    								  			</span>
-                    										</div>
-                    										<p class="titlename f14 gray">是否同步到系统地址</p>
-                    						    </label>
-                                </div>
                                 <p class="f14 gray">收件人：{{address.name}}&nbsp;&nbsp;{{address.phone}}</p>
                                 <p class="f14 gray">地址：{{address.address}}</p>
                             </div>
                         </div>
                     </li>
-                </ul>
-            </div>
-            <div class="aui-content">
-                <ul class="aui-list aui-list-in no-list-item-active">
                     <li class="aui-list-item" @click="showPicker()">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-title">快递公司</div>
                             <div class="aui-list-item-right f16 black">{{expressName}}</div>
                         </div>
                     </li>
-                    <li :class="{'aui-list-item':true,courierbox:CourierContent?true:false}">
+                    <li :class="{'aui-list-item':true,courierbox:true}">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-title">运费</div>
                             <div class="aui-list-item-right price f16">￥{{CourierMoney}}</div>
                         </div>
                     </li>
-                    <li class="aui-list-item couriermsg" v-show="CourierContent">
+                    <li class="aui-list-item couriermsg">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-text">{{CourierContent}}</div>
                         </div>
@@ -102,27 +94,15 @@
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">订单备注</div>
                             <div class="aui-list-item-input">
-                                <input type="text" placeholder="内容" v-model="remark" :value="remark">
+                                <input type="text" placeholder="内容" v-model="remark">
                             </div>
                         </div>
                     </li>
                 </ul>
             </div>
-            <div class="aui-content">
-                <ul class="aui-list aui-list-in no-list-item-active">
-                    <li class="aui-list-item aui-list-item-arrow">
-                        <div class="aui-list-item-inner">
-                            <div class="aui-list-item-title">商品清单</div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
         </div>
-        <footer class="orderfooter">
-            <span class="black f16">应付金额：</span>
-            <span class="price f16">￥{{totalNum}}</span>
-            <span class="f10 gray smtext">不含运费</span>
-            <p class="subtn fr f16" @click="orderCompile()">提交订单</p>
+        <footer class="footer">
+            <div class="aui-btn aui-btn-block bgcolor" @click="changeOrder()">确认修改</div>
         </footer>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
@@ -140,11 +120,11 @@
         data: {
             toast: false,
             showLoading: true,
-            itemID: 0,
-            stockID: 0,
-            num: 0,
-            weight: 0,
-            price: 0,
+            sourceAddress: {
+                name: '',
+                phone: '',
+                address: ''
+            },
             address: {
                 name: '',
                 phone: '',
@@ -162,17 +142,15 @@
             WareHouseID: 0,
             LogisticList: [{}],
             provinceName: '',
-            addTrue: false,
-            boxshow: false,
             courierMsg: '',
             pickerIndex: 0,
-            key:'-1',
-            totalNum: 0,
+            key: '-1',
             CourierMoney: '',
             CourierContent: '',
             remark: '',
             pickerIndex: 0,
-            expressName: '--请选择--'
+            expressName: '--请选择--',
+            sourceTrackmoney: 0
         },
         methods: {
             showPicker() {
@@ -201,156 +179,127 @@
                         userName: orderAddress.name
                     };
                     this.provinceName = orderAddress.ProvinceName;
-                    this.wxadd = false;
-                    this.addtrue = false;
-                    /*
-                    for (var i = 0; i < this.LogisticList.length; i++) {
-                        this.courier(this.LogisticList[i].wareHouseID);
-                    }
-                    this.totalNum();*/
+                    this.courier();
                 }
-            },
-            changeAddTrue() {
-                this.addTrue = !this.addTrue;
-            },
-            total() {
-                var total = this.price + this.CourierMoney;
-                this.totalNum = total;
             },
 
             courier() {
-            /*    if (this.LogisticList[this.pickerIndex].value == -1) {
+                if (!this.address.address) {
+                    showToast('请先填写变更后的收货信息');
                     return;
-                }*/
+                }
+                if (this.key == '-1') {
+                    return;
+                }
                 var that = this;
                 var member = getStorageSync('member');
-                this.expressName = this.LogisticList[this.pickerIndex].text;
-                var logisticID = this.LogisticList[this.pickerIndex].value;
-                var provinceName = this.AddressParam.provinceName;
                 var data = {
                     userID: member.UserID,
-                    stockID: that.stockID,
-                    number: that.num,
-                    logisticID,
-                    provinceName
+                    orderID: that.orderID,
+                    logisticID: that.key,
+                    wareHouseID: that.wareHouseID,
+                    provinceName: that.provinceName || '',
                 }
-                callAjax(
-                    'api/Order/GetByNowExpressFee',
+                loginAjax(
+                    'api/Account/GetOrderExpressFee',
                     'get',
                     data,
                     function(res) {
-                        // console.log(JSON.stringify(res));
                         if (res.status) {
                             that.CourierMoney = res.data.expressFee;
-                            that.CourierContent = res.message;
-                            that.key=that.LogisticList[that.pickerIndex].value;
+                            that.CourierContent = res.data.tips;
                         } else {
+                            that.key = '-1';
                             that.CourierMoney = '';
                             that.CourierContent = res.message;
-                            that.LogisticList[that.pickerIndex].value = -1;
-                            that.key='-1';
+                            showToast(res.message);
                         }
-                        that.total();
                     }
                 );
-
             },
-            orderCompile() {
+            changeOrder() {
                 var that = this;
-                if (!this.address.address) {
-                    showToast('请输入收货地址');
-                }
-                else if (this.key == -1) {
-                    showToast('请选择快递公司');
-                }
-                 else {
-                    var member = getStorageSync('member');
-                    var orderFinishModel = {
-                            UserID: member.UserID,
-                            ItemID: that.itemID,
-                            StockID: that.stockID,
-                            BuyNumber: that.num,
-                            Remarks: that.remark,
-                            LogisticID: that.LogisticList[that.pickerIndex].value,
-                            IsSyncAddress: that.addtrue,
-                            AddressParam: that.AddressParam
-                        }
-                    that.showLoading = true;
-                    loginAjax(
-                        'api/Order/BuyNowOrderFinish',
-                        'post',
-                        orderFinishModel,
-                        function(res) {
-                            // console.log(JSON.stringify(res));
-                            that.showLoading = false;
-                            showToast(res.message);
-                            if (res.status) {
-                                setTimeout(function() {
-                                    linkTo('orderComplete', 'orderComplete.html', true, {
-                                        payNo: res.data.PayNo
-                                    });
-                                }, 1500);
-                            } else {
-
+                var member = getStorageSync('member');
+                if (!that.provinceName) {
+                    showToast('请先填写变更后的收货信息');
+                } else if (that.key == '-1') {
+                    showToast('请选择快递');
+                } else if(that.remark.length<5){
+                    showToast('填写修改地址的备注，不可少于5个字');
+                } else {
+                    showConfirm('变更地址将会产生运费差价，将直接从账户余额扣除/增加，是否确认变更', function() {
+                        that.showLoading = true;
+                        var data = {
+                            "UserID": member.UserID,
+                            "OrderID": that.orderID,
+                            "WareHouseID": that.wareHouseID,
+                            "LogisticID": that.key,
+                            "Comment": that.remark,
+                            "ApiAddressParamModel": {
+                                "postalCode": that.AddressParam.postalCode,
+                                "provinceName": that.AddressParam.provinceName,
+                                "cityName": that.AddressParam.cityName,
+                                "countyName": that.AddressParam.countyName,
+                                "detailInfo": that.AddressParam.detailInfo,
+                                "telNumber": that.AddressParam.telNumber,
+                                "userName": that.AddressParam.userName
                             }
                         }
-                    );
+                        console.log(JSON.stringify(data));
+                        loginAjax(
+                            'api/Account/ModifyOrderAddress',
+                            'post',
+                            data,
+                            function(res) {
+                                that.showLoading = false;
+                                console.log(JSON.stringify(res));
+                                showToast(res.message);
+                                if (res.status) {
+                                    member.Amount = res.data.Amount;
+                                    setStorageSync('member', member);
+                                    sendEvent('orderAddChange');
+                                    setTimeout(function() {
+                                        closeWin();
+                                    }, 1500);
+                                }
+                            }
+                        );
+                    });
                 }
+
             },
             apiReady() {
                 var that = this;
-                that.itemID = api.pageParam.itemID;
-                that.stockID = api.pageParam.stockID;
-                that.num = api.pageParam.num;
                 var member = getStorageSync('member');
-                var data = {
-                    userID: member.UserID,
-                    itemID: that.itemID,
-                    stockID: that.stockID,
-                    'number': that.num
-                }
+                var info = api.pageParam;
+                that.sourceAddress = {
+                    name: info.name,
+                    phone: info.phone,
+                    address: info.ProvinceName + info.CityName + info.TownName + info.Address
+                };
+                that.sourceTrackmoney = info.sourceTrackmoney;
+                that.orderID = info.orderID;
                 loginAjax(
-                    'api/Order/BuyNow',
-                    'GET',
-                    data,
+                    'api/Account/GetOrderExpressList',
+                    'get', {
+                        userID: member.UserID,
+                        orderID: info.orderID,
+                    },
                     function(res) {
-                        //console.log(JSON.stringify(res));
-                        that.showLoading = false;
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
-                            that.WareHouseID = res.data.WareHouseID;
-                            that.weight = res.data.TotalWeight;
-                            that.price = res.data.TotalPrice;
-                            // var LogisticList = [{
-                            //     value: -1,
-                            //     text: "--请选择--"
-                            // }];
                             var LogisticList = [];
-                            for (var i = 0; i < res.data.LogisticList.length; i++) {
-                                var item = {
-                                    value: res.data.LogisticList[i].LogisticID,
-                                    text: res.data.LogisticList[i].LogisticName
-                                }
-                                LogisticList.push(item);
+                            for (var i = 0; i < res.data.LogisticList[0].LogisticList.length; i++) {
+                                var Loginstic = {
+                                    value: res.data.LogisticList[0].LogisticList[i].LogisticID,
+                                    text: res.data.LogisticList[0].LogisticList[i].LogisticName,
+                                };
+                                LogisticList.push(Loginstic);
                             }
                             that.LogisticList = LogisticList;
-                            that.address = {
-                                name: res.data.DefaultAddress.Name,
-                                phone: res.data.DefaultAddress.Mobile,
-                                address: res.data.DefaultAddress.ProvinceName + res.data.DefaultAddress.CityName + res.data.DefaultAddress.TownName + res.data.DefaultAddress.Address
-                            };
-                            that.AddressParam = {
-                                postalCode: "",
-                                provinceName: res.data.DefaultAddress.ProvinceName,
-                                cityName: res.data.DefaultAddress.CityName,
-                                countyName: res.data.DefaultAddress.TownName,
-                                detailInfo: res.data.DefaultAddress.Address,
-                                telNumber: res.data.DefaultAddress.Mobile,
-                                userName: res.data.DefaultAddress.Name
-                            };
-                            that.total();
+                            that.wareHouseID = res.data.LogisticList[0].WareHouseID;
+                            that.showLoading = false;
                             newPicker(LogisticList, 0);
-                        } else {
-                            showToast(res.message);
                         }
                     }
                 );
@@ -380,8 +329,11 @@
             title: '选择快递'
         });
         picker.on('picker.select', function(selectedVal, selectedIndex) {
-            // console.log('picker.select');
+            console.log('picker.select');
+            console.log();
             v.pickerIndex = selectedIndex;
+            v.key = v.LogisticList[v.pickerIndex].value;
+            v.expressName = v.LogisticList[v.pickerIndex].text;
             v.courier();
         });
         picker.on('picker.change', function(index, selectedIndex) {});

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>我的信息</title>
+    <title>订单详情</title>
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/aui.css">
@@ -14,32 +14,6 @@
     <style>
         #app {
             height: 100%;
-            /*background: #efeff4;*/
-        }
-
-        .scroll-view {
-            height: calc(100% - 4.25rem);
-        }
-
-        .orderState {
-            height: 2rem;
-            border-bottom: 2px solid #eee;
-            box-sizing: border-box;
-        }
-
-        .orderstateItem,
-        .orderSearch {
-            height: 2rem;
-            line-height: 2rem;
-            flex: 2;
-        }
-
-        .orderstateAct {
-            border-bottom: 2px solid #03a9f4;
-        }
-
-        .orderSearch {
-            flex: 1;
         }
 
         .orange {
@@ -81,13 +55,9 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>我的订单
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>订单详情
             </div>
         </header>
-        <div class="orderState flex-row bgf">
-            <div v-for="(v,i) in statusType" :class="{orderstateItem:true, tc:true, orderstateAct:(checknum == i)}" @click="changeStatus(i)">{{v.text}}</div>
-            <div class="orderSearch tc" @click="linkTo('orderSearch','orderSearch.html',true,{})"><i class="iconfont icon-sousuo"></i></div>
-        </div>
         <div class="scroll-view">
             <div class="noneimg" v-if="!orderList.length">
                 <img src="../image/non-tip.png" alt="">
@@ -169,9 +139,7 @@
         data: {
             showLoading: false,
             toast: false,
-            statusType: [],
-            checknum: 0, //当前index值
-            checkvalue: 0, //当前状态
+            keyword: '',
             nolist: true,
             showMore: 1,
             pageIndex: 1,
@@ -179,42 +147,41 @@
         },
         methods: {
             apiReady() {
-
+                this.keyword = api.pageParam.key;
+                this.getOrderList(1);
             },
-            getList(status, pageIndex) {
-                if (pageIndex != 1 && this.showMore == 2) {
-                    return;
-                }
-                this.showMore = 1;
-                var member = getStorageSync('member');
+            getOrderList(pageIndex) {
                 var that = this;
+                var member = getStorageSync('member');
                 var data = {
                     userID: member.UserID,
-                    orderStatus: status,
-                    pageIndex: pageIndex,
-                    pageSize: 10,
+                    keyword: that.keyword,
+                    pageIndex,
+                    pageSize: 10
                 }
                 loginAjax(
-                    'api/Account/GetOrderList',
+                    'api/account/GetSearchOrderList',
                     'get',
                     data,
                     function(res) {
-                        // console.log(JSON.stringify(res));
+                        that.showLoading = false;
                         if (res.status) {
-                            var orderList = that.orderList;
-                            var index = that.checknum;
+                            var orderList = that.data.orderList;
                             if (res.data.length == 0 && pageIndex == 1) {
-                                that.nolist = false;
+                                that.setData({
+                                    nolist: false
+                                })
                             } else {
-                                that.nolist = true;
+                                that.setData({
+                                    nolist: true
+                                })
                             }
                             if (pageIndex == 1) {
-                                orderList = [];
+                                orderList[index] = [];
                             }
                             for (var i = 0; i < res.data.length; i++) {
                                 var goodlist = [];
                                 for (var j = 0; j < res.data[i].ApiOrderItemList.length; j++) {
-                                    var total = res.data[i].ApiOrderItemList[j].Price * res.data[i].ApiOrderItemList[j].Number;
                                     var goods = {
                                         pic: res.data[i].ApiOrderItemList[j].ImageUrl,
                                         name: res.data[i].ApiOrderItemList[j].ItemName,
@@ -222,7 +189,6 @@
                                         num: res.data[i].ApiOrderItemList[j].Number,
                                         unitname: res.data[i].ApiOrderItemList[j].UnitName,
                                         price: res.data[i].ApiOrderItemList[j].Price,
-                                        total: total
                                     }
                                     goodlist.push(goods);
                                 }
@@ -236,27 +202,22 @@
                                     num: res.data[i].TotalNumber,
                                     goodlist: goodlist
                                 }
-                                orderList.push(order);
+                                orderList[index].push(order)
                             }
-                            that.orderList = orderList;
-                            that.pageIndex++;
                             if (res.data.length < 10) {
-                                that.showMore = 2;
+                                that.setData({
+                                    showMore: 2,
+                                    orderList
+                                })
                             } else {
-                                that.showMore = 0;
+                                that.setData({
+                                    showMore: 0,
+                                    orderList
+                                })
                             }
                         }
                     }
                 );
-            },
-            changeStatus(index) {
-                if (this.checknum == index) {
-                    return;
-                }
-                $('.scroll-view').scrollTop(0);
-                this.checknum = index;
-                this.pageIndex = 1;
-                this.getList(this.statusType[index].value, this.pageIndex);
             },
             toOrderDetail(index) {
                 linkTo('orderDetail', 'orderDetail.html', true, {
@@ -378,54 +339,19 @@
                     );
                 });
             },
-
         },
         mounted() {
-            var member = getStorageSync('member');
-            var that = this;
-            loginAjax(
-                'api/Account/GetOrderStatus',
-                'get', {
-                    userID: member.UserID
-                },
-                function(res) {
-                    // console.log(JSON.stringify(res));
-                    if (res.status) {
-                        var statusType = [];
-                        for (var i = 0; i < res.data.length; i++) {
-                            var status = {
-                                value: res.data[i].Value,
-                                text: res.data[i].Text
-                            }
-                            statusType.push(status);
-                        }
-                        that.statusType = statusType;
-                        that.checkvalue = res.data[0].Value;
-                        that.showLoading = false;
-                        that.getList(res.data[0].Value, 1);
-                    }
-                }
-            );
+
         }
     });
-
     apiready = function() {
         hPadding(function() {
             var headerh = $('header').outerHeight();
             var windowh = $('body').height();
-            var stateh = $('.orderState').outerHeight();
-            $('.scroll-view').height(windowh - headerh - stateh + 'px');
+            $('.scroll-view').height(windowh - headerh + 'px');
         });
         v.apiReady();
     }
-    $('.scroll-view').scroll(function() {
-        var boxh = $(this).height();
-        var boxt = $(this).scrollTop();
-        var bodyh = $('.aui-content').height();
-        if (boxh + boxt == bodyh) {
-            v.getList(v.statusType[v.checknum].value, v.pageIndex);
-        }
-    });
 </script>
 
 </html>

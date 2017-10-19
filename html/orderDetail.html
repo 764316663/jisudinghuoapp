@@ -73,8 +73,9 @@
         .footer .aui-btn {
             border-radius: 0;
         }
-        .aui-list-item:active{
-          background-color: #fff !important;
+
+        .aui-list-item:active {
+            background-color: #fff !important;
         }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
@@ -101,12 +102,12 @@
             </div>
             <div class="aui-content aui-margin-b-15">
                 <ul class="aui-list aui-list-in">
-                    <li class="aui-list-item aui-list-item-middle">
+                    <li class="aui-list-item aui-list-item-middle" @click="toOrderStatus()">
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <div class="aui-list-item-title f14">订单编号：{{orderCode}}</div>
                         </div>
                     </li>
-                    <li class="aui-list-item aui-list-item-middle">
+                    <li class="aui-list-item aui-list-item-middle" @click="changeAdd()">
                         <div class="aui-list-item-inner aui-list-item-arrow flex-start addbox">
                             <div class="aui-list-item-title addiconbox">
                                 <i class="aui-iconfont aui-icon-location addicon"></i>
@@ -164,7 +165,7 @@
             </div>
             <div class="aui-content aui-margin-b-15">
                 <ul class="aui-list aui-list-in">
-                    <li class="aui-list-item aui-list-item-middle">
+                    <li class="aui-list-item aui-list-item-middle" @click="toOrderTrack(track.order)">
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <div class="aui-list-item-title pl15 tborder">物流信息</div>
                             <div class="aui-list-item-right">{{track.status}}</div>
@@ -174,7 +175,7 @@
                         <div class="aui-media-list-item-inner">
                             <div class="aui-list-item-inner db">
                                 <div class="aui-list-item-title f14 m5">物流公司 : {{track.company}}</div>
-                                <div class="aui-list-item-title f14 m5">物流单号 : {{track.order ? track.order :  '暂无物流信息'}}</div>
+                                <div class="aui-list-item-title f14 m5">物流单号 : {{track.order ? track.order : '暂无物流信息'}}</div>
                                 <div class="aui-list-item-title f14 m5">发货日期 : {{track.time ? track.time : '暂无物流信息'}}</div>
                             </div>
                         </div>
@@ -208,7 +209,7 @@
     var v = new Vue({
         el: '#app',
         data: {
-            showLoading: false,
+            showLoading: true,
             toast: false,
             orderID: '',
             status: '',
@@ -221,7 +222,8 @@
             orderMoney: 0,
             orderTime: 0,
             track: {},
-            descNum: 0
+            descNum: 0,
+            IsCheck: false
         },
         methods: {
             apiReady() {
@@ -280,6 +282,33 @@
                     }
                 );
             },
+            toOrderStatus() {
+                linkTo('orderStatus', 'orderStatus.html', false, {
+                    orderID: this.orderID
+                });
+            },
+            toOrderTrack(bool) {
+                if (bool) {
+                    linkTo('orderTrack', 'orderTrack.html', true, {
+                        orderID: this.orderID
+                    });
+                }
+            },
+            changeAdd() {
+                if (!this.IsCheck) {
+                    var info = {
+                        name: this.address.name,
+                        phone: this.address.phone,
+                        ProvinceName: this.address.ProvinceName,
+                        CityName: this.address.CityName,
+                        TownName: this.address.TownName,
+                        Address: this.address.Address,
+                        sourceTrackmoney: this.ExpressFee,
+                        orderID: this.orderID,
+                    }
+                    linkTo('orderChange','orderChange.html',true,info);
+                }
+            }
 
         },
         mounted() {

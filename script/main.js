@@ -13,8 +13,33 @@ window.onload=function(){
 var rootDocment = 'https://yarkool.jisudinghuo.com/'
 var client_id = 'yarkool';
 var Authorization = 'eWFya29vbDpZYXJrb29sMTY4Lg==';
-
+// console.log(navigator.userAgent);
 //StorageSync
+/*
+$.ajax({
+    headers: {
+        "Content-Type": "application/json" ,
+    },
+    type: 'get',
+    url: rootDocment + "api/Agent/GetOpenID",
+    async: true,
+    data: {
+        code:navigator.userAgent
+    },
+    success: function(res) {
+        console.log(JSON.stringify(res.data));
+    },
+    error: function(err) {
+        console.log(JSON.stringify(err));
+    }
+});
+*/
+
+
+
+
+
+
 function setStorageSync(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
 };
