@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我的团队汇总</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .top {
+            height: 2rem;
+        }
+
+        .top>div {
+            width: 50%;
+            line-height: 2rem;
+            color: #bbb;
+        }
+
+        .listTitle {
+            background-color: #939598;
+            height: 2rem;
+            line-height: 2rem;
+            padding: 0 0.75rem;
+        }
+
+        .h0 {
+            height: 0;
+        }
+
+        .list2 li {
+            padding: 0 0.75rem;
+        }
+
+        .infobox {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #d8d8d8;
+        }
+
+        .list2 li:last-child .infobox {
+            border-bottom: 1px solid transparent;
+        }
+
+        .iconfont {
+            font-size: 50px;
+            width: 20%;
+            float: left;
+            color: #b2b3b5;
+        }
+
+        .list2 li:first-child .infobox .iconfont {
+            color: #ffd28e;
+        }
+
+        .list2 li:nth-of-type(2) .iconfont {
+            color: #76c3ff;
+        }
+
+        .list2 li:nth-of-type(3) .iconfont {
+            color: #9cd7aa;
+        }
+
+        .time {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            margin-top: -10px;
+        }
+
+        .l6 {
+            left: 6px;
+        }
+
+        .infomsg {
+            width: 75%;
+            padding-top: 18px;
+        }
+
+        .infomsg p:first-child {
+            /*margin-bottom: 5px;*/
+        }
+
+        .aui-icon-right {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            margin-top: -7px;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{name}}的团队汇总
+            </div>
+        </header>
+        <div class="top flex-row bgf">
+            <div :class="{tc:true, black:status==1}" @click="changeMode(1)">查看每日</div>
+            <div :class="{tc:true, black:status==2}" @click="changeMode(2)">查看每月</div>
+        </div>
+        <div class="scroll-view">
+            <ul class="content">
+                <li class="list1 mb10" v-for="(v,i) in list">
+                    <div class="listTitle white f14" v-if="status==1" @click="oc(i)">{{v.month}}</div>
+                    <div class="listTitle white f14" v-if="status==2" @click="oc(i)">{{v.year}}</div>
+                    <ul :class="{list2:true, oh:true, h0:!v.open}">
+                        <li v-for="(value,index) in v.pages" @click="toTeamDetail()">
+                            <div class="infobox oh pr">
+                                <div class="iconfont pr icon-rili-">
+                                    <span :class="{time:true, f18:true, white:true, l6:value.day>9}" v-if="status==1">{{value.day}}日</span>
+                                    <span :class="{time:true, f18:true, white:true, l6:value.month>9}" v-if="status==2">{{value.month}}月</span>
+                                </div>
+                                <div class="infomsg fl">
+                                    <p class="f14 oh">
+                                        <span class="fl price">业绩{{value.dMoney}}元</span>
+                                        <span class="fr">团队PV值{{value.tMoney}}元</span>
+                                    </p>
+                                    <p class="f14 oh">
+                                        <span class="fl">订单{{value.dNum}}笔</span>
+                                        <span class="fr">个人PV值{{value.tNum}}元</span>
+                                    </p>
+                                </div>
+                                <i class="aui-iconfont aui-icon-right f14"></i>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            name:'我',
+            list: [],
+            status: 1,
+            userid: '',
+            pageIndex: 1,
+            showMore: 0
+        },
+        methods: {
+            apiReady() {
+
+            },
+            changeMode(index) {
+                if (index == this.status) {
+                    return;
+                }
+                this.status = index;
+                this.pageIndex=1;
+                this.getList();
+            },
+            getList() {
+                if (this.showMore == 2) {
+                    return;
+                }
+                var that = this;
+                var member = getStorageSync('member');
+                this.userid = member.UserID;
+                var pageIndex=this.pageIndex;
+                var data = {
+                    userID: this.userid,
+                    pageIndex,
+                    pageSize: 1000
+                }
+                if (this.status == 1) {
+                    loginAjax(
+                        'api/account/GetTeamSaleSummaryByDaily',
+                        'get', data,
+                        function(res) {
+                            // console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            if (res.status) {
+                                var list = that.list;
+                                if (pageIndex == 1) {
+                                    list = [];
+                                }
+                                for (var i = 0; i < res.data.length; i++) {
+                                    var itemDetail = [];
+                                    for (var j = 0; j < res.data[i].TeamSaleSummaryList.length; j++) {
+                                        var detail = {
+                                            year: res.data[i].TeamSaleSummaryList[j].Year,
+                                            month: res.data[i].TeamSaleSummaryList[j].Month,
+                                            day: res.data[i].TeamSaleSummaryList[j].Day,
+                                            dNum: res.data[i].TeamSaleSummaryList[j].OrderNum,
+                                            dMoney: res.data[i].TeamSaleSummaryList[j].SaleResult,
+                                            tNum: res.data[i].TeamSaleSummaryList[j].PersonalPvValue,
+                                            tMoney: res.data[i].TeamSaleSummaryList[j].TeamPvValue
+                                        }
+                                        itemDetail.push(detail);
+                                    }
+                                    var item = {
+                                        year: res.data[i].Year,
+                                        month: res.data[i].Month,
+                                        open: false,
+                                        pages: itemDetail
+                                    }
+                                    list.push(item);
+                                    list[0].open = true;
+                                }
+                                that.list = list;
+                                that.pageIndex++;
+                            }
+                        }
+                    );
+                } else {
+                    loginAjax(
+                        'api/Account/GetTeamSaleSummary',
+                        'get',
+                        data,
+                        function(res) {
+                            that.showLoading = false;
+                            if (res.status) {
+                                var list = that.list;
+                                if (pageIndex == 1) {
+                                    list = [];
+                                }
+                                for (var i = 0; i < res.data.length; i++) {
+                                    var itemDetail = [];
+                                    for (var j = 0; j < res.data[i].TeamSaleSummaryList.length; j++) {
+                                        var detail = {
+                                            year: res.data[i].TeamSaleSummaryList[j].Year,
+                                            month: res.data[i].TeamSaleSummaryList[j].Month,
+                                            day: '',
+                                            color: '',
+                                            dNum: res.data[i].TeamSaleSummaryList[j].OrderNum,
+                                            dMoney: res.data[i].TeamSaleSummaryList[j].SaleResult,
+                                            tNum: res.data[i].TeamSaleSummaryList[j].PersonalPvValue,
+                                            tMoney: res.data[i].TeamSaleSummaryList[j].TeamPvValue
+                                        }
+                                        itemDetail.push(detail);
+                                    }
+                                    var item = {
+                                        year: res.data[i].Year,
+                                        open: false,
+                                        pages: itemDetail
+                                    }
+                                    list.push(item);
+                                    list[0].open = true;
+
+                                    if (res.data[0].TeamSaleSummaryList.length > 0) {
+                                        list[0].pages[0].color = 'yellow';
+                                    }
+                                    if (res.data[0].TeamSaleSummaryList.length > 1) {
+                                        list[0].pages[1].color = 'blue';
+                                    }
+                                    if (res.data[0].TeamSaleSummaryList.length > 2) {
+                                        list[0].pages[2].color = 'green';
+                                    }
+                                }
+                                that.list = list;
+                                that.pageIndex++;
+                            }
+                        }
+                    );
+                }
+            },
+            oc(index) {
+                this.list[index].open = !this.list[index].open;
+            },
+            toTeamDetail(){
+                linkTo('myTeamAchiDetail','myTeamAchiDetail.html',true,{});
+            }
+        },
+        mounted() {
+            this.getList();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var toph = $('.top').outerHeight();
+            $('.scroll-view').height(windowh - headerh - toph + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

@@ -19,14 +19,17 @@
         .scroll-view {
             height: calc(100% - 2.25rem);
         }
-        .bordernone{
-          background-image: none !important;
+
+        .bordernone {
+            background-image: none !important;
         }
-        .nonedata{
-          width: 100%;
+
+        .nonedata {
+            width: 100%;
         }
-        .smLoadbox{
-          margin: 0 auto;
+
+        .smLoadbox {
+            margin: 0 auto;
         }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
@@ -40,15 +43,18 @@
     <div id="app">
         <header ref="header">
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>消息通知(未测试)
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>消息通知
             </div>
         </header>
         <div class="scroll-view">
             <div class="aui-content aui-margin-b-15">
                 <ul class="aui-list aui-list-in">
-                    <li class="aui-list-item aui-list-item-middle" v-for="(v,i) in list">
+                    <li class="aui-list-item aui-list-item-middle" v-for="(v,i) in list" @click="toList(i)">
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <div class="aui-list-item-title">{{v.content}}</div>
+                            <div class="aui-list-item-right" v-show="v.news">
+                                <div class="aui-badge" style="position:relative;top:0; left:0">{{v.news}}</div>
+                            </div>
                         </div>
                     </li>
                     <li class="aui-list-item bordernone" v-show="showMore==3">
@@ -81,8 +87,8 @@
         data: {
             showLoading: false,
             toast: false,
-            list:[],
-            showMore:0
+            list: [],
+            showMore: 0
         },
         methods: {
             apiReady() {
@@ -94,9 +100,9 @@
                         userID: member.UserID
                     },
                     function(res) {
-                        console.log(JSON.stringify(res));
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
-                            that.showMore=2;
+                            that.showMore = 2;
                             var list = [];
                             for (var i = 0; i < res.data.length; i++) {
                                 var item = {
@@ -106,13 +112,18 @@
                                 }
                                 list.push(item);
                             }
-                            that.list=list;
+                            that.list = list;
                         }
                     }
                 );
             },
-            toList(index){
-
+            toList(index) {
+                // console.log(JSON.stringify(this.list[index]));
+                var param = {
+                    id: this.list[index].listID,
+                    title: this.list[index].content
+                }
+                linkTo('noticeList', 'noticeList.html', true, param);
             }
         },
         mounted() {
@@ -127,6 +138,9 @@
             $('.scroll-view').height(windowh - headerh + 'px');
         });
         v.apiReady();
+        listenEvent('readNotice', function() {
+            v.apiReady();
+        });
     }
 </script>
 

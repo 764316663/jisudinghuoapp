@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>订单详情</title>
+    <title>通知详情</title>
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/aui.css">
@@ -14,6 +14,14 @@
     <style>
         #app {
             height: 100%;
+        }
+
+        .content {}
+
+        .top {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 0.25rem;
         }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
@@ -27,9 +35,18 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>订单详情
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>通知详情
             </div>
         </header>
+        <div class="scroll-view">
+            <div class="content bgf">
+                <div class="top">
+                    <h3>{{title}}</h3>
+                    <p>{{time}}</p>
+                </div>
+                <div class="detail" v-html="detail"></div>
+            </div>
+        </div>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
@@ -43,12 +60,41 @@
     var v = new Vue({
         el: '#app',
         data: {
-            showLoading: true,
+            showLoading: false,
             toast: false,
+            id: '',
+            title: '',
+            time: '',
+            detail: '',
+            isRead: false,
+            empty: ''
         },
         methods: {
             apiReady() {
-
+                this.id = api.pageParam.id;
+                this.isRead = api.pageParam.IsRead;
+                var that = this;
+                var member = getStorageSync('member');
+                var data = {
+                    noticeID: api.pageParam.id,
+                    isRead: api.pageParam.IsRead,
+                    userID: member.UserID,
+                }
+                callAjax(
+                    'api/Notice/GetNoticeDetail',
+                    'get',
+                    data,
+                    function(res) {
+                        member.NoticeNumber = res.data.NoticeNumber;
+                        setStorageSync('member', member);
+                        that.showLoading = false;
+                        that.empty = false;
+                        that.title = res.data.NoticeDetail.Title;
+                        that.time = res.data.NoticeDetail.CreateDate;
+                        that.detail = res.data.NoticeDetail.Content;
+                        sendEvent('readNotice');
+                    }
+                );
             },
         },
         mounted() {
@@ -59,8 +105,7 @@
         hPadding(function() {
             var headerh = $('header').outerHeight();
             var windowh = $('body').height();
-            var footerh = $('.footer').outerHeight();
-            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+            $('.scroll-view').height(windowh - headerh + 'px');
         });
         v.apiReady();
     }

@@ -117,19 +117,19 @@
         <div class="navlist">
             <div class="flex-wrp">
                 <div class="flex-item">
-                    <a href="#">
+                    <a @click="linkTo('myAccount','myAccount.html',false,{})">
                         <div class="iconfont icon-qiandai-kongxin icon"></div>
                         <p>我的账户</p>
                     </a>
                 </div>
                 <div class="flex-item">
-                    <a @click="link('newuser','newuser.html',true)">
+                    <a @click="linkTo('newuser','newuser.html',false,{})">
                         <div class="iconfont icon-huangguan icon icon2"></div>
                         <p>代理开户</p>
                     </a>
                 </div>
                 <div class="flex-item">
-                    <a href="#">
+                    <a @click="linkTo('myTeamAchievement','myTeamAchievement.html',false,{})">
                         <div class="iconfont icon-qbzuo01 icon"></div>
                         <p>团队业绩</p>
                     </a>
@@ -137,7 +137,7 @@
             </div>
             <div class="flex-wrp">
                 <div class="flex-item">
-                    <a @click="link('order','order.html',true)">
+                    <a @click="linkTo('order','order.html',true,{})">
                         <div class="iconfont icon-menu-order icon icon1"></div>
                         <p>我的订单</p>
                     </a>
@@ -149,7 +149,7 @@
                     </a>
                 </div>
                 <div class="flex-item">
-                    <a @click="link('me','me.html',false)">
+                    <a @click="linkTo('me','me.html',false,{})">
                         <div class="iconfont icon-zhanghu icon icon1"></div>
                         <p>我的信息</p>
                     </a>
@@ -167,9 +167,7 @@
 
         },
         methods: {
-            link(name,url,reload){
-                linkTo(name,url,reload);
-            }
+          
         }
     });
 </script>

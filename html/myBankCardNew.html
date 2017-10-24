@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>添加银行卡</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+    #app {
+            height: 100%;
+        }
+
+        .aui-list-item-input {
+            vertical-align: middle;
+        }
+
+        .aui-list-item-input img,
+        .aui-list-item-input>label,
+        .aui-list-item-input>div {
+            width: 30%;
+            height: 2.25rem;
+            margin: 0.25rem 0;
+            display: block;
+            border: 1px solid #eee;
+            float: left;
+            box-sizing: border-box;
+        }
+
+        .aui-list-item-input>label {
+            border-bottom: 0 !important;
+        }
+
+        .aui-list-item-input>label>img {
+            border: 0;
+            margin: 0;
+            border-bottom: 1px solid #eee !important;
+            width: 100%;
+        }
+
+        .aui-list-item-input>div {
+            width: 40%;
+            /*vertical-align:middle;*/
+            line-height: 1.125rem;
+            border: 0;
+            padding: 0 0.25rem;
+        }
+        /*
+        .aui-list-item-input .imgInput {
+            display: inline-block;
+            width: 30%;
+        }*/
+
+        .aui-list-header {
+            border: none;
+            background-size: 100% 1px;
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-image: linear-gradient(0, #dddddd, #dddddd 50%, transparent 50%);
+            background-image: -webkit-linear-gradient(90deg, #dddddd, #dddddd 50%, transparent 50%);
+        }
+    }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>订单详情
+            </div>
+        </header>
+        <form action="" class="scroll-view">
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-form-list f14">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">真实姓名</div>
+                            <div class="aui-list-item-input">
+                                <input type="text" placeholder="请输入真实姓名">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">手机号码</div>
+                            <div class="aui-list-item-input">
+                                <input type="number" placeholder="请输入手机号码" oninput="if(value.length>11)value=value.slice(0,11)">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">支付宝账号</div>
+                            <div class="aui-list-item-input">
+                                <input type="number" placeholder="请输入支付宝账号">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">银行卡号</div>
+                            <div class="aui-list-item-input">
+                                <input type="number" placeholder="请输入银行卡号">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">开户银行</div>
+                            <div class="aui-list-item-input">
+                                <input type="text" valie="--请选择--" disabled>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">开户地址</div>
+                            <div class="aui-list-item-input">
+                                <input type="text" valie="--请选择--" disabled>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">开户网点</div>
+                            <div class="aui-list-item-input">
+                                <input type="text" placeholder="请输入开户网点(无需输入省市)">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-header bgf price">*例：广东省广州市海珠支行，只填写“海珠支行”</li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">身份证号码</div>
+                            <div class="aui-list-item-input">
+                                <input type="number" placeholder="请输入身份证号码" oninput="if(value.length>18)value=value.slice(0,18)">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">身份证正面</div>
+                            <div class="aui-list-item-input">
+                                <label>
+                                    <img src="../image/upload.png" alt="">
+                                    <input type="file" value="" class="dn">
+                                </label>
+                                <div class="imgInput gray">请上传身份证正面图片 </div>
+                                <img src="../image/upload.png" alt="">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">身份证反面</div>
+                            <div class="aui-list-item-input">
+                                <label>
+                                    <img src="../image/upload.png" alt="">
+                                    <input type="file" value="" class="dn">
+                                </label>
+                                <div class="imgInput gray">请上传身份证正面图片 </div>
+                                <img src="../image/upload.png" alt="">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-label">银行卡正面</div>
+                            <div class="aui-list-item-input">
+                                <label>
+                                    <img src="../image/upload.png" alt="">
+                                    <input type="file" value="" class="dn">
+                                </label>
+                                <div class="imgInput gray">请上传身份证正面图片 </div>
+                                <img src="../image/upload.png" alt="">
+                            </div>
+
+                        </div>
+                    </li>
+                    <li class="aui-list-header">带有输入框</li>
+                </ul>
+            </div>
+        </form>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+        },
+        methods: {
+            apiReady() {
+
+            },
+        },
+        mounted() {
+
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

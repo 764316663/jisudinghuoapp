@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我的银行卡</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .aui-list-item-inner {
+            z-index: 10;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .aui-list-item {
+            border-bottom: 1px solid #ddd !important;
+        }
+
+        .aui-list-item {
+            background-image: none !important;
+        }
+
+        .delBtn {
+            width: 20%;
+            height: 2.2rem;
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-color: #fe0000;
+            line-height: 2.2rem;
+            z-index: 5;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header @touchstart="init()">
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>我的银行卡
+            </div>
+        </header>
+        <div class="scroll-view" @touchstart="init()">
+            <div class="content">
+                <div class="aui-content aui-margin-b-15">
+                    <ul class="aui-list">
+                        <li class="aui-list-item pr" v-for="(v,i) in cardList">
+                            <div class="aui-list-item-inner bgf" :style="cardList[i].txtStyle" @touchstart="start(i)" @touchmove="move(i)" @touchend="end(i)" @click="click(i)">
+                                <div class="aui-list-item-title">{{v.bankCard}}</div>
+                                <div :class="{'aui-list-item-right':true, black:v.isCheck, price:!v.isCheck}">{{v.isCheck?'已审核':'未审核'}}</div>
+                            </div>
+                            <div class="delBtn tc white" @click="del(i)">
+                                <span class="iconfont icon-shanchu"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <footer class="bottombtnbox bgf" @touchstart="init()" v-show="!cardList.length">
+            <div class="aui-btn bottombtn aui-btn-block" @click="bindNewCard()">绑定银行卡</div>
+        </footer>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            cardList: [{}],
+            mLeft: 0,
+            left: 0,
+            width: 0,
+        },
+        methods: {
+            apiReady() {
+
+            },
+            bindNewCard() {
+                linkTo('myBankCardNew','myBankCardNew.html',true,{});
+            },
+            init() {
+                for (var i = 0; i < this.cardList.length; i++) {
+                    this.cardList[i].txtStyle = 'transform:translateX(' + 0 + 'px)';
+                }
+                this.mLeft = 0;
+                this.left = 0;
+            },
+            start(index, e) {
+                this.init();
+                var e = e || event;
+                e.stopPropagation();
+                this.mLeft = e.touches[0].clientX;
+            },
+            move(index, e) {
+                if (this.cardList[index].isCheck) {
+                    return;
+                }
+                var e = e || event;
+                var left = e.touches[0].clientX - this.mLeft;
+                if (left > 0) {
+                    return;
+                } else if (left < -this.width) {
+                    left = -this.width;
+                }
+                this.cardList[index].txtStyle = 'transform:translateX(' + left + 'px)';
+                this.left = left;
+            },
+            end(index) {
+                if (this.left > -this.width / 2) {
+                    this.cardList[index].txtStyle = '';
+                } else {
+                    this.cardList[index].txtStyle = 'transform:translateX(' + -this.width + 'px)';
+                }
+            },
+            click(index) {
+                var param={
+                  index:index
+                }
+                linkTo('myBankCardDetail','myBankCardDetail.html',true,param);
+            },
+            del(index) {
+                var that = this;
+                showConfirm('确定删除该银行卡', function() {
+                    var member = getStorageSync('member');
+                    that.showLoading = true;
+                    var data = {
+                        userID: member.UserID,
+                        WalletID: that.cardList[index].walletID
+                    }
+                    loginAjax(
+                        'api/Agent/DeleteMyWallet',
+                        'delete',
+                        data,
+                        function(res){
+                            console.log(JSON.stringify(res));
+                            that.showLoading=false;
+                            showToast(res.message);
+                            if(res.status){
+                                that.cardList.splice(index,1);
+                            }
+                        }
+                    );
+                });
+            }
+        },
+        mounted() {
+            this.width = $(window).width() / 5;
+            var that = this;
+            var member = getStorageSync('member');
+            loginAjax(
+                'api/Agent/GetMyWalletList',
+                'get', {
+                    userID: member.UserID
+                },
+                function(res) {
+                    console.log(JSON.stringify(res));
+                    if (res.status) {
+                        var cardList = [];
+                        for (var i = 0; i < res.data.length; i++) {
+                            var item = {
+                                txtStyle: '',
+                                bankCard: res.data[i].BankCard,
+                                walletID: res.data[i].WalletID,
+                                isCheck: res.data[i].IsCheck
+                            }
+                            cardList.push(item);
+                        }
+                        that.cardList = cardList;
+                    }
+                }
+            );
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+        });
+        v.apiReady();
+        v.width = $(window).width() / 5;
+    }
+</script>
+
+</html>

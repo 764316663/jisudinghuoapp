@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>收藏商品
+            </div>
+        </header>
+        <div class="scroll-view">
+            <div class="aui-content aui-margin-b-15">
+                <ul class="aui-list aui-media-list">
+                    <li class="aui-list-item" v-for="(v,i) in list" @click="toDetail(i)">
+                        <div class="aui-media-list-item-inner">
+                            <div class="aui-list-item-media">
+                                <img :src="v.pic+'/200'">
+                            </div>
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-text">
+                                    <div class="aui-list-item-title f14">{{v.name}}</div>
+                                </div>
+                                <div class="aui-list-item-text f12">{{v.chooseNum}}种规格</div>
+                                <div class="aui-list-item-text f14 price">市场价：￥{{v.MarketPrice}}</div>
+                                <div class="aui-list-item-text f12">收藏{{v.collectTime}}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: true,
+            toast: false,
+            list: [],
+
+        },
+        methods: {
+            apiReady() {
+
+            },
+            toDetail(index){
+                var param={
+                  itemID:this.list[index].itemID,
+                  stockID:'',
+                  title:this.list[index].name
+                }
+                linkTo('goodsDetail', 'goodsDetail.html', true, param);
+            }
+        },
+        mounted() {
+            var member = getStorageSync('member');
+            var that = this;
+            var list = [];
+            loginAjax(
+                'api/Good/GetCollectList',
+                'get', {
+                    userID: member.UserID
+                },
+                function(res) {
+                    // console.log(JSON.stringify(res));
+                    if (res.status) {
+                        for (var i = 0; i < res.data.length; i++) {
+                            var good = {
+                                itemID: res.data[i].ItemID,
+                                name: res.data[i].ItemName,
+                                pic: res.data[i].ImageUrl,
+                                SalePrice: res.data[i].SalePrice,
+                                MarketPrice: res.data[i].MarketPrice,
+                                collectTime: res.data[i].CreateDate,
+                                chooseNum: res.data[i].Number
+                            }
+                            list.push(good)
+                        }
+                        that.showLoading=false;
+                        that.list=list;
+                    }
+                }
+            );
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>点单商城</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                点单商城
+            </div>
+        </header>
+        <div class="container">
+            <div class="wrap bgf">
+                <div class="wlist fl">
+                    <div class="wbox" v-for="(v,i) in list2">
+                        <div class="list1 f16 bgcolor" @click="changeList1(i)">{{v.WareHouse}}</div>
+                        <div v-for="(value,index) in v.list" :class="{f14:true,list2:true,list2Act:index == list2Active && i == list1Active}" v-show="list2[i].open" @click="changeList2(i,index)">{{value.name}}</div>
+                    </div>
+                </div>
+                <div class="slist fr">
+                    <ul class="aui-list aui-media-list">
+                        <li class="aui-list-item" v-for="(v,i) in list3">
+                            <div class="aui-media-list-item-inner" @click="toDetail(v.id,v.StockID,v.name)">
+                                <div class="aui-list-item-media">
+                                    <img :src="v.img" />
+                                </div>
+                                <div class="aui-list-item-inner">
+                                    <div class="aui-list-item-text">
+                                        <div class="aui-list-item-title">{{v.name}}</div>
+                                    </div>
+                                    <div class="aui-list-item-text">{{v.TagLine}}</div>
+                                </div>
+                            </div>
+                            <div class="aui-info" style="padding-top:0">
+                                <div class="aui-info-item">
+                                    <span class="price">￥{{v.SalePrice}}</span><span>&nbsp;/{{v.unit}}</span>
+                                </div>
+                                <div class="fr price mr10" v-if="v.stockNum<=0">售罄</div>
+                                <div class="fr gray mr10" v-else-if="v.IsSingleOrder">该商品只能单独下单</div>
+                                <div class="goodsinputbox" v-else-if="v.stockNum>0">
+                                    <p class="goodsnumbtn" @click="goodsNumMinus(i)">-</p>
+                                    <p class="goodsnumbtn goodsnuminput">
+                                        <input type="number" @blur="goodsNumInput(i)" v-model="v.num" />
+                                    </p>
+                                    <p class="goodsnumbtn" @click="goodsNumPlus(i)">+</p>
+                                </div>
+
+
+                            </div>
+                        </li>
+                        <li class="aui-list-item" v-show="showMore==2">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title gray tc">没有更多数据了</div>
+                            </div>
+                        </li>
+                        <!-- <li class="aui-list-item"> -->
+                        <li class="aui-list-item" v-show="showMore==1">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title gray">
+                                    <img src="../image/timg.gif" alt="" class="smLoading">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="aui-list-item" v-show="showMore==0">
+                            <div class="aui-list-item-inner">
+                                <div class="aui-list-item-title gray tc">下拉加载更多</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <footer class="cartfoot bgf">
+            <button :class="{footerBtn:true, fr:true, bgcolor:true, tc:true, f20:true, db:true }" @click="toCart()">下&nbsp;单</button>
+            <div class="totalbox fr">
+                <p class="totaltext fl f14">合计:</p>
+                <p class="price f18 fl">￥{{total | toFix}}</p>
+                <p class="exp gray f12 fl">不含运费</p>
+            </div>
+        </footer>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: true,
+            toast: false,
+        },
+        methods: {
+            apiReady() {
+
+            },
+        },
+        mounted() {
+
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('.cartfoot').outerHeight();
+            $('.container').height(windowh - headerh - footerh + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

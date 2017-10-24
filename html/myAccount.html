@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>账户资金</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .top {
+            padding: 1.25rem 0;
+        }
+
+        .top img {
+            width: 4.5rem;
+            height: 3.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .dib {
+            width: 40%;
+        }
+
+        .dib h2 {
+            font-size: 28px;
+        }
+
+        .bl1 {
+            border-left: 1px solid #eee;
+        }
+
+        .aui-list,
+        .aui-list-item:last-child {
+            background-image: none;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>账户资金
+            </div>
+        </header>
+        <div class="top bgf tc mb15">
+            <img src="../image/yue.png" alt="">
+            <div class="dib tc" @click="linkTo('myBalanceDetail','myBalanceDetail.html',true,{});">
+                <p class="f14">账户余额</p>
+                <h2>{{money | toFix}}</h2>
+            </div>
+            <div class="dib tc bl1" v-show="salary" @click="linkTo('mySalaryDetail','mySalaryDetail.html',true,{});">
+                <p>工资</p>
+                <h2>{{salary | toFix}}</h2>
+            </div>
+        </div>
+        <div class="aui-content aui-margin-b-15">
+            <ul class="aui-list">
+                <li class="aui-list-item aui-list-item-middle" @click="linkTo('myAliPayRecharge','myAliPayRecharge.html',false,{})">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <span class="iconfont icon-chongzhi mr15 f18 middle"></span>充值
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item aui-list-item-middle" v-show="levelID!=1" @click="linkTo('myWithdrawal','myWithdrawal.html',true,{})">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <span class="iconfont icon-tixian-copy mr15 f18 middle"></span>提现
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item aui-list-item-middle" v-show="levelID!=1" @click="linkTo('myWithdrawalDetail','myWithdrawalDetail.html',false,{})">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <span class="iconfont icon-menu-order mr15 f18 middle"></span>提现日志
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item aui-list-item-middle" v-show="levelID!=1" @click="linkTo('myBankCard','myBankCard.html',false,{})">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        <div class="aui-list-item-title">
+                            <span class="iconfont icon-yinhangqia mr15 f14 middle"></span>我的银行卡
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            money: 0,
+            salary: 0,
+            levelID: 1
+        },
+        methods: {
+            apiReady() {
+
+            },
+            updateMoney() {
+                var member = getStorageSync('member');
+                if (member.UserID) {
+                    this.money = member.Amount;
+                    this.salary = member.TotalSalary;
+                    this.levelID = member.LevelID
+                } else {
+                    removeStorageSync('member');
+                    linkTo('login', '../index.html', true, {});
+                }
+            }
+        },
+        mounted() {
+            this.updateMoney();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            /*    var headerh = $('header').outerHeight();
+                var windowh = $('body').height();
+                $('.scroll-view').height(windowh - headerh + 'px');*/
+        });
+        v.apiReady();
+        listenEvent('upMoney', function() {
+            v.updateMoney()
+        });
+    }
+</script>
+
+</html>

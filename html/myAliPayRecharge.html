@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>为子代理开户</title>
+    <title>支付宝充值</title>
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
     <link rel="stylesheet" type="text/css" href="../css/style.css" />
     <link rel="stylesheet" type="text/css" href="../css/api.css" />
@@ -44,7 +44,7 @@
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>激活账户
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>支付宝充值
             </div>
         </header>
         <p class="title f16">转账后请复制交易订单号输入</p>
@@ -52,12 +52,12 @@
             <input type="text" placeholder="支付宝的交易订单号" v-model="tradeNo">
         </div>
         <div class="btncontainer">
-            <div class="aui-btn aui-btn-block bgcolor" @click="sub()">激活账户</div>
+            <div class="aui-btn aui-btn-block bgcolor" @click="sub()">提交</div>
         </div>
         <div class="tips f14">
             <p class="price black">提示：</p>
             <p class="black">1、公司唯一指定充值支付宝账号为：{{OfficialPayAccount}}</p>
-            <p class="black">2、您开户等级为：{{level}}，需要交纳{{Amount}}元，已付了{{AmountBalance}}元，还需要付{{AmountNeedPay}}元才能开通</p>
+            <p class="black">2、公司规定每次充值金额不能少于{{MinRecharge}}元，如果少于{{MinRecharge}}元，可以充值成功，但会限制24小时内不能消费</p>
         </div>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
@@ -75,68 +75,60 @@
         data: {
             toast: false,
             showLoading: false,
-            LevelID:'',
             OfficialPayAccount: '',
-            level: '',
-            Amount: '',
-            AmountBalance: '',
-            AmountNeedPay: '',
-            tradeNo: ''
+            MinRecharge: '',
+            tradeNo:''
         },
         methods: {
             apiReady() {
-                this.LoginID = api.pageParam.LoginID;
-                closeWin('newuserCreate');
-                //this.LevelName = api.pageParam.LevelName;
-                var that = this;
-                callAjax(
-                    'api/Account/GetRegisterRechargeRemark',
-                    'get', {
-                        loginID: api.pageParam.LoginID
-                    },
-                    function(res) {
-                        // console.log(JSON.stringify(res));
-                        if (res.status) {
-                            that.showLoading = false;
-                            that.OfficialPayAccount = res.data.OfficialPayAccount;
-                            that.level = res.data.LevelName;
-                            that.Amount = res.data.LevelPrice;
-                            that.AmountBalance = res.data.AccountBalance;
-                            that.AmountNeedPay = res.data.NeedPayAmount;
-                        }
-                    }
-                );
+
             },
             sub() {
                 if (!this.tradeNo) {
                     showToast('请输入支付宝交易单号');
                 } else {
                     var that = this;
+                    var member = getStorageSync('member');
                     that.showLoading = true;
                     var data = {
-                      LoginID: that.LoginID,
-                      TradeNo: that.tradeNo
+                        UserID: member.UserID,
+                        TradeNo: that.tradeNo
                     }
-                    callAjax(
-                        'api/Agent/RegisterPay',
+                    loginAjax(
+                        'api/Account/PersonalAliPayRecharge',
                         'post',
                         data,
-                        function(res) {
-                            // console.log(JSON.stringify(res));
+                        function(res){
                             that.showLoading = false;
+                            // console.log(JSON.stringify(res));
                             showToast(res.message);
-                            if (res.status) {
-                                setTimeout(function() {
+                            if(res.status){
+                                member.Amount = res.data.Amount;
+                                sendEvent('upMoney');
+                                setStorageSync('member', member);
+                                that.tradeNo='';
+                                setTimeout(function(){
                                     closeWin();
-                                }, 1500);
+                                },1500);
                             }
                         }
-                    )
+                    );
                 }
             },
         },
         mounted() {
-
+            var that=this;
+            callAjax(
+                'api/Account/GetRechargeRemark',
+                'get', {},
+                function(res) {
+                    if (res.status) {
+                        that.showLoading = false;
+                        that.OfficialPayAccount = res.data.OfficialPayAccount;
+                        that.MinRecharge = res.data.MinRecharge
+                    }
+                }
+            );
         }
     });
     apiready = function() {

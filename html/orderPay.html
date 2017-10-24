@@ -135,7 +135,8 @@
                         if (res.status) {
                             member.Amount = res.data.Amount;
                             member.CartNumber = res.data.CartNumber;
-                            setStorageSync('member', member)
+                            setStorageSync('member', member);
+                            sendEvent('upMoney');
                         }
                         linkTo('orderOk', 'orderOk.html', false, {
                             orderSuccess: res.status,

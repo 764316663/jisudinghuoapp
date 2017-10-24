@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .content {}
+
+        .list li {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .list li h3 {
+            font-weight: bold;
+        }
+
+        .seeDetail {
+            border-top: 1px dashed #eee;
+            padding-top: 0.5rem;
+        }
+
+        .seeDetail img {
+            float: right;
+            width: 0.65rem;
+            height: 0.65rem;
+            margin-top: 0.125rem;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{title}}
+            </div>
+        </header>
+        <div class="scroll-view">
+            <div class="content">
+                <ul class="list bgf">
+                    <li v-for="(v,i) in msgList" @click="toMsgDetail(i)">
+                        <p class="time mb10 black">{{v.time}}</p>
+                        <h3 class="mb15">{{v.title}}</h3>
+                        <p class="seeDetail">查看详情
+                            <img src="../image/more.png" alt="">
+                            <span class="fr price mr10" v-show="!v.IsRead">new</span>
+                        </p>
+                    </li>
+                </ul>
+                <p class="tc pt10 pb10" v-show="showMore==2">没有更多数据了</p>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: true,
+            toast: false,
+            id: '',
+            title: '消息通知',
+            msgList: [],
+            showMore: 1
+        },
+        methods: {
+            apiReady() {
+                this.id = api.pageParam.id;
+                this.title = api.pageParam.title;
+                this.getList(1);
+            },
+            getList(pageIndex) {
+                if (this.showMore == 2) {
+                    return;
+                }
+                this.showMore = 1;
+                var that = this;
+                var member = getStorageSync('member');
+                var data = {
+                    noticeTypeID: that.id,
+                    userID: member.UserID,
+                    pageIndex: pageIndex,
+                    pageSize: 100
+                }
+                loginAjax(
+                    'api/Notice/GetNoticeList',
+                    'get',
+                    data,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        var msgList = [];
+                        for (var i = 0; i < res.data.length; i++) {
+                            var item = {
+                                id: res.data[i].NoticeID,
+                                time: res.data[i].CreateDate,
+                                title: res.data[i].Title,
+                                content: res.data[i].Content,
+                                IsRead: res.data[i].IsRead
+                            }
+                            msgList.push(item);
+                        }
+                        that.showLoading = false;
+                        that.msgList = msgList;
+                        that.showMore = res.data.length < 100 ? 2 : 0;
+                    }
+                );
+            },
+            toMsgDetail(index) {
+                // console.log(JSON.stringify(this.msgList[index]));
+                var param = {
+                    id: this.msgList[index].id,
+                    IsRead: this.msgList[index].IsRead
+                }
+                linkTo('noticeDetail', 'noticeDetail.html', true, param);
+            }
+        },
+        mounted() {
+
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+        listenEvent('readNotice', function() {
+            v.showMore = 1;
+            v.getList(1);
+        });
+    }
+</script>
+
+</html>

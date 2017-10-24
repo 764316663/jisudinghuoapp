@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .searchbox {
+            width: 100%;
+            height: 2.2rem;
+        }
+
+        #search {
+            width: 80%;
+        }
+
+        .searchbtn {
+            width: 20%;
+            height: 2.2rem;
+        }
+
+        .searchbtn div {
+            width: 80%;
+            height: 1.4rem;
+            background-color: #fff;
+            margin: 0.4rem 0.2rem;
+            line-height: 1.4rem;
+            border-radius: 0.125rem;
+        }
+
+        .top {
+            height: 1.8rem;
+            flex-wrap: nowrap;
+            line-height: 1.8rem;
+        }
+
+        .flex1 {
+            flex: 1;
+        }
+
+        .flex2 {
+            flex: 2;
+        }
+
+        .flex3 {
+            flex: 2.5;
+        }
+
+        .scroll-ul {}
+
+        .scroll-li {
+            padding: 0.25rem 0;
+            line-height: 2rem;
+            border-bottom: 1px solid #e4e5e6;
+        }
+
+        .scroll-li img {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            float: left;
+            margin-right: 0.25rem;
+        }
+
+        .scroll-li p {
+            float: left;
+        }
+
+        .showm {
+            text-align: center;
+            padding: 0.25rem 0;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{name}}的代理
+            </div>
+        </header>
+        <div class="searchbox">
+            <div class="aui-searchbar fl bgcolor" id="search">
+                <div class="aui-searchbar-input aui-border-radius">
+                    <i class="aui-iconfont aui-icon-search"></i>
+                    <input type="search" placeholder="查找代理名称" id="search-input" v-model="searchKey">
+                </div>
+            </div>
+            <div class="searchbtn fr oh bgcolor">
+                <div class="tc black" @click="searchAgent()">搜 索</div>
+            </div>
+        </div>
+        <div class="top bgcolor flex-row f14">
+            <div class="flex1 tc">序号</div>
+            <div class="flex3 tc">昵称</div>
+            <div class="flex1 tc">等级</div>
+            <div class="flex1 tc">状态</div>
+        </div>
+        <div class="scroll-view">
+            <div class="content">
+                <ul class="scroll-ul">
+                    <li class="scroll-li flex-row f14" v-for="(v,i) in list">
+                        <div class="flex1 tc" @click="searchChild(i)">{{i+1}}</div>
+                        <div class="flex3 tc" @click="searchChild(i)">
+                            <img :src="v.Avatar+'/120'" alt="">
+                            <p>{{v.nickName}}</p>
+                        </div>
+                        <div class="flex1 tc" @click="searchChild(i)">{{v.level}}</div>
+                        <div :class="{flex1:true, tc:true,price:v.state!=1}" @click="activation(i)">{{v.state==1?'已激活':'未激活'}}</div>
+                    </li>
+                </ul>
+                <div class="showm" v-show="showMore==0">
+                    下拉加载更多
+                </div>
+                <div class="showm" v-show="showMore==1">
+                    <img src="../image/timg.gif" alt="" class="smLoading">
+                </div>
+                <div class="showm" v-show="showMore==2">
+                    没有更多数据了
+                </div>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            userid: '',
+            name: '我',
+            searchKey: '',
+            keyword: '',
+            list: [],
+            pageIndex: 1,
+            showMore: 0
+        },
+        methods: {
+            apiReady() {
+
+            },
+            searchChild(index) {
+                this.userid=this.list[index].userid;
+                this.pageIndex=1;
+                this.showMore=0;
+                this.getList(1);
+                this.name=this.list[index].nickName;
+            },
+            activation(index) {
+                if (!this.list[index].state) {
+                    linkTo('recharge', 'recharge.html', true, {
+                        LoginID: this.list[index].loginID
+                    });
+                }
+            },
+            searchAgent() {
+                this.keyword = this.searchKey;
+                this.pageIndex = 1;
+                this.showMore = 0;
+                this.getList(1);
+            },
+            getList(pageIndex) {
+                var keyword = this.keyword;
+                // var member = getStorageSync('member');
+                if (this.showMore == 2) {
+                    return;
+                }
+                this.showMore = 1;
+                var that = this;
+                var data = {
+                    userID: that.userid,
+                    keyword: keyword,
+                    pageIndex: pageIndex,
+                    pageSize: 10
+                }
+                loginAjax(
+                    'api/Agent/GetMySonUserList',
+                    'get',
+                    data,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        if (res.status) {
+                            var list = pageIndex == 1 ? [] : that.list;
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    loginID: res.data[i].LoginID,
+                                    Avatar: res.data[i].Avatar,
+                                    nickName: res.data[i].UserName,
+                                    state: res.data[i].State,
+                                    userid: res.data[i].UserID,
+                                    level: res.data[i].LevelName
+                                }
+                                list.push(item);
+                            }
+                            that.list = list;
+                            that.showMore = res.data.length < 10 ? 2 : 0;
+                            that.pageIndex++;
+                        }
+                    }
+                );
+            }
+        },
+        mounted() {
+            this.userid = getStorageSync('member').UserID;
+            this.getList(1);
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var searchh = $('.searchbox').outerHeight();
+            var topperh = $('.top').outerHeight();
+            $('.scroll-view').height(windowh - headerh - topperh - searchh + 'px');
+        });
+        v.apiReady();
+    }
+    $('.scroll-view').scroll(function() {
+        var boxh = $(this).height();
+        var boxt = $(this).scrollTop();
+        var bodyh = $('.content').height();
+        if (boxh + boxt == bodyh) {
+            //    v.pageIndex++;
+            //    console.log(v.pageIndex);
+            v.getList(v.pageIndex);
+        }
+    });
+</script>
+
+</html>

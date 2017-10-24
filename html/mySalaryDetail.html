@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>工资明细</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .top {
+            height: 2rem;
+            line-height: 2rem;
+        }
+
+        .time {
+            width: 30%;
+        }
+
+        .money {
+            width: 40%;
+        }
+
+        .status {
+            width: 30%;
+        }
+
+        .list li {
+            border-bottom: 1px solid #eee;
+        }
+
+        .list li .row {
+            height: 2rem;
+            line-height: 2rem;
+        }
+
+        .detail .flex-row {
+            justify-content: flex-start;
+            padding: 0.5rem 0;
+        }
+
+        .flex1 {
+            box-sizing: border-box;
+            padding-left: 1rem;
+            font-size: 12px;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>工资明细
+            </div>
+        </header>
+        <div class="top">
+            <p class="fl tc time bgcolor">年/月</p>
+            <p class="fl tc money bgcolor">工资总计</p>
+            <p class="fl tc status bgcolor">发放状态</p>
+        </div>
+        <div class="scroll-view">
+            <div class="content">
+                <ul class="list bgf">
+                    <!-- <li>
+                        <div class="row oh">
+                            <p class="fl tc time black">年/月</p>
+                            <p class="fl tc money black">工资总计</p>
+                            <p :class="{fl:true, tc:true, status:true, green:true}">发放状态</p>
+                        </div>
+                        <div class="detail gray">
+                            <div class="flex-row">
+                                <div class="flex1">自提津贴:666.66元</div>
+                                <div class="flex1">职级差津贴:885.72元</div>
+                            </div>
+                            <div class="flex-row">
+                                <div class="flex1">子级津贴:666.66元</div>
+                                <div class="flex1">团队津贴:885.72元</div>
+                            </div>
+                            <div class="flex-row">
+                                <div class="flex1">津贴总额:666.66元</div>
+                                <div class="flex1">当前级别:司令官</div>
+                            </div>
+                            <div class="flex-row">
+                                <div class="flex1">发放时间:2017年10月23日11:43:33</div>
+                            </div>
+                        </div>
+                    </li> -->
+                    <li v-for="(v,i) in list">
+                        <div class="row oh" @click="openDetail(i)">
+                            <p class="fl tc time black">{{v.Year}}年{{v.Month}}月</p>
+                            <p class="fl tc money black">{{v.ReleaseAmount ? v.ReleaseAmount : 0}}元</p>
+                            <p :class="{fl:true, tc:true, status:true, green:v.IsRelease}">{{v.IsRelease ? '已发放' : '未发放' }}</p>
+                        </div>
+                        <div class="detail gray" v-show="v.open">
+                            <div class="flex-row">
+                                <div class="flex1">自提津贴:{{v.PersonalAward?v.PersonalAward:0}}元</div>
+                                <div class="flex1">职级差津贴:{{v.LevelAward?v.LevelAward:0}}元</div>
+                            </div>
+                            <div class="flex-row">
+                                <div class="flex1">子级津贴:{{v.SonAward?v.SonAward:0}}元</div>
+                                <div class="flex1">团队津贴:{{v.TeamAward?v.TeamAward:0}}元</div>
+                            </div>
+                            <div class="flex-row">
+                                <div class="flex1">津贴总额:{{v.Amount}}元</div>
+                                <div class="flex1">当前级别:{{v.LevelName}}</div>
+                            </div>
+                            <div class="flex-row">
+                                <div class="flex1">发放时间:{{v.ReleaseDate ? v.ReleaseDate : '未发放'}}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <p class="pt10 pb10 tc" v-show="showMore==0">下拉加载更多</p>
+                <p class="pt10 pb10 tc" v-show="showMore==2">没有更多数据了</p>
+                <div class="pt5 pb5" v-show="showMore==1"><img src="../image/loading.gif" alt="" class="smLoading"></div>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            showMore: 1,
+            pageIndex: 1,
+            list: [{}]
+        },
+        methods: {
+            apiReady() {
+
+            },
+            getList() {
+                var that = this;
+                var member = getStorageSync('member');
+                var data = {
+                    userID: member.UserID,
+                    pageIndex: that.pageIndex,
+                    pageSize: 20,
+                }
+                loginAjax(
+                    'api/Account/GetMonthlyReleaseMoney',
+                    'get',
+                    data,
+                    function(res) {
+                        if (res.status) {
+                            var list = that.pageIndex == 1 ? [] : that.list;
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    Year: res.data[i].Year,
+                                    Amount: res.data[i].Amount,
+                                    IsRelease: res.data[i].IsRelease,
+                                    LevelAward: res.data[i].LevelAward,
+                                    LevelName: res.data[i].LevelName,
+                                    PersonalAward: res.data[i].PersonalAward,
+                                    ReleaseAmount: res.data[i].ReleaseAmount,
+                                    ReleaseDate: res.data[i].ReleaseDate,
+                                    SonAward: res.data[i].SonAward,
+                                    TeamAward: res.data[i].TeamAward,
+                                    Month: res.data[i].Month,
+                                    open: false
+                                }
+                                list.push(item);
+                            }
+                            that.showLoading = false;
+                            that.list = list;
+                            that.showMore = res.data.length < 20 ? 2 : 0;
+                        }
+                    }
+                );
+            },
+            openDetail(index){
+                this.list[index].open=!this.list[index].open;
+            }
+        },
+        mounted() {
+            this.getList();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var toph = $('.top').outerHeight();
+            $('.scroll-view').height(windowh - headerh - toph + 'px');
+        });
+        v.apiReady();
+    }
+</script>
+
+</html>

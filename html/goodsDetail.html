@@ -35,7 +35,7 @@
         </header>
         <div class="scroll-view">
             <div class="swiper-box">
-                <img :src="chooseInfo[chooseIndex].ImageUrl" alt="">
+                <img :src="chooseInfo[chooseIndex].ImageUrl+'/750'" alt="">
             </div>
             <div class="goodsinfo bgf mt10">
                 <h2>{{title}}</h2>
@@ -67,13 +67,17 @@
             </div>
         </div>
         <footer class="aui-bar aui-bar-tab">
-            <div class="aui-bar-tab-item" tapmode style="width: 3rem;">
-                <i class="aui-iconfont aui-icon-comment aui-text-info"></i>
-                <div class="aui-bar-tab-label aui-text-info">咨询</div>
+            <div class="aui-bar-tab-item" tapmode style="width: 3rem;" @click="toCart()">
+                <i class="aui-iconfont aui-icon-cart"></i>
+                <div class="aui-bar-tab-label">购物车</div>
             </div>
-            <div class="aui-bar-tab-item" tapmode style="width: 3rem;">
-                <i class="aui-iconfont aui-icon-star aui-text-warning"></i>
-                <div class="aui-bar-tab-label aui-text-warning">收藏</div>
+            <div class="aui-bar-tab-item" tapmode style="width: 3rem;" v-show="!isLike" @click="like()">
+                <i class="aui-iconfont aui-icon-star"></i>
+                <div class="aui-bar-tab-label">收藏</div>
+            </div>
+            <div class="aui-bar-tab-item" tapmode style="width: 3rem;" v-show="isLike" @click="like()">
+                <i class="aui-iconfont aui-icon-star price"></i>
+                <div class="aui-bar-tab-label price">收藏</div>
             </div>
             <div class="aui-bar-tab-item aui-bg-warning aui-text-white" tapmode style="width: auto;" v-on:touchend="addCart()" v-show="!goodsinfo.IsSingleOrder">加入购物车</div>
             <div class="aui-bar-tab-item aui-bg-danger aui-text-white" tapmode style="width: auto;" v-on:touchend="buy()">立即购买</div>
@@ -101,6 +105,7 @@
             goodsinfo: {},
             chooseInfo: [{}],
             chooseIndex: 0,
+            isLike: false
         },
         methods: {
             apiReady() {
@@ -148,6 +153,7 @@
                             }
                             // console.log(JSON.stringify(chooseInfo));
                             // that.title=res.data.ApiGoodItem.ItemName;
+                            that.isLike = res.data.IsFavorite;
                             that.goodsinfo = goodsinfo;
                             that.chooseInfo = chooseInfo;
                             that.showLoading = false;
@@ -180,6 +186,30 @@
             changeChoose(index) {
                 this.chooseIndex = index;
             },
+            toCart() {
+                api.sendEvent({
+                    name: 'toc'
+                });
+                api.sendEvent({
+                    name: 'getUserCart'
+                });
+                closeWin();
+            },
+            like() {
+                var that = this;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Good/AddCollect',
+                    'post', {
+                        userID: member.UserID,
+                        itemID: this.itemID
+                    },
+                    function(res){
+                      console.log(JSON.stringify(res));
+                      that.isLike=!that.isLike;
+                    }
+                );
+            },
             addCart() {
                 if (this.chooseInfo[this.chooseIndex].stockNum <= 0) {
                     showToast('该商品已售罄');
@@ -199,10 +229,11 @@
                         },
                         function(res) {
                             that.showLoading = false;
-                            //console.log(JSON.stringify(res));
+                            console.log(JSON.stringify(res));
                             showToast(res.message);
                             if (res.status) {
-
+                                member.CartNumber=res.data.CartNumber;
+                                sendEvent('upCartNum');
                             } else {
 
                             }

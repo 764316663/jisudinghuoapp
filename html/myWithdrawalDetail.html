@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>收支明细</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .list li {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>提现日志
+            </div>
+        </header>
+        <div class="scroll-view">
+            <div class="content">
+                <ul class="list bgf">
+                    <li v-for="(v,i) in list">
+                        <div class="oh">
+                            <span class="fl f16 black">{{v.title}}</span>
+                            <span class="fr f16 black">{{v.money}}</span>
+                        </div>
+                        <p class="oh">
+                            <span class="fl f12">{{v.time}}</span>
+                            <span :class="{fr:true, f12:true, green:v.status=='提现到账', price:v.status=='审核失败'}">{{v.status}}</span>
+                        </p>
+                    </li>
+                </ul>
+                <p class="pt10 pb10 tc" v-show="showMore==0">下拉加载更多</p>
+                <p class="pt10 pb10 tc" v-show="showMore==2">没有更多数据了</p>
+                <div class="pt5 pb5" v-show="showMore==1"><img src="../image/loading.gif" alt="" class="smLoading"></div>
+            </div>
+        </div>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            pageIndex: 1,
+            showMore: 0,
+            list: [{}],
+        },
+        methods: {
+            apiReady() {
+
+            },
+            getList() {
+                if (this.showMore != 0) {
+                    return;
+                }
+                this.showMore = 1;
+                var that = this;
+                var member = getStorageSync('member');
+                var data = {
+                    userID: member.UserID,
+                    pageIndex: that.pageIndex,
+                    pageSize: 10,
+                }
+                loginAjax(
+                    'api/Account/MySalaryTranRecord',
+                    'get',
+                    data,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        console.log(res.data.length);
+                        if (res.status) {
+                            var list = that.pageIndex==1?[]:that.list;
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    title: res.data[i].Remark,
+                                    money: res.data[i].Amount,
+                                    time: res.data[i].CreateDate,
+                                    status: res.data[i].StatusText
+                                }
+                                list.push(item);
+                            }
+                            that.list = list;
+                            that.showMore = res.data.length < 10 ? 2 : 0;
+                            that.pageIndex++;
+                        }
+                    }
+                );
+            }
+        },
+        mounted() {
+            this.getList();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            $('.scroll-view').height(windowh - headerh + 'px');
+        });
+        v.apiReady();
+    }
+    $('.scroll-view').scroll(function() {
+        var boxh = $(this).height();
+        var boxt = $(this).scrollTop();
+        var bodyh = $('.content').height();
+        if (boxh + boxt == bodyh) {
+            v.getList();
+        }
+    });
+</script>
+
+</html>

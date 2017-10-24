@@ -35,8 +35,8 @@
         }
 
         .userimg img {
-            width: 100%;
-            height: 100%;
+            width: 5rem;
+            height: 5rem;
         }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
@@ -56,7 +56,7 @@
         <div class="scroll-view">
             <div class="userbg oh">
                 <div class="userimg oh">
-                    <img :src="member.Avatar" alt="">
+                    <img :src="member.Avatar+'/200'" alt="">
                 </div>
                 <p class="tc white f18">{{member.UserName}}</p>
             </div>
@@ -104,7 +104,7 @@
                             <div class="aui-list-item-right">总业绩:{{member.TotalSaleResult || 0}}元</div>
                         </div>
                     </li>
-                    <li class="aui-list-item">
+                    <li class="aui-list-item" @click="linkTo('myAgent','myAgent.html',true,{})">
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <div class="aui-list-item-title">我的代理</div>
                             <div class="aui-list-item-right"></div>
@@ -126,17 +126,17 @@
     var v = new Vue({
         el: '#app',
         data: {
-            member:{}
+            member: {}
         },
         methods: {
             apiReady() {
 
             }
         },
-        mounted(){
-            var member=getStorageSync('member');
+        mounted() {
+            var member = getStorageSync('member');
             member.CreateDate = member.CreateDate.split(' ')[0];
-            this.member=member;
+            this.member = member;
         }
     });
 

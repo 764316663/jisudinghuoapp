@@ -58,7 +58,7 @@
                             <div class="aui-list-item-right f14 black">选择地址</div>
                         </div>
                     </li>
-                    <li class="aui-list-item">
+                    <li class="aui-list-item" v-show="address.address">
                         <div class="aui-list-item-inner">
                             <div class="addbox">
                                 <div class="titleleft-checkbox" v-show="boxshow">
@@ -276,7 +276,7 @@
                         Remarks.push(this.LogisticList[i].remark);
                         // Remarks.push(this.LogisticList[i].remark?this.LogisticList[i].remark:'无');
                     }
-                    var remark=Remarks.join(',');
+                    var remark = Remarks.join(',');
                     var member = getStorageSync('member');
                     var data = {
                         userID: member.UserID,
@@ -317,15 +317,19 @@
                 that.cartIDs = api.pageParam.cartIDs;
                 that.cartNumbers = api.pageParam.cartNumbers;
                 var member = getStorageSync('member');
+                var data = {
+                    userID: member.UserID,
+                    cartNumbers: api.pageParam.cartNumbers,
+                    cartIDs: api.pageParam.cartIDs
+                }
+                console.log(JSON.stringify(data));
                 loginAjax(
                     'api/Order/GetOrderCheck',
-                    'get', {
-                        userID: member.UserID,
-                        cartNumbers: api.pageParam.cartNumbers,
-                        cartIDs: api.pageParam.cartIDs
-                    },
+                    'get',
+                    data,
                     function(res) {
                         that.showLoading = false;
+                        console.log(JSON.stringify(res));
                         if (res.status) {
                             var weight = res.data.TotalWeight;
                             var price = res.data.TotalPrice;

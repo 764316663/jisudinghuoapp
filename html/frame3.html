@@ -16,7 +16,7 @@
             padding: 0.5rem;
         }
 
-        .roll{
+        .roll {
             height: 1.8rem;
             line-height: 1.8rem;
         }
@@ -109,6 +109,9 @@
                             <i class="iconfont icon-gonggao"></i>
                             <span>通知公告</span>
                         </div>
+                        <div class="aui-list-item-right" v-show="noticeNum">
+                            <div class="aui-badge" style="position:relative;top:0; left:0">{{noticeNum}}</div>
+                        </div>
                     </div>
                 </li>
                 <li class="aui-list-item aui-list-item-middle" @click="feedback()">
@@ -139,40 +142,45 @@
     var v = new Vue({
         el: '#app',
         data: {
-
+            noticeNum: 0
         },
         methods: {
-            userName(){
-                linkTo('username','username.html',true,{});
+            userName() {
+                linkTo('username', 'username.html', true, {});
             },
-            password(){
-                linkTo('password','password.html',true,{});
+            password() {
+                linkTo('password', 'password.html', true, {});
             },
-            toAddress(){//收货地址
-                linkTo('address','address.html',false,{getAdd:false});
+            toAddress() { //收货地址
+                linkTo('address', 'address.html', false, {
+                    getAdd: false
+                });
             },
-            collection(){
-                linkTo('collection','collection.html',true,{});
+            collection() {
+                linkTo('collection', 'collection.html', true, {});
             },
-            notice(){
-                linkTo('notice','notice.html',true,{});
+            notice() {
+                linkTo('notice', 'notice.html', true, {});
             },
-            feedback(){
-                linkTo('feedback','feedback.html',true,{});
+            feedback() {
+                linkTo('feedback', 'feedback.html', true, {});
             },
-            logout(){//退出登录
+            logout() { //退出登录
                 removeStorageSync('member');
-                linkTo('login','../index.html',true,{});
-                /*
-                api.openWin({
-                    name: 'login',
-                    url: '../index.html',
-                    pageParam: {},
-                    reload:true
-                });*/
+                linkTo('login', '../index.html', true, {});
             },
+            apiReady(){
+
+            }
         }
     });
+    apiready = function() {
+        v.apiReady();
+        v.noticeNum = getStorageSync('member').NoticeNumber;
+        listenEvent('readNotice', function() {
+            v.noticeNum = getStorageSync('member').NoticeNumber;
+        });
+    }
 </script>
 
 </html>

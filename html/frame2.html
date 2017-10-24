@@ -510,7 +510,6 @@
                 this.chooseCartNum = chooseCartNum;
             },
             numInput(w, g) {
-                console.log(JSON.stringify(this.cartList[w].List[g]));
                 var num = parseInt(this.cartList[w].List[g].Number);
                 var max = this.cartList[w].List[g].MaxNum > this.cartList[w].List[g].StockNum ? this.cartList[w].List[g].StockNum : this.cartList[w].List[g].MaxNum;
                 var min = this.cartList[w].List[g].MinNum;
@@ -533,7 +532,6 @@
                 num = num > max ? max : num;
                 this.cartList[w].List[g].Number = num;
                 this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
-                console.log(JSON.stringify(this.cartList[w].List[g]));
             },
             addCart(itemID, stockID, num) {
                 var member = getStorageSync('member');
@@ -544,18 +542,18 @@
                     StockID: stockID,
                     'Number': num
                 }
-                console.log(JSON.stringify(data));
                 loginAjax(
                     'api/Good/AddCart',
                     'post',
                     data,
                     function(res) {
-                        console.log(JSON.stringify(res));
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
                             member.CartNumber = res.data.CartNumber;
                             setStorageSync('member', member);
                             that.totalNum();
                             that.cartChoose();
+                            sendEvent('upCartNum');
                         }
                     }
                 );
@@ -575,7 +573,7 @@
                         'DELETE',
                         data,
                         function(res) {
-                            console.log(JSON.stringify(res));
+                            // console.log(JSON.stringify(res));
                             that.showLoading = false;
                             //showToast(res.message);
                             if (res.status) {
@@ -589,6 +587,7 @@
                                 that.isCheck();
                                 that.totalNum();
                                 that.cartChoose();
+                                sendEvent('upCartNum');
                             }
                         }
                     );
@@ -611,7 +610,7 @@
                         function(res) {
                             that.showLoading = false;
                             //showToast(res.message);
-                            console.log(JSON.stringify(res));
+                            // console.log(JSON.stringify(res));
                             if (res.status) {
                                 var cartList = that.cartList;
                                 member.CartNumber = res.data.CartNumber;
@@ -622,6 +621,7 @@
                                 that.isCheck();
                                 that.totalNum();
                                 that.cartChoose();
+                                sendEvent('upCartNum');
                             }
                         }
                     );

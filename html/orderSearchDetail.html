@@ -273,6 +273,7 @@
                                 that.orderList[index].statusCode = 4;
                                 member.Amount = res.data.Amount;
                                 setStorageSync('member', member);
+                                sendEvent('upMoney');
                             }
                         }
                     );
