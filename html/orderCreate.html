@@ -203,11 +203,7 @@
                     this.provinceName = orderAddress.ProvinceName;
                     this.wxadd = false;
                     this.addtrue = false;
-                    /*
-                    for (var i = 0; i < this.LogisticList.length; i++) {
-                        this.courier(this.LogisticList[i].wareHouseID);
-                    }
-                    this.totalNum();*/
+                    removeStorageSync('orderAddress');
                 }
             },
             changeAddTrue() {

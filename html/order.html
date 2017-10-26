@@ -135,21 +135,19 @@
                         </div>
                     </li>
                 </ul>
-                <div class="aui-list-item mb10" v-show="showMore==2">
-                    <div class="aui-list-item-inner">
-                        <div class="aui-list-item-title gray tc">没有更多数据了</div>
-                    </div>
+                <div class="mb10" v-show="showMore==2">
+                    <div class="gray tc">没有更多数据了</div>
                 </div>
-                <div class="aui-list-item mb10" v-show="showMore==1">
-                    <div class="aui-list-item-inner">
-                        <div class="aui-list-item-title gray">
+                <div class="mt10 mb10" v-show="showMore==1">
+                    <div class="">
+                        <div class="">
                             <img src="../image/timg.gif" alt="" class="smLoading">
                         </div>
                     </div>
                 </div>
-                <div class="aui-list-item mb10" v-show="showMore==0">
-                    <div class="aui-list-item-inner">
-                        <div class="aui-list-item-title gray tc">下拉加载更多</div>
+                <div class="mt10 mb10" v-show="showMore==0">
+                    <div class="">
+                        <div class="gray tc">下拉加载更多</div>
                     </div>
                 </div>
             </div>

@@ -50,20 +50,17 @@
 <body>
     <div id="wrap" class="flex-wrap flex-vertical">
         <header>
-            <div class="active">首页</div>
-            <div>商城</div>
-            <div>购物车</div>
-            <div>设置</div>
+            <div class="active">
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{userName}}
+            </div>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>购物车
+            </div>
         </header>
         <div id="main" class="flex-con">
 
         </div>
         <footer class="aui-bar aui-bar-tab" id="footer">
-            <div class="aui-bar-tab-item aui-active" tapmode onclick="randomSwitchBtn( this );">
-                <img class="mcenter actshow" src="../image/tabbar/index1.png" alt="">
-                <img class="mcenter acthide" src="../image/tabbar/index.png" alt="">
-                <div class="aui-bar-tab-label">首页</div>
-            </div>
             <div class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn( this );">
                 <img class="mcenter actshow" src="../image/tabbar/shop1.png" alt="">
                 <img class="mcenter acthide" src="../image/tabbar/shop.png" alt="">
@@ -75,12 +72,6 @@
                 <img class="mcenter acthide" src="../image/tabbar/cart.png" alt="">
                 <div class="aui-bar-tab-label">购物车</div>
             </div>
-            <div class="aui-bar-tab-item" tapmode onclick="randomSwitchBtn( this );">
-                <div class="aui-dot" v-show="msgDot"></div>
-                <img class="mcenter actshow" src="../image/tabbar/setting1.png" alt="">
-                <img class="mcenter acthide" src="../image/tabbar/setting.png" alt="">
-                <div class="aui-bar-tab-label">设置</div>
-            </div>
         </footer>
     </div>
 </body>
@@ -88,40 +79,25 @@
 </html>
 <script type="text/javascript" src="../script/main.js"></script>
 <script type="text/javascript">
+
     var v=new Vue({
       el:'#wrap',
       data:{
         cartNum:0,
-        msgDot:0
+        userName:'点单商城'
       },
       methods:{
 
       },
       mounted(){
-        this.msgDot=getStorageSync('member').NoticeNumber;
-        this.cartNum=getStorageSync('member').CartNumber;
+        // this.cartNum=getStorageSync('member').CartNumber;
       }
     });
     apiready = function() {
-
         hPadding();
         funIniGroup();
-
-        loginAjax();
-        listenEvent('toc',function(){
-          randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[2]);
-        });
-        listenEvent('keyback',function(){
-          api.closeWidget();
-        });
-        listenEvent('backHome',function(){
-          randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[0]);
-        });
-        listenEvent('readNotice',function(){
-          v.msgDot=getStorageSync('member').NoticeNumber;
-        });
-        listenEvent('upCartNum',function(){
-          v.cartNum=getStorageSync('member').CartNumber;
+        listenEvent('tocusc',function(){
+            randomSwitchBtn($api.domAll('#footer .aui-bar-tab-item')[1]);
         });
     }
 
@@ -130,14 +106,14 @@
             frames = [];
         for (var i = 0, len = eHeaderLis.length; i < len; i++) {
             frames.push({
-                name: 'frame' + i,
-                url: 'frame' + i + '.html',
+                name: 'customer' + i,
+                url: 'customer' + i + '.html',
                 bgColor: 'rgba(0,0,0,.2)',
                 bounces: false
             })
         }
         api.openFrameGroup({
-            name: 'group',
+            name: 'customer',
             scrollEnabled: false,
             rect: {
                 x: 0,
@@ -168,13 +144,9 @@
         }
         $api.addCls(eFootLis[index], 'aui-active');
         $api.addCls(eHeaderLis[index], 'active');
-        if (index == 1) {
-            sendEvent('getMallCart');
-        } else if (index == 2) {
-            sendEvent('getUserCart');
-        }
+        sendEvent('getCusCart');
         api.setFrameGroupIndex({
-            name: 'group',
+            name: 'customer',
             index: index,
             reload: false
         });

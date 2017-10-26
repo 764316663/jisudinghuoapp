@@ -98,8 +98,34 @@
             apiReady() {
 
             },
+            getCardList() {
+                var that = this;
+                var member = getStorageSync('member');
+                loginAjax(
+                    'api/Agent/GetMyWalletList',
+                    'get', {
+                        userID: member.UserID
+                    },
+                    function(res) {
+                        console.log(JSON.stringify(res));
+                        if (res.status) {
+                            var cardList = [];
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    txtStyle: '',
+                                    bankCard: res.data[i].BankCard,
+                                    walletID: res.data[i].WalletID,
+                                    isCheck: res.data[i].IsCheck
+                                }
+                                cardList.push(item);
+                            }
+                            that.cardList = cardList;
+                        }
+                    }
+                );
+            },
             bindNewCard() {
-                linkTo('myBankCardNew','myBankCardNew.html',true,{});
+                linkTo('myBankCardNew', 'myBankCardNew.html', true, {update:false});
             },
             init() {
                 for (var i = 0; i < this.cardList.length; i++) {
@@ -136,10 +162,10 @@
                 }
             },
             click(index) {
-                var param={
-                  index:index
+                var param = {
+                    index: index
                 }
-                linkTo('myBankCardDetail','myBankCardDetail.html',true,param);
+                linkTo('myBankCardDetail', 'myBankCardDetail.html', true, param);
             },
             del(index) {
                 var that = this;
@@ -154,12 +180,12 @@
                         'api/Agent/DeleteMyWallet',
                         'delete',
                         data,
-                        function(res){
+                        function(res) {
                             console.log(JSON.stringify(res));
-                            that.showLoading=false;
+                            that.showLoading = false;
                             showToast(res.message);
-                            if(res.status){
-                                that.cardList.splice(index,1);
+                            if (res.status) {
+                                that.cardList.splice(index, 1);
                             }
                         }
                     );
@@ -168,30 +194,7 @@
         },
         mounted() {
             this.width = $(window).width() / 5;
-            var that = this;
-            var member = getStorageSync('member');
-            loginAjax(
-                'api/Agent/GetMyWalletList',
-                'get', {
-                    userID: member.UserID
-                },
-                function(res) {
-                    console.log(JSON.stringify(res));
-                    if (res.status) {
-                        var cardList = [];
-                        for (var i = 0; i < res.data.length; i++) {
-                            var item = {
-                                txtStyle: '',
-                                bankCard: res.data[i].BankCard,
-                                walletID: res.data[i].WalletID,
-                                isCheck: res.data[i].IsCheck
-                            }
-                            cardList.push(item);
-                        }
-                        that.cardList = cardList;
-                    }
-                }
-            );
+            this.getCardList();
         }
     });
     apiready = function() {
@@ -203,6 +206,9 @@
         });
         v.apiReady();
         v.width = $(window).width() / 5;
+        listenEvent('bindBankCard', function() {
+            v.getCardList();
+        });
     }
 </script>
 

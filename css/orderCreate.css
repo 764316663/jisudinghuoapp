@@ -6,7 +6,7 @@ html, body, #app {
     box-sizing: border-box;
 }
 .scroll-view{
-  height:calc(100% - 2.5rem);
+  height:calc(100% - 2.25rem);
 }
 .aui-list {
     background-image: none !important;
@@ -17,15 +17,17 @@ html, body, #app {
 }
 
 .orderfooter {
-    position: fixed;
-    bottom: 0;
+    position: relative;
+    /*bottom: 0;*/
     width: 100%;
-    height: 2.2rem;
-    line-height: 2.2rem;
+    height: 2.25rem;
+    line-height: 2.25rem;
     border-top: 1px solid #CCCCCC;
+    overflow: hidden;
     background: #FFFFFF;
     padding-left: 0.75rem;
     z-index: 500;
+    box-sizing: border-box;
 }
 
 .smtext {

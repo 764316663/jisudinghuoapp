@@ -60,7 +60,7 @@
     <div id="app">
         <header ref="header">
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>修改资料
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>修改资料(BUG)
             </div>
         </header>
         <div class="scroll-view">
@@ -113,6 +113,7 @@
         methods: {
             changeAvatar() {
                 var that = this;
+                var token = getStorageSync('token');
                 var form = $('#uimg');
                 upLoadImg(
                     form,

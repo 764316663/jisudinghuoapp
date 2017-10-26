@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>意见反馈</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css">
+    <link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="../css/public.css">
+    <style>
+        #app {
+            height: 100%;
+        }
+
+        .feedtitle {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .w80 {
+            width: 80%;
+        }
+    </style>
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
+    <script type="text/javascript" src="../script/aui-toast.js"></script>
+    <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div>
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>意见反馈
+            </div>
+        </header>
+        <div class="scroll-view">
+            <div class="aui-content">
+                <ul class="aui-list aui-list-in">
+                    <li class="aui-list-item" v-for="(v,i) in feedList" @click="feedDetail(i)">
+                        <div class="aui-list-item-inner aui-list-item-arrow pt10 pb10">
+                            <div class="aui-list-item-title w80">
+                                <p class="feedtitle f16 black">{{v.content}}</p>
+                                <p>{{v.time}}</p>
+                            </div>
+                            <div class="aui-list-item-right" v-show="!v.isRead">
+                                <div class="aui-badge" style="position:relative;top:0; left:0">未处理</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="mb10" v-show="showMore==2">
+                    <div class="gray tc">没有更多数据了</div>
+                </div>
+                <div class="mt10 mb10" v-show="showMore==1">
+                    <div class="">
+                        <div class="">
+                            <img src="../image/timg.gif" alt="" class="smLoading">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt10 mb10" v-show="showMore==0">
+                    <div class="">
+                        <div class="gray tc">下拉加载更多</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="bottombtnbox bgf">
+            <div class="aui-btn bottombtn aui-btn-block" @click="feedNew()">新建问题</div>
+        </footer>
+        <div class="waiting" v-if="showLoading || toast">
+            <div class="waiting-main" v-if="showLoading">
+                <img src="../image/timg.gif" alt="" class="waiting-gif">
+                <p class="waiting-text">加载中</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/main.js"></script>
+<script type="text/javascript">
+    var v = new Vue({
+        el: '#app',
+        data: {
+            showLoading: false,
+            toast: false,
+            showMore: 1,
+            pageIndex: 1,
+            feedList: [{}]
+        },
+        methods: {
+            apiReady() {
+
+            },
+            feedDetail(index){
+                var id=this.feedList[index].id;
+                linkTo('feedDetail','feedDetail.html',true,{id:id});
+            },
+            getList() {
+                if (this.showMore != 0 && this.pageIndex!=1) {
+                    return;
+                }
+                var member = getStorageSync('member');
+                var that = this;
+                this.showMore = 1;
+                var data = {
+                    userID: member.UserID,
+                    pageIndex: this.pageIndex,
+                    pageSize: 10
+                }
+                loginAjax(
+                    'api/Agent/GetFeedBackList',
+                    'get',
+                    data,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        if (res.status) {
+                            var feedList = that.pageIndex == 1 ? [] : that.feedList;
+                            for (var i = 0; i < res.data.length; i++) {
+                                var item = {
+                                    id: res.data[i].FeedbackID,
+                                    content: res.data[i].Content,
+                                    time: res.data[i].CreateDate,
+                                    isRead: res.data[i].IsRead
+                                }
+                                feedList.push(item);
+                            }
+                            that.pageIndex++;
+                            that.feedList=feedList;
+                            that.showMore=res.data.length<10?2:0;
+                        }
+                    }
+                );
+            }
+        },
+        mounted() {
+            this.getList();
+        }
+    });
+    apiready = function() {
+        hPadding(function() {
+            var headerh = $('header').outerHeight();
+            var windowh = $('body').height();
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
+        });
+        v.apiReady();
+    }
+    $('.scroll-view').scroll(function() {
+        var boxh = $(this).height();
+        var boxt = $(this).scrollTop();
+        var bodyh = $('.aui-content').height();
+        if (boxh + boxt == bodyh) {
+            v.getList();
+        }
+    });
+</script>
+
+</html>

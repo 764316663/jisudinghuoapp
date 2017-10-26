@@ -35,7 +35,7 @@
                         <img :src="v.pic+'/200'" alt="">
                         <p class="liketag f12">{{v.desc || 'null'}}</p>
                         <p class="black f14">{{v.name}}{{v.stockName}}</p>
-                        <p class="likeprice price">￥{{v.sPrice}}
+                        <p class="likeprice price">￥{{v.mPrice}}
                             <span class="gray f12">&nbsp;&nbsp;销量:{{v.saleNum}}</span>
                             <span class="fr" v-if="v.stockNum<=0">售罄</span>
                             <span class="fr" v-else-if="v.pPost">包邮</span>
@@ -75,7 +75,7 @@
                             <div class="cartinfo fl">
                                 <p class="goodsname">{{value.ItemName}}</p>
                                 <p class="goodsdesc">{{value.TagLine}}</p>
-                                <p class="cartgoodsprice fl">￥{{value.SalePrice}}</p>
+                                <p class="cartgoodsprice fl">￥{{value.MarketPrice}}</p>
                                 <p class="goodstock fr">库存{{value.StockNum}}</p>
                             </div>
                         </div>
@@ -239,14 +239,21 @@
                 this.dis = dis;
             },
             totalNum() {
+                var cartStockIDs = [];
+                var cartNumbers = [];
                 var total = 0;
-                for (var i = 0; i < this.cartList.length; i++) {
-                    for (var j = 0; j < this.cartList[i].List.length; j++) {
-                        if (this.cartList[i].List[j].checked) {
-                            total += this.cartList[i].List[j].SalePrice * this.cartList[i].List[j].Number;
+                for(var i=0;i<this.cartList.length;i++){
+                    for(var j=0;j<this.cartList[i].List.length;j++){
+                        if(this.cartList[i].List[j].checked){
+                            total+=this.cartList[i].List[j].MarketPrice;
                         }
                     }
                 }
+                // var customerGoods = getStorageSync('customerGoods') || [];
+
+                // for (var i = 0; i < customerGoods.length; i++) {
+                //     total += customerGoods[i].price * customerGoods[i].number;
+                // }
                 this.total = total;
             },
             cartChoose() {
@@ -267,195 +274,183 @@
                 var num = parseInt(this.cartList[w].List[g].Number);
                 var max = this.cartList[w].List[g].MaxNum > this.cartList[w].List[g].StockNum ? this.cartList[w].List[g].StockNum : this.cartList[w].List[g].MaxNum;
                 var min = this.cartList[w].List[g].MinNum;
+                var price = this.cartList[w].List[g].MarketPrice;
                 num = num ? (num > max ? max : (num < min ? min : num)) : min;
                 this.cartList[w].List[g].Number = num;
-                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
+                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num, price);
             },
             numMinus(w, g) {
                 var num = parseInt(this.cartList[w].List[g].Number);
                 var min = this.cartList[w].List[g].MinNum;
+                var price = this.cartList[w].List[g].MarketPrice;
                 num--;
                 num = num < min ? min : num;
                 this.cartList[w].List[g].Number = num;
-                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
+                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num, price);
             },
             numPlus(w, g) {
                 var num = parseInt(this.cartList[w].List[g].Number);
                 var max = this.cartList[w].List[g].MaxNum > this.cartList[w].List[g].StockNum ? this.cartList[w].List[g].StockNum : this.cartList[w].List[g].MaxNum;
+                var price = this.cartList[w].List[g].MarketPrice;
                 num++;
                 num = num > max ? max : num;
                 this.cartList[w].List[g].Number = num;
-                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num);
+                this.addCart(this.cartList[w].List[g].itemID, this.cartList[w].List[g].stockID, num, price);
             },
-            addCart(itemID, stockID, num) {
-                var member = getStorageSync('member');
-                var that = this;
-                var data = {
-                    UserID: member.UserID,
-                    ItemID: itemID,
-                    StockID: stockID,
-                    'Number': num
-                }
-                loginAjax(
-                    'api/Good/AddCart',
-                    'post',
-                    data,
-                    function(res) {
-                        // console.log(JSON.stringify(res));
-                        if (res.status) {
-                            member.CartNumber = res.data.CartNumber;
-                            setStorageSync('member', member);
-                            that.totalNum();
-                            that.cartChoose();
-                            sendEvent('upCartNum');
-                        }
+            addCart(itemID, stockID, num, price) {
+                var customerGoods = getStorageSync('customerGoods') || [];
+                for (var i = 0; i < customerGoods.length; i++) {
+                    if (customerGoods[i].itemID == itemID && customerGoods[i].stockID == stockID) {
+                        customerGoods[i].number = num;
+                        break;
                     }
-                );
+                }
+                setStorageSync('customerGoods', customerGoods);
+                this.totalNum();
             },
             deleteGoods(windex, spindex) {
                 var that = this;
-                var cartid = this.cartList[windex].List[spindex].CartID;
-                var member = getStorageSync('member');
                 showConfirm('确定要删除该商品吗？', function() {
-                    that.showLoading = true;
-                    var data = {
-                        UserID: member.UserID,
-                        CartID: cartid
-                    }
-                    loginAjax(
-                        'api/Good/RemoveCart',
-                        'DELETE',
-                        data,
-                        function(res) {
-                            // console.log(JSON.stringify(res));
-                            that.showLoading = false;
-                            //showToast(res.message);
-                            if (res.status) {
-                                member.CartNumber = res.data.CartNumber;
-                                setStorageSync('member', member);
-                                that.cartList[windex].List.splice(spindex, 1);
-                                if (!that.cartList[windex].List.length) {
-                                    that.cartList.splice(windex, 1);
-                                }
-                                that.disabledBtn();
-                                that.isCheck();
-                                that.totalNum();
-                                that.cartChoose();
-                                sendEvent('upCartNum');
-                            }
+                    var customerGoods = getStorageSync('customerGoods');
+                    for (var i = 0; i < customerGoods.length; i++) {
+                        if (that.cartList[windex].List[spindex].itemID == customerGoods[i].itemID && that.cartList[windex].List[spindex].stockID == customerGoods[i].stockID) {
+                            customerGoods.splice(i, 1);
+                            that.cartList[windex].List.splice(i, 1);
+                            break;
                         }
-                    );
-                })
+                    }
+                    if (!that.cartList[windex].List.length) {
+                        that.cartList.splice(windex);
+                    }
+                    setStorageSync('customerGoods', customerGoods);
+                    that.totalNum();
+                });
             },
             emptyWareHouse(index) {
-                var wid = this.cartList[index].WareHouseID;
                 var that = this;
                 showConfirm('确定要清空该仓库吗？', function() {
-                    that.showLoading = true;
-                    var member = getStorageSync('member');
-                    var data = {
-                        UserID: member.UserID,
-                        WareHouseID: wid
-                    }
-                    loginAjax(
-                        'api/Good/RemoveWareHouseCart',
-                        'delete',
-                        data,
-                        function(res) {
-                            that.showLoading = false;
-                            //showToast(res.message);
-                            // console.log(JSON.stringify(res));
-                            if (res.status) {
-                                var cartList = that.cartList;
-                                member.CartNumber = res.data.CartNumber;
-                                setStorageSync('member', member);
-                                cartList.splice(index, 1);
-                                that.cartList = cartList;
-                                that.disabledBtn();
-                                that.isCheck();
-                                that.totalNum();
-                                that.cartChoose();
-                                sendEvent('upCartNum');
+                    var customerGoods = getStorageSync('customerGoods');
+                    for (var i = 0; i < that.cartList[index].List.length; i++) {
+                        for(var j=0; j < customerGoods.length; j++){
+                            if(that.cartList[index].List[i].itemID == customerGoods[j].itemID && that.cartList[index].List[i].stockID == customerGoods[j].stockID){
+                                customerGoods.splice(j, 1);
                             }
                         }
-                    );
+                    }
+                    that.cartList.splice(index,1);
+                    setStorageSync('customerGoods', customerGoods);
+                    that.totalNum();
                 });
             },
             toDetail(itemID, stockID, title) {
-                linkTo('goodsDetail', 'goodsDetail.html', true, {
+                linkTo('customerGoodsDetail', 'customerGoodsDetail.html', true, {
                     itemID,
                     stockID,
                     title
                 });
             },
             toOrderCreate() {
-                var cartIDs = this.chooseCartID.join(',');
-                var cartNumbers = this.chooseCartNum.join(',');
-                linkTo('cartOrderCreate', 'cartOrderCreate.html', true, {
-                    cartIDs: cartIDs,
-                    cartNumbers: cartNumbers
-                });
+                var cartStockIDs = [];
+                var cartNumbers = [];
+                var openID = getStorageSync('openID');
+                for(var i=0;i<this.cartList.length;i++){
+                    for(var j=0;j<this.cartList[i].List.length;j++){
+                        if(this.cartList[i].List[j].checked){
+                            cartStockIDs.push(this.cartList[i].List[j].stockID);
+                            cartNumbers.push(this.cartList[i].List[j].Number);
+                        }
+                    }
+                }
+                var member = getStorageSync('member');
+                var cartIDs = cartStockIDs.join(',');
+                var cartNumbers = cartNumbers.join(',');
+                var param={
+                    openID: openID,
+                    nickName: member.UserName || customer.UserName,
+                    avatar: member.Avatar || customer.Avatar,
+                    cartStockIDs: cartIDs,
+                    cartNumbers: cartNumbers,
+                    fastbuy:false
+                }
+                linkTo('customerCartOrderCreate','customerCartOrderCreate.html',true,param);
             },
             getCartInfo() {
                 var that = this;
+                var customerGoods = getStorageSync('customerGoods') || [];
+                var openID = getStorageSync('openID');
                 var member = getStorageSync('member');
-                loginAjax(
-                    'api/Order/GetShopingCart',
-                    'get', {
-                        userID: member.UserID
-                    },
-                    function(res) {
-                        // console.log(JSON.stringify(res));
-                        that.showLoading = false;
-                        if (res.status) {
-                            var cartList = [];
-                            for (var i = 0; i < res.data.length; i++) {
-                                var List = [];
-                                for (var j = 0; j < res.data[i].CartList.length; j++) {
-                                    var item = {
-                                        IsPinkage: res.data[i].CartList[j].IsPinkage,
-                                        IsSingleOrder: res.data[i].CartList[j].IsSingleOrder,
-                                        CartID: res.data[i].CartList[j].CartID,
-                                        itemID: res.data[i].CartList[j].ItemID,
-                                        stockID: res.data[i].CartList[j].StockID,
-                                        ItemName: res.data[i].CartList[j].ItemName,
-                                        ImageUrl: res.data[i].CartList[j].ImageUrl,
-                                        StockName: res.data[i].CartList[j].StockName,
-                                        SalePrice: res.data[i].CartList[j].SalePrice,
-                                        Number: res.data[i].CartList[j].Number,
-                                        UnitName: res.data[i].CartList[j].UnitName,
-                                        StockNum: res.data[i].CartList[j].StockNum,
-                                        MaxNum: res.data[i].CartList[j].MaxNum,
-                                        MinNum: res.data[i].CartList[j].MinNum,
-                                        checked: true,
-                                        TagLine: res.data[i].CartList[j].TagLine,
-                                    }
-                                    if (item.StockNum <= 0) {
-                                        item.checked = false;
-                                        item.Number = 0;
-                                    }
-                                    List.push(item);
-                                }
-                                var ListItem = {
-                                    WareHouseID: res.data[i].WareHouseID,
-                                    WareHouseName: res.data[i].WareHouseName,
-                                    List: List,
-                                    checked: true
-                                }
-                                cartList.push(ListItem);
-                            }
-                            that.cartList = cartList;
-                            that.disabledBtn();
-                            that.isCheck();
-                            that.totalNum();
-                            that.cartChoose();
-                        }
+                if (!customerGoods.length) {
+                    this.cartList = [];
+                } else {
+                    var cartStockIDs = [];
+                    var cartNumbers = [];
+                    for (var i = 0; i < customerGoods.length; i++) {
+                        cartStockIDs.push(customerGoods[i].stockID);
+                        cartNumbers.push(customerGoods[i].number);
                     }
-                );
+                    var data = {
+                        openID: openID,
+                        nickName: member.UserName || customer.UserName,
+                        avatar: member.Avatar || customer.Avatar,
+                        cartStockIDs: cartStockIDs.join(','),
+                        cartNumbers: cartNumbers.join(',')
+                    }
+                    callAjax(
+                        'api/Customer/GetCustomerShoppingCart',
+                        'get',
+                        data,
+                        function(res) {
+                            // console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            if (res.status) {
+                                var cartList = [];
+                                for (var i = 0; i < res.data.StockList.length; i++) {
+                                    var List = [];
+                                    for (var j = 0; j < res.data.StockList[i].StockList.length; j++) {
+                                        var item = {
+                                            IsPinkage: res.data.StockList[i].StockList[j].IsPinkage,
+                                            IsSingleOrder: res.data.StockList[i].StockList[j].IsSingleOrder,
+                                            itemID: res.data.StockList[i].StockList[j].ItemID,
+                                            stockID: res.data.StockList[i].StockList[j].StockID,
+                                            ItemName: res.data.StockList[i].StockList[j].ItemName,
+                                            ImageUrl: res.data.StockList[i].StockList[j].ImageUrl,
+                                            StockName: res.data.StockList[i].StockList[j].StockName,
+                                            MarketPrice: res.data.StockList[i].StockList[j].MarketPrice,
+                                            Number: res.data.StockList[i].StockList[j].CartNum,
+                                            UnitName: res.data.StockList[i].StockList[j].UnitName,
+                                            StockNum: res.data.StockList[i].StockList[j].StockNum,
+                                            MaxNum: res.data.StockList[i].StockList[j].MaxNum,
+                                            MinNum: res.data.StockList[i].StockList[j].MinNum,
+                                            checked: true,
+                                            TagLine: res.data.StockList[i].StockList[j].TagLine,
+                                        }
+                                        if (item.inventory <= 0) {
+                                            item.checked = false;
+                                            item.num = 0;
+                                        }
+                                        List.push(item);
+                                    }
+                                    var ListItem = {
+                                        WareHouseID: res.data.StockList[i].WareHouseID,
+                                        WareHouseName: res.data.StockList[i].WareHouseName,
+                                        List: List,
+                                        checked: true
+                                    }
+                                    cartList.push(ListItem);
+                                }
+                                that.cartList = cartList;
+                                that.disabledBtn();
+                                that.isCheck()
+                                that.totalNum();
+                                that.cartChoose();
+                            }
+                        }
+                    );
+                }
 
             },
             getHotList() {
-                var that=this;
+                var that = this;
                 callAjax(
                     'api/Index/GetHotGoodStock',
                     'get', {
@@ -492,15 +487,21 @@
                         that.likeList = mode;
                     }
                 );
+            },
+            apiReady() {
+                this.getCartInfo();
+                // console.log(api.deviceToken);
+                // console.log(api.deviceId);
             }
         },
         mounted() {
-            this.getCartInfo();
+
             this.getHotList();
         }
     });
     apiready = function() {
-        listenEvent('getUserCart', function() {
+        v.apiReady();
+        listenEvent('getCusCart', function() {
             v.getCartInfo();
         });
     }

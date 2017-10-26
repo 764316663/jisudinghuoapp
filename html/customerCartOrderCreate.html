@@ -18,6 +18,27 @@
         #app {
             height: 100%;
         }
+
+        .goodslist {
+            padding: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .goodslist img {
+            width: 3rem;
+            height: 3rem;
+            float: left;
+            margin-right: 0.5rem;
+        }
+
+        .listinfo {
+            width: calc(100% - 3.5rem);
+        }
+
+        .deline {
+            text-decoration: line-through;
+            margin-top: 0.125rem;
+        }
     </style>
     <script type="text/javascript" src="../script/api.js"></script>
     <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
@@ -45,7 +66,7 @@
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-title">订单金额</div>
-                            <div class="aui-list-item-right price f16">￥{{price | toFix}}</div>
+                            <div class="aui-list-item-right price f16"><span class="gray deline">￥{{mprice}}</span>￥{{price}}</div>
                         </div>
                     </li>
                 </ul>
@@ -55,7 +76,7 @@
                     <li class="aui-list-item" @click="toAddress()">
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <div class="aui-list-item-title">收货信息</div>
-                            <div class="aui-list-item-right f14 black">选择地址</div>
+                            <div class="aui-list-item-right f14 black" @click="linkTo('customerAddress','customerAddress.html',true,{});">填写地址</div>
                         </div>
                     </li>
                     <li class="aui-list-item" v-show="address.address">
@@ -79,11 +100,30 @@
                     </li>
                 </ul>
             </div>
-            <div class="aui-content" v-for="(v,i) in LogisticList">
+            <div class="aui-content" v-for="(v,i) in WList">
                 <ul class="aui-list aui-list-in no-list-item-active">
-                    <li class="aui-list-item" @click="showPicker(i)">
+                    <li class="aui-list-item">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-title">{{v.wareHouseName}}</div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item" v-for="(value,index) in v.goods">
+                        <div class="aui-list-item-inner db">
+                            <div class="goodslist">
+                                <img :src="value.pic" alt="">
+                                <div class="listinfo fl">
+                                    <p class="black f16">{{value.name}}
+                                        <span class="fr price f16">￥{{value.SalePrice}}</span>
+                                        <span class="fr gray f14 deline">￥{{value.price}}</span>
+                                    </p>
+                                    <p class="f14 gray">{{value.tagLine}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="aui-list-item" @click="showPicker(i)">
+                        <div class="aui-list-item-inner">
+                            <div class="aui-list-item-title">快递</div>
                             <div class="aui-list-item-right f16 black">{{v.expressName}}</div>
                         </div>
                     </li>
@@ -104,15 +144,6 @@
                             <div class="aui-list-item-input">
                                 <input type="text" placeholder="内容" v-model="v.remark">
                             </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="aui-content">
-                <ul class="aui-list aui-list-in no-list-item-active">
-                    <li class="aui-list-item aui-list-item-arrow">
-                        <div class="aui-list-item-inner">
-                            <div class="aui-list-item-title">商品清单</div>
                         </div>
                     </li>
                 </ul>
@@ -140,10 +171,10 @@
         data: {
             toast: false,
             showLoading: true,
-            cartIDs: '',
-            cartNumbers: '',
             weight: 0,
             price: 0,
+            mprice: 0,
+            WList: [{}],
             address: {
                 name: '',
                 phone: '',
@@ -158,7 +189,6 @@
                 telNumber: "",
                 userName: ""
             },
-            LogisticList: [],
             provinceName: '',
             addTrue: false,
             boxshow: false,
@@ -170,24 +200,25 @@
         methods: {
             showPicker(index) {
                 this.expIndex = index;
-                var expID = this.LogisticList[index].key;
-                var newArr = this.LogisticList[index].array;
+                var expID = this.WList[index].index == -1 ? 0 : this.WList[index].logistic[this.WList[index].index].value;
+                var arr = this.WList[index].logistic;
                 var arrIndex = 0;
-                for (var i = 0; i < newArr.length; i++) {
-                    if (newArr[i].key == expID) {
-                        arrIndex = i;
-                        break;
+                if (expID != -1) {
+                    for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].value == expID) {
+                            arrIndex = i;
+                            break;
+                        }
                     }
                 }
+
                 picker.show(function() {
-                    picker.refillColumn(0, newArr);
+                    picker.refillColumn(0, arr);
                     picker.scrollColumn(0, arrIndex);
                 });
             },
             toAddress() {
-                linkTo('address', 'address.html', false, {
-                    getAdd: true
-                });
+
             },
             setAddressDefault() {
                 var orderAddress = getStorageSync('orderAddress');
@@ -207,7 +238,6 @@
                         userName: orderAddress.name
                     };
                     this.provinceName = orderAddress.ProvinceName;
-                    this.wxadd = false;
                     this.addtrue = false;
                     removeStorageSync('orderAddress');
                 }
@@ -216,98 +246,117 @@
                 this.addTrue = !this.addTrue;
             },
             total() {
-                var total = this.price;
-                for (var i = 0; i < this.LogisticList.length; i++) {
-                    total += this.LogisticList[i].CourierMoney ? this.LogisticList[i].CourierMoney : 0;
+                var totalNum = this.price;
+                for (var i = 0; i < this.WList.length; i++) {
+                    totalNum += this.WList[i].CourierMoney ? this.WList[i].CourierMoney : 0;
                 }
-                this.totalNum = total;
+                this.totalNum = totalNum;
             },
 
             courier() {
+                if (!this.address.address) {
+                    showToast('请先填写收货地址');
+                    return;
+                }
                 var that = this;
                 var member = getStorageSync('member');
-                var wareHouse = this.LogisticList[this.expIndex];
-                wareHouse.expressName = wareHouse.array[this.pickerIndex].text;
-                wareHouse.key = wareHouse.array[this.pickerIndex].key;
-                var wareHouseID = wareHouse.wareHouseID;
-                var logisticID = wareHouse.array[this.pickerIndex].key;
-                var cartIDs = wareHouse.CartIDs;
-                var cartNumbers = wareHouse.CartNumbers;
-                var provinceName = this.provinceName;
-                var data = {
-                    userID: member.UserID,
-                    wareHouseID,
-                    logisticID,
-                    cartIDs,
-                    cartNumbers,
-                    provinceName
+                var stockIDs = [];
+                var stockNumbers = [];
+                for (var i = 0; i < that.WList[that.expIndex].goods.length; i++) {
+                    stockIDs.push(that.WList[that.expIndex].goods[i].stockID);
+                    stockNumbers.push(that.WList[that.expIndex].goods[i].cartnum);
                 }
+                var data = {
+                        LogisticID: that.WList[that.expIndex].key,
+                        wareHouseID: that.WList[that.expIndex].wareHouseID,
+                        stockIDs: stockIDs,
+                        stockNumbers: stockNumbers,
+                        provinceName: that.provinceName,
+                    }
+                    // console.log(JSON.stringify(data));
                 callAjax(
-                    'api/Order/GetCartExpressFee',
+                    'api/Customer/GetStockExpressFee',
                     'get',
                     data,
                     function(res) {
+                        // console.log(JSON.stringify(res));
                         if (res.status) {
-                            wareHouse.CourierContent = res.data.tips;
-                            wareHouse.CourierMoney = res.data.expressFee;
+                            that.WList[that.expIndex].CourierMoney = res.data.expressFee;
+                            that.WList[that.expIndex].CourierContent = res.data.tips;
                         } else {
-                            wareHouse.CourierContent = res.message;
-                            wareHouse.key = '-1';
-                            wareHouse.CourierMoney = '';
+                            that.WList[that.expIndex].CourierMoney = '';
+                            that.WList[that.expIndex].key = '-1';
+                            that.WList[that.expIndex].CourierContent = res.message;
                         }
                         that.total();
                     }
                 );
-
             },
             orderCompile() {
                 if (!this.address.address) {
-                    showToast('请选择收货地址');
+                    showToast('请填写收货地址');
                 } else {
-                    this.showLoading = true;
                     var that = this;
                     var LogisticIDs = [];
                     var Remarks = [];
-                    for (var i = 0; i < this.LogisticList.length; i++) {
-                        if (this.LogisticList[i].key == '-1') {
+                    var stockIDs = [];
+                    var stockNumbers = [];
+                    for (var i = 0; i < that.WList.length; i++) {
+                        if (that.WList[i].key == '-1') {
                             showToast('请选择快递公司');
                             return false;
                         }
-                        LogisticIDs.push(this.LogisticList[i].key);
-                        // Remarks.push(this.LogisticList[i].remark);
-                        Remarks.push(this.LogisticList[i].remark?this.LogisticList[i].remark:'无');
+                        for (var j = 0; j < that.WList[i].goods.length; j++) {
+                            stockIDs.push(that.WList[i].goods[j].stockID);
+                            stockNumbers.push(that.WList[i].goods[j].cartnum);
+                        }
+                        LogisticIDs.push(that.WList[i].key);
+                        // Remarks.push(that.WList[i].remark);
+                        Remarks.push(that.WList[i].remark ? that.WList[i].remark : '无');
                     }
-                    var remark = Remarks.join(',');
                     var member = getStorageSync('member');
-                    var data = {
-                        userID: member.UserID,
-                        cartIDs: this.cartIDs,
-                        cartNumbers: this.cartNumbers,
+                    var orderFinishModel = {
+                        UserID: member.UserID,
+                        OpenID: '',
+                        NickName: '',
+                        Avatar: '',
+                        CartStockIDs: stockIDs.join(','),
+                        CartNumbers: stockNumbers.join(','),
                         LogisticIDs: LogisticIDs.join(','),
-                        remark: remark,
-                        IsSyncAddress: false,
-                        addressParam: this.AddressParam
+                        Remarks: Remarks.join(','),
+                        IsSyncAddress: this.addtrue,
+                        AddressParam: this.AddressParam
                     }
-                    console.log(JSON.stringify(data));
+                    this.showLoading = true;
                     loginAjax(
-                        'api/Order/AddCartToOrder',
+                        'api/Customer/HelpCustomerBuyGoods',
                         'post',
-                        data,
+                        orderFinishModel,
                         function(res) {
-                            that.showLoading = false;
                             console.log(JSON.stringify(res));
+                            that.showLoading = false;
                             showToast(res.message);
                             if (res.status) {
-                                member.CartNumber = res.data.CartNumber;
+                                member.Amount = res.data.Amount;
                                 setStorageSync('member', member);
-                                removeStorageSync('orderAddress');
+                                if (!that.fastbuy) {
+                                    var customerGoods = getStorageSync('customerGoods');
+                                    for (var i = 0; i < stockIDs.length; i++) {
+                                        customerGoods.length;
+                                        for (var j = 0; j < customerGoods.length; j++) {
+                                            if (stockIDs[i] == customerGoods[j].stockID) {
+                                                customerGoods.splice(j, 1);
+                                            }
+                                        }
+                                    }
+                                    setStorageSync('customerGoods', customerGoods);
+                                    sendEvent('getCusCart');
+                                }
                                 setTimeout(function() {
                                     linkTo('orderComplete', 'orderComplete.html', true, {
                                         payNo: res.data.PayNos
                                     });
                                 }, 1500);
-                            } else {
-
                             }
                         }
                     );
@@ -315,73 +364,78 @@
             },
             apiReady() {
                 var that = this;
-                that.cartIDs = api.pageParam.cartIDs;
-                that.cartNumbers = api.pageParam.cartNumbers;
                 var member = getStorageSync('member');
+                this.fastbuy = api.pageParam.fastbuy;
                 var data = {
-                    userID: member.UserID,
+                    openID: api.pageParam.openID,
+                    nickName: api.pageParam.nickName,
+                    avatar: api.pageParam.avatar,
+                    cartStockIDs: api.pageParam.cartStockIDs,
                     cartNumbers: api.pageParam.cartNumbers,
-                    cartIDs: api.pageParam.cartIDs
                 }
-                console.log(JSON.stringify(data));
                 loginAjax(
-                    'api/Order/GetOrderCheck',
+                    'api/Customer/GetCustomerShoppingCart',
                     'get',
                     data,
                     function(res) {
                         that.showLoading = false;
-                        console.log(JSON.stringify(res));
+                        console.log(JSON.stringify(res.data));
                         if (res.status) {
                             var weight = res.data.TotalWeight;
-                            var price = res.data.TotalPrice;
-                            var LogisticList = [];
-                            for (var i = 0; i < res.data.LogisticList.length; i++) {
-                                var array = [];
-                                for (var j = 0; j < res.data.LogisticList[i].LogisticList.length; j++) {
-                                    var arrayItem = {
-                                        key: res.data.LogisticList[i].LogisticList[j].LogisticID,
-                                        text: res.data.LogisticList[i].LogisticList[j].LogisticName
+                            var mprice = res.data.TotalMarketPrice;
+                            var price = res.data.TotalSalePrice
+                            var WList = [];
+                            for (var i = 0; i < res.data.StockList.length; i++) {
+                                var gooditem = [];
+                                var logistic = [];
+                                //商品
+                                // console.log(JSON.stringify(res.data.StockList[i].StockList[0]));
+                                for (var j = 0; j < res.data.StockList[i].StockList.length; j++) {
+
+                                    var item = {
+                                        itemID: res.data.StockList[i].StockList[j].ItemID,
+                                        stockID: res.data.StockList[i].StockList[j].StockID,
+                                        name: res.data.StockList[i].StockList[j].ItemName,
+                                        tagLine: res.data.StockList[i].StockList[j].TagLine,
+                                        cartnum: res.data.StockList[i].StockList[j].CartNum,
+                                        pic: res.data.StockList[i].StockList[j].ImageUrl + '/200',
+                                        price: res.data.StockList[i].StockList[j].MarketPrice,
+                                        SalePrice: res.data.StockList[i].StockList[j].SalePrice,
+                                        unit: res.data.StockList[i].StockList[j].UnitName
                                     }
-                                    array.push(arrayItem);
+                                    gooditem.push(item);
                                 }
-                                var LogisticItem = {
-                                    CartIDs: res.data.LogisticList[i].CartIDs,
-                                    CartNumbers: res.data.LogisticList[i].CartNumbers,
-                                    wareHouseID: res.data.LogisticList[i].WareHouseID,
-                                    wareHouseName: res.data.LogisticList[i].WareHouseName,
-                                    array: array,
-                                    index: 0,
-                                    key: '-1',
-                                    CourierMoney: '',
-                                    CourierContent: '',
+                                // 快递
+                                for (var n = 0; n < res.data.StockList[i].LogisticList.length; n++) {
+                                    var item = {
+                                        value: res.data.StockList[i].LogisticList[n].LogisticID,
+                                        text: res.data.StockList[i].LogisticList[n].LogisticName
+                                    }
+                                    logistic.push(item)
+                                }
+                                var wListItem = {
+                                    wareHouseID: res.data.StockList[i].WareHouseID,
+                                    wareHouseName: res.data.StockList[i].WareHouseName,
+                                    goods: gooditem,
+                                    logistic: logistic,
                                     expressName: '--请选择--',
                                     remark: '',
-                                    expTrue: false
+                                    index: -1,
+                                    key: '-1',
+                                    CourierContent: '',
+                                    CourierMoney: '',
                                 }
-                                LogisticList.push(LogisticItem);
+                                WList.push(wListItem)
                             }
-                            var address = {
-                                name: res.data.DefaultAddress.Name,
-                                phone: res.data.DefaultAddress.Mobile,
-                                address: res.data.DefaultAddress.ProvinceName + res.data.DefaultAddress.CityName + res.data.DefaultAddress.TownName + res.data.DefaultAddress.Address
-                            }
-                            that.address = address;
-                            that.AddressParam = {
-                                postalCode: res.data.DefaultAddress.PostalCode,
-                                provinceName: res.data.DefaultAddress.ProvinceName,
-                                cityName: res.data.DefaultAddress.CityName,
-                                countyName: res.data.DefaultAddress.TownName,
-                                detailInfo: res.data.DefaultAddress.Address,
-                                telNumber: res.data.DefaultAddress.Mobile,
-                                userName: res.data.DefaultAddress.Name
-                            }
+                            that.WList = WList;
                             that.weight = weight;
+                            that.mprice = mprice;
                             that.price = price;
-                            that.LogisticList = LogisticList;
-                            that.provinceName = res.data.DefaultAddress.ProvinceName;
-                            that.GoodsNum = res.data.CartNumber;
-                            that.total();
+                            that.totalNum = price;
+                            that.CartStockIDs = res.data.CartStockIDs;
+                            that.CartNumbers = res.data.CartNumbers;
                             newPicker();
+                            // console.log(JSON.stringify(WList));
                         }
 
                     }
@@ -415,7 +469,9 @@
         });
 
         picker.on('picker.select', function(selectedVal, selectedIndex) {
-            v.pickerIndex = selectedIndex;
+            v.WList[v.expIndex].index = selectedIndex[0];
+            v.WList[v.expIndex].key = v.WList[v.expIndex].logistic[v.WList[v.expIndex].index].value;
+            v.WList[v.expIndex].expressName = v.WList[v.expIndex].logistic[v.WList[v.expIndex].index].text;
             v.courier();
         });
         picker.on('picker.change', function(index, selectedIndex) {});

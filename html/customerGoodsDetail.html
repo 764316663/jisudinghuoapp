@@ -39,9 +39,8 @@
             </div>
             <div class="goodsinfo bgf mt10">
                 <h2>{{title}}</h2>
-                <p class="goodsmoney price f18">￥{{goodsinfo.SalePrice | toFix}}</p>
                 <div class="flex-row goodsdetailed gray f16">
-                    <span>市场价:{{goodsinfo.MarketPrice | toFix}}</span>
+                    <span class="f20 price">￥{{goodsinfo.MarketPrice | toFix}}</span>
                     <span>库存:{{chooseInfo[chooseIndex].stockNum}}</span>
                     <span>重量:{{goodsinfo.Weight}}kg</span>
                 </div>
@@ -71,14 +70,6 @@
                 <i class="aui-iconfont aui-icon-cart"></i>
                 <div class="aui-bar-tab-label">购物车</div>
             </div>
-            <div class="aui-bar-tab-item" tapmode style="width: 3rem;" v-show="!isLike" @click="like()">
-                <i class="aui-iconfont aui-icon-star"></i>
-                <div class="aui-bar-tab-label">收藏</div>
-            </div>
-            <div class="aui-bar-tab-item" tapmode style="width: 3rem;" v-show="isLike" @click="like()">
-                <i class="aui-iconfont aui-icon-star price"></i>
-                <div class="aui-bar-tab-label price">收藏</div>
-            </div>
             <div class="aui-bar-tab-item aui-bg-warning aui-text-white" tapmode style="width: auto;" v-on:touchend="addCart()" v-show="!goodsinfo.IsSingleOrder">加入购物车</div>
             <div class="aui-bar-tab-item aui-bg-danger aui-text-white" tapmode style="width: auto;" v-on:touchend="buy()">立即购买</div>
         </footer>
@@ -105,11 +96,9 @@
             goodsinfo: {},
             chooseInfo: [{}],
             chooseIndex: 0,
-            isLike: false
         },
         methods: {
             apiReady() {
-                //console.log(JSON.stringify(api.pageParam));
                 var that = this;
                 var itemID = api.pageParam.itemID;
                 var stockID = api.pageParam.stockID ? api.pageParam.stockID : 0;
@@ -124,7 +113,7 @@
                         userID: member ? member.UserID : ''
                     },
                     function(res) {
-                        // console.log(JSON.stringify(res));
+                        //console.log(JSON.stringify(res));
                         if (res.status) {
                             stockID = stockID ? stockID : res.data.ApiGoodStockList[0].StockID;
                             var goodsinfo = {
@@ -151,9 +140,6 @@
                                     that.chooseIndex = i;
                                 }
                             }
-                            // console.log(JSON.stringify(chooseInfo));
-                            // that.title=res.data.ApiGoodItem.ItemName;
-                            that.isLike = res.data.IsFavorite;
                             that.goodsinfo = goodsinfo;
                             that.chooseInfo = chooseInfo;
                             that.showLoading = false;
@@ -187,24 +173,9 @@
                 this.chooseIndex = index;
             },
             toCart() {
-                sendEvent('toc');
-                sendEvent('getUserCart');
+                sendEvent('tocusc');
+                // sendEvent('getUserCart');
                 closeWin();
-            },
-            like() {
-                var that = this;
-                var member = getStorageSync('member');
-                loginAjax(
-                    'api/Good/AddCollect',
-                    'post', {
-                        userID: member.UserID,
-                        itemID: this.itemID
-                    },
-                    function(res){
-                      console.log(JSON.stringify(res));
-                      that.isLike=!that.isLike;
-                    }
-                );
             },
             addCart() {
                 if (this.chooseInfo[this.chooseIndex].stockNum <= 0) {
@@ -212,30 +183,27 @@
                 } else if (this.num == 0) {
                     showToast('请输入购买数量');
                 } else {
-                    this.showLoading = true;
-                    var that = this;
-                    var member = getStorageSync('member');
-                    loginAjax(
-                        'api/Good/AddCart',
-                        'post', {
-                            UserID: member.UserID,
-                            ItemID: this.itemID,
-                            StockID: this.chooseInfo[this.chooseIndex].stockID,
-                            'Number': this.num
-                        },
-                        function(res) {
-                            that.showLoading = false;
-                            // console.log(JSON.stringify(res));
-                            showToast(res.message);
-                            if (res.status) {
-                                member.CartNumber=res.data.CartNumber;
-                                sendEvent('upCartNum');
-                                sendEvent('getMallCart');
-                            } else {
-
-                            }
+                    var customerGoods = getStorageSync('customerGoods') || [];
+                    var noHave = true;
+                    for (var i = 0; i < customerGoods.length; i++) {
+                        if (customerGoods[i].itemID == this.goodsinfo.itemID && customerGoods[i].stockID == this.chooseInfo[this.chooseIndex].stockID) {
+                            customerGoods[i].number = this.num;
+                            noHave = false;
+                            break;
                         }
-                    );
+                    }
+                    var data = {
+                        "itemID": this.goodsinfo.itemID,
+                        "stockID": this.chooseInfo[this.chooseIndex].stockID,
+                        "number": this.num,
+                        "price": this.chooseInfo[this.chooseIndex].MarketPrice
+                    }
+                    if (noHave) {
+                        customerGoods.push(data);
+                    }
+                    setStorageSync('customerGoods', customerGoods);
+                    showToast('加入购物车成功！');
+                    sendEvent('getCusCart');
                 }
             },
             buy() {
@@ -244,11 +212,19 @@
                 } else if (this.num == 0) {
                     showToast('请输入购买数量');
                 } else {
-                    linkTo('orderCreate', 'orderCreate.html', true, {
-                        itemID: this.itemID,
-                        stockID: this.stockID,
-                        num: this.num
-                    });
+                    var openID = getStorageSync('openID');
+                    var member = getStorageSync('member');
+                    var cartIDs = [this.chooseInfo[this.chooseIndex].stockID];
+                    var cartNumbers = [this.num];
+                    var param = {
+                        openID: openID,
+                        nickName: member.UserName,
+                        avatar: member.Avatar,
+                        cartStockIDs: cartIDs,
+                        cartNumbers: cartNumbers,
+                        fastbuy:true
+                    }
+                    linkTo('customerCartOrderCreate', 'customerCartOrderCreate.html', true, param);
                 }
             }
         },

@@ -131,9 +131,7 @@
                     } else if (!this.up) {
                         showToast('系统已更新，请更新您的实名信息');
                         setTimeout(function() {
-                            // wx.navigateTo({
-                            //     url: 'authenticationEdit/authenticationEdit'
-                            // });
+                            linkTo('myBankCardNew', 'myBankCardNew.html', true, {update:true});
                         }, 1500);
                     } else if (!this.money) {
                         showToast('请输入提现金额');
@@ -179,7 +177,7 @@
                         );
                     }
                 } else {
-
+                    linkTo('myBankCardNew', 'myBankCardNew.html', true, {update:false});
                 }
             },
             showPicker() {
@@ -188,75 +186,78 @@
             showPicker2() {
                 picker2.show();
             },
+            getCardList(){
+              var that = this;
+              var member = getStorageSync('member');
+              callAjax(
+                  'api/account/GetSalaryTypeList',
+                  'get', {},
+                  function(res) {
+                      // console.log(JSON.stringify(res));
+                      if (res.status) {
+                          var optionList = [];
+                          for (var i = 0; i < res.data.length; i++) {
+                              var item = {
+                                  value: res.data[i].Value,
+                                  text: res.data[i].Text
+                              }
+                              optionList.push(item);
+                          }
+                          that.optionList = optionList;
+                          newPicker(optionList, 0);
+                          // that.pickerList[0]=optionList;
+                          loginAjax(
+                              'api/Agent/GetMyWalletList',
+                              'get', {
+                                  userID: member.UserID
+                              },
+                              function(res) {
+                                  // console.log(JSON.stringify(res));
+                                  that.showLoading = false;
+                                  if (res.status) {
+                                      var list = [];
+                                      for (var i = 0; i < res.data.length; i++) {
+                                          var item = {
+                                              BankCard: res.data[i].BankCard,
+                                              WalletID: res.data[i].WalletID,
+                                              IsCheck: res.data[i].IsCheck,
+                                              text: res.data[i].AlipayAccount,
+                                              BankName: res.data[i].BankName,
+                                              BankNetwork: res.data[i].BankNetwork,
+                                              ProvinceName: res.data[i].ProvinceName,
+                                              CityName: res.data[i].CityName
+                                          }
+                                          list.push(item);
+                                          if (item.IsCheck) {
+                                              that.can = true;
+                                              that.WalletID = item.WalletID;
+                                              that.listText = item.text;
+                                          }
+                                          if (item.BankNetwork) {
+                                              that.up = true;
+                                          }
+                                      }
+                                      that.list = list;
+                                      newPicker2(list, 0);
+                                      // that.pickerList[1]=list;
+                                  }
+                              }
+                          );
+                      }
+                  }
+              );
+              var canSubmit = member.TotalSalary >= 1;
+              console.log(canSubmit);
+              that.canSubmit = canSubmit;
+              that.frozenAmount = member.FreezeSalary;
+              that.supportAmount = member.TotalSalary - member.FreezeSalary;
+            },
             apiReady() {
 
             }
         },
         mounted() {
-            var that = this;
-            var member = getStorageSync('member');
-            callAjax(
-                'api/account/GetSalaryTypeList',
-                'get', {},
-                function(res) {
-                    // console.log(JSON.stringify(res));
-                    if (res.status) {
-                        var optionList = [];
-                        for (var i = 0; i < res.data.length; i++) {
-                            var item = {
-                                value: res.data[i].Value,
-                                text: res.data[i].Text
-                            }
-                            optionList.push(item);
-                        }
-                        that.optionList = optionList;
-                        newPicker(optionList, 0);
-                        // that.pickerList[0]=optionList;
-                        loginAjax(
-                            'api/Agent/GetMyWalletList',
-                            'get', {
-                                userID: member.UserID
-                            },
-                            function(res) {
-                                // console.log(JSON.stringify(res));
-                                that.showLoading = false;
-                                if (res.status) {
-                                    var list = [];
-                                    for (var i = 0; i < res.data.length; i++) {
-                                        var item = {
-                                            BankCard: res.data[i].BankCard,
-                                            WalletID: res.data[i].WalletID,
-                                            IsCheck: res.data[i].IsCheck,
-                                            text: res.data[i].AlipayAccount,
-                                            BankName: res.data[i].BankName,
-                                            BankNetwork: res.data[i].BankNetwork,
-                                            ProvinceName: res.data[i].ProvinceName,
-                                            CityName: res.data[i].CityName
-                                        }
-                                        list.push(item);
-                                        if (item.IsCheck) {
-                                            that.can = true;
-                                            that.WalletID = item.WalletID;
-                                            that.listText = item.text;
-                                        }
-                                        if (item.BankNetwork) {
-                                            that.up = true;
-                                        }
-                                    }
-                                    that.list = list;
-                                    newPicker2(list, 0);
-                                    // that.pickerList[1]=list;
-                                }
-                            }
-                        );
-                    }
-                }
-            );
-            var canSubmit = member.TotalSalary >= 1;
-            console.log(canSubmit);
-            that.canSubmit = canSubmit;
-            that.frozenAmount = member.FreezeSalary;
-            that.supportAmount = member.TotalSalary - member.FreezeSalary;
+            this.getCardList();
         }
     });
     apiready = function() {
@@ -266,6 +267,9 @@
             $('.scroll-view').height(windowh - headerh + 'px');
         });
         v.apiReady();
+        listenEvent('bindBankCard', function() {
+            v.getCardList();
+        });
     }
 
     function newPicker(arr, index) {

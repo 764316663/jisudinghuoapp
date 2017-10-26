@@ -70,24 +70,24 @@
     <script type="text/javascript" src="../script/vue2-4-2.min.js"></script>
     <script type="text/javascript" src="../script/aui-toast.js"></script>
     <script type="text/javascript" src="../script/jquery-1.11.1.min.js"></script>
-
+    <script type="text/javascript" src="../script/jquery.form.min.js"></script>
 </head>
 
 <body>
     <div id="app">
         <header>
             <div>
-                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>订单详情
+                <a class="hicon aui-iconfont aui-icon-left" @click="closeWin()"></a>{{title}}
             </div>
         </header>
-        <form action="" class="scroll-view">
+        <div class="scroll-view">
             <div class="aui-content aui-margin-b-15">
                 <ul class="aui-list aui-form-list f14">
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">真实姓名</div>
                             <div class="aui-list-item-input">
-                                <input type="text" placeholder="请输入真实姓名">
+                                <input type="text" placeholder="请输入真实姓名" v-model="realname" :disabled="update">
                             </div>
                         </div>
                     </li>
@@ -95,7 +95,7 @@
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">手机号码</div>
                             <div class="aui-list-item-input">
-                                <input type="number" placeholder="请输入手机号码" oninput="if(value.length>11)value=value.slice(0,11)">
+                                <input type="number" placeholder="请输入手机号码" oninput="if(value.length>11)value=value.slice(0,11)" v-model="phone" :disabled="update">
                             </div>
                         </div>
                     </li>
@@ -103,7 +103,7 @@
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">支付宝账号</div>
                             <div class="aui-list-item-input">
-                                <input type="number" placeholder="请输入支付宝账号">
+                                <input type="text" placeholder="请输入支付宝账号" v-model="zfb" :disabled="update">
                             </div>
                         </div>
                     </li>
@@ -111,23 +111,23 @@
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">银行卡号</div>
                             <div class="aui-list-item-input">
-                                <input type="number" placeholder="请输入银行卡号">
+                                <input type="number" placeholder="请输入银行卡号" v-model="bankcard" :disabled="update">
                             </div>
                         </div>
                     </li>
-                    <li class="aui-list-item">
+                    <li class="aui-list-item" @click="showPicker()">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">开户银行</div>
                             <div class="aui-list-item-input">
-                                <input type="text" valie="--请选择--" disabled>
+                                <input type="text" :value="BankName" disabled>
                             </div>
                         </div>
                     </li>
-                    <li class="aui-list-item">
+                    <li class="aui-list-item" @click="showPicker2()">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">开户地址</div>
                             <div class="aui-list-item-input">
-                                <input type="text" valie="--请选择--" disabled>
+                                <input type="text" :value="ProvinceName+' '+CityName" disabled>
                             </div>
                         </div>
                     </li>
@@ -135,7 +135,7 @@
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">开户网点</div>
                             <div class="aui-list-item-input">
-                                <input type="text" placeholder="请输入开户网点(无需输入省市)">
+                                <input type="text" placeholder="请输入开户网点(无需输入省市)" v-model="BankNetwork">
                             </div>
                         </div>
                     </li>
@@ -144,54 +144,57 @@
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">身份证号码</div>
                             <div class="aui-list-item-input">
-                                <input type="number" placeholder="请输入身份证号码" oninput="if(value.length>18)value=value.slice(0,18)">
+                                <input type="text" placeholder="请输入身份证号码" oninput="if(value.length>18)value=value.slice(0,18)" v-model="IDcard" :disabled="update">
                             </div>
                         </div>
                     </li>
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">身份证正面</div>
-                            <div class="aui-list-item-input">
+                            <form id="sfz1" method="post" action="" enctype="multipart/form-data" class="aui-list-item-input">
                                 <label>
-                                    <img src="../image/upload.png" alt="">
-                                    <input type="file" value="" class="dn">
+                                    <img :src="imgArr[0]" alt="">
+                                    <input type="file" name="file" class="dn" :disabled="update" @change="upLoadSfz1()">
                                 </label>
-                                <div class="imgInput gray">请上传身份证正面图片 </div>
-                                <img src="../image/upload.png" alt="">
-                            </div>
+                                <div class="imgInput gray">请上传身份证正面图片</div>
+                                <img :src="gqArr[0]" alt="">
+                            </form>
                         </div>
                     </li>
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">身份证反面</div>
-                            <div class="aui-list-item-input">
+                            <form id="sfz2" method="post" action="" enctype="multipart/form-data" class="aui-list-item-input">
                                 <label>
-                                    <img src="../image/upload.png" alt="">
-                                    <input type="file" value="" class="dn">
+                                    <img :src="imgArr[1]" alt="">
+                                    <input type="file" name="file" class="dn" :disabled="update" @change="upLoadSfz2()">
                                 </label>
-                                <div class="imgInput gray">请上传身份证正面图片 </div>
-                                <img src="../image/upload.png" alt="">
-                            </div>
+                                <div class="imgInput gray">请上传身份证反面图片</div>
+                                <img :src="gqArr[1]" alt="">
+                            </form>
                         </div>
                     </li>
                     <li class="aui-list-item">
                         <div class="aui-list-item-inner">
                             <div class="aui-list-item-label">银行卡正面</div>
-                            <div class="aui-list-item-input">
+                            <form id="yhk" method="post" action="" enctype="multipart/form-data" class="aui-list-item-input">
                                 <label>
-                                    <img src="../image/upload.png" alt="">
-                                    <input type="file" value="" class="dn">
+                                    <img :src="imgArr[2]" alt="">
+                                    <input type="file" name="file" class="dn" :disabled="update" @change="upLoadYhk()">
                                 </label>
-                                <div class="imgInput gray">请上传身份证正面图片 </div>
-                                <img src="../image/upload.png" alt="">
-                            </div>
+                                <div class="imgInput gray">请上传银行卡正面图片</div>
+                                <img :src="gqArr[2]" alt="">
+                            </form>
 
                         </div>
                     </li>
-                    <li class="aui-list-header">带有输入框</li>
                 </ul>
+
             </div>
-        </form>
+        </div>
+        <footer class="bottombtnbox bgf pr">
+            <div class="aui-btn bottombtn aui-btn-block" @click="subMit()">提交</div>
+        </footer>
         <div class="waiting" v-if="showLoading || toast">
             <div class="waiting-main" v-if="showLoading">
                 <img src="../image/timg.gif" alt="" class="waiting-gif">
@@ -200,6 +203,7 @@
         </div>
     </div>
 </body>
+<script type="text/javascript" src="../script/picker.min.js"></script>
 <script type="text/javascript" src="../script/main.js"></script>
 <script type="text/javascript">
     var v = new Vue({
@@ -207,23 +211,295 @@
         data: {
             showLoading: false,
             toast: false,
+            title: '实名认证',
+            update: false,
+            realname: '',
+            phone: '',
+            IDcard: '',
+            zfb: '',
+            bankcard: '',
+            BankName: '--请选择--',
+            BankNetwork: '',
+            ProvinceName: '--请选择--',
+            CityName: '',
+            imgArr: ['../image/upload.png', '../image/upload.png', '../image/upload.png'],
+            gqArr: ['../image/sfzgq1.png', '../image/sfzgq2.png', '../image/yhk.png'],
+            bankList: [],
+            multiArray: [
+                [],
+                []
+            ],
         },
         methods: {
             apiReady() {
-
+                this.update=api.pageParam.update;
+                if(this.update){
+                    this.title='补全实名信息';
+                    var index = api.pageParam.index;
+                    var that = this;
+                    var member = getStorageSync('member');
+                    loginAjax(
+                        'api/Agent/GetMyWalletList',
+                        'get', {
+                            userID: member.UserID
+                        },
+                        function(res) {
+                            that.showLoading = false;
+                            if (res.status) {
+                                that.realname = res.data[0].RealName;
+                                that.phone = res.data[0].Mobile;
+                                that.IDcard = res.data[0].IDCard;
+                                that.imgArr = [res.data[0].IDCardFrontPicture, res.data[0].IDCardBackPicture, res.data[0].BankCardPicture];
+                                that.zfb = res.data[0].AlipayAccount;
+                                that.bankcard = res.data[0].BankCard;
+                                that.BankName = res.data[0].BankName || '--请选择--';
+                                that.BankNetwork = res.data[0].BankNetwork || '';
+                                that.ProvinceName = res.data[0].ProvinceName || '--请选择--';
+                                that.CityName = res.data[0].CityName || '';
+                            }
+                        }
+                    );
+                }
             },
+            showPicker() {
+                picker.show();
+            },
+            showPicker2() {
+                picker2.show();
+            },
+            upLoadSfz1() {
+                this.imgArr[0] = '../image/loading.gif';
+                var that = this;
+                var form = $('#sfz1');
+                upLoadImg(
+                    form,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        if (res.status) {
+                            that.imgArr[0] = res.data;
+                        }
+                    }
+                );
+            },
+            upLoadSfz2() {
+                this.imgArr[1] = '../image/loading.gif';
+                var that = this;
+                var form = $('#sfz2');
+                upLoadImg(
+                    form,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        if (res.status) {
+                            that.imgArr[1] = res.data;
+                        }
+                    }
+                );
+            },
+            upLoadYhk() {
+                this.imgArr[2] = '../image/loading.gif';
+                var that = this;
+                var form = $('#yhk');
+                upLoadImg(
+                    form,
+                    function(res) {
+                        // console.log(JSON.stringify(res));
+                        if (res.status) {
+                            that.imgArr[2] = res.data;
+                        }
+                    }
+                );
+            },
+            getList(id) {
+                var that = this;
+                callAjax(
+                    'api/index/GetRegionList',
+                    'get', {
+                        parentID: id,
+                        regionName: ''
+                    },
+                    function(res) {
+                        var arr = [];
+                        for (var i = 0; i < res.length; i++) {
+                            var item1 = {
+                                value: res[i].Value,
+                                text: res[i].Text
+                            }
+                            arr.push(item1);
+                        }
+                        that.multiArray[1] = arr;
+                        picker2.refillColumn(1, arr);
+                        picker2.scrollColumn(1, 0);
+                    }
+                );
+            },
+            subMit() {
+                var myreg = /^1[3-8][0-9]{9}$/;
+                var isIDCard15 = /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$/;
+                var isIDCard18 = /^\d{6}(19|20)?\d{2}(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])\d{3}(\d|[xX])$/;
+                if (!this.realname) {
+                    showToast('请输入真实姓名');
+                } else if (!this.phone) {
+                    showToast('请输入手机号码');
+                } else if (!myreg.test(this.phone)) {
+                    showToast('手机号码格式不正确');
+                } else if (!this.zfb) {
+                    showToast('请输入支付宝账号');
+                } else if (!this.bankcard){
+                    showToast('请输入银行卡号');
+                } else if (!this.BankName || this.BankName == "--请选择--") {
+                    showToast('请选择开户银行');
+                } else if (!this.CityName) {
+                    showToast('请选择开户地址');
+                } else if (!this.BankNetwork) {
+                    showToast('请输入开户网点');
+                } else if (!this.IDcard) {
+                    showToast('请输入身份证号码');
+                } else if ((!isIDCard18.test(this.IDcard)) && (!isIDCard15.test(this.IDcard))) {
+                    showToast('请输入正确的身份证号码');
+                } else if ((this.imgArr[0] == '../image/upload.png') || (this.imgArr[1] == '../image/upload.png')) {
+                    showToast('请上传身份证图片');
+                } else if (this.imgArr[2] == '../image/upload.png') {
+                    showToast('请上传银行卡图片');
+                } else if ((this.imgArr[0] == '../image/loading.gif') || (this.imgArr[1] == '../image/loading.gif') || (this.imgArr[2] == '../image/loading.gif')) {
+                    showToast('图片上传中，请稍候');
+                } else {
+                    var that = this;
+                    var member = getStorageSync('member');
+                    var data = {
+                        UserID: member.UserID,
+                        RealName: this.realname,
+                        IDCard: this.IDcard,
+                        Mobile: this.phone,
+                        AlipayAccount: this.zfb,
+                        BankCard: this.bankcard,
+                        IDCardFrontPicture: this.imgArr[0],
+                        IDCardBackPicture: this.imgArr[1],
+                        BankCardPicture: this.imgArr[2],
+                        BankName: this.BankName,
+                        ProvinceName: this.ProvinceName,
+                        CityName: this.CityName,
+                        BankNetwork: this.BankNetwork
+                    }
+                    console.log(JSON.stringify(data));
+                    // return;
+                    this.showLoading = true;
+                    loginAjax(
+                        'api/Agent/BindMyWalletInfo',
+                        'post',
+                        data,
+                        function(res) {
+                            console.log(JSON.stringify(res));
+                            that.showLoading = false;
+                            showToast(res.message);
+                            if (res.status) {
+                                sendEvent('bindBankCard');
+                                setTimeout(function() {
+                                    closeWin();
+                                }, 1500);
+                            }
+                        }
+                    );
+                }
+            }
         },
         mounted() {
-
+            var that = this;
+            callAjax(
+                'api/Agent/GetBankCardTypeList',
+                'get', {},
+                function(res) {
+                    // console.log(JSON.stringify(res));
+                    var bankList = [];
+                    for (var i = 0; i < res.data.length; i++) {
+                        var item = {
+                            text: res.data[i].Text
+                        }
+                        bankList.push(item);
+                    }
+                    that.bankList = bankList;
+                    newPicker(bankList, 0);
+                }
+            );
+            callAjax(
+                'api/index/GetRegionList',
+                'get', {
+                    parentID: '0',
+                    regionName: ''
+                },
+                function(res) {
+                    var multiArray = [
+                        [],
+                        []
+                    ];
+                    for (var i = 0; i < res.length; i++) {
+                        var item1 = {
+                            value: res[i].Value,
+                            text: res[i].Text
+                        }
+                        multiArray[0].push(item1);
+                    }
+                    callAjax(
+                        'api/index/GetRegionList',
+                        'get', {
+                            parentID: res[0].Value,
+                            regionName: ''
+                        },
+                        function(res) {
+                            for (var i = 0; i < res.length; i++) {
+                                var item2 = {
+                                    value: res[i].Value,
+                                    text: res[i].Text
+                                }
+                                multiArray[1].push(item2);
+                            }
+                            that.multiArray = multiArray;
+                            newPicker2(multiArray);
+                            // console.log(JSON.stringify(multiArray));
+                        }
+                    );
+                }
+            );
         }
     });
     apiready = function() {
         hPadding(function() {
             var headerh = $('header').outerHeight();
             var windowh = $('body').height();
-            $('.scroll-view').height(windowh - headerh + 'px');
+            var footerh = $('footer').outerHeight();
+            $('.scroll-view').height(windowh - headerh - footerh + 'px');
         });
         v.apiReady();
+    }
+
+    function newPicker(arr, index) {
+        var picker = new Picker({
+            data: [arr],
+            selectedIndex: [index ? index : 0],
+            title: '开户银行'
+        });
+        picker.on('picker.select', function(selectedVal, selectedIndex) {
+            v.BankName = v.bankList[selectedIndex].text;
+        });
+        picker.on('picker.change', function(index, selectedIndex) {});
+        window.picker = picker;
+    }
+
+    function newPicker2(arr, index) {
+        var picker2 = new Picker({
+            data: arr,
+            selectedIndex: [0, 0],
+            title: '开户地址'
+        });
+        picker2.on('picker.select', function(selectedVal, selectedIndex) {
+            v.ProvinceName = v.multiArray[0][selectedIndex[0]].text;
+            v.CityName = v.multiArray[1][selectedIndex[1]].text;
+        });
+        picker2.on('picker.change', function(index, selectedIndex) {
+            if (!index) {
+                v.getList(v.multiArray[0][selectedIndex].value);
+            }
+        });
+        window.picker2 = picker2;
     }
 </script>
 

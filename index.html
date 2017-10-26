@@ -113,12 +113,14 @@
 </body>
 <script type="text/javascript" src="script/main.js"></script>
 <script type="text/javascript">
+    // removeStorageSync('customerGoods');
+
     removeStorageSync('token');
     getToken();
     var v = new Vue({
         el: '#app',
         data: {
-            username: '15334786660',
+            username: 'test2',
             password: 'superadminpwd',
             msg: 'message',
             showLoading: false,
@@ -163,9 +165,9 @@
                     if (ret.installed) {
                         console.log("当前设备已安装微信客户端");
                         wx.shareText({
-                            apiKey: '',
+                            apiKey: 'wx3be29e1b537c026e',
                             scene: 'timeline',
-                            text: '我分享的文本'
+                            text: '极速订货APP开发测试'
                         }, function(ret, err) {
                             if (ret.status) {
                                 alert('分享成功');
@@ -188,10 +190,15 @@
                     }
                 });
             }
+        },
+        mounted(){
+          // var tt=getStorageSync('ttt');
+          // false
         }
     });
     var exitApp = false;
     apiready = function() {
+      getUserInfo();
         hPadding();
         listenEvent('keyback',function(){
           api.closeWidget();

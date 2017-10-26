@@ -149,6 +149,22 @@ function getToken(url, method, data, cb, contentType) {
     }
 }
 
+//getUserInfo
+function getUserInfo(){
+    var that=this;
+    var openID=getStorageSync('openID') || '';
+    if(!openID){
+        callAjax(
+          'api/Agent/GetOpenID',
+          'get',
+          {code:api.deviceId},
+          function(res){
+              // console.log(JSON.stringify(res));
+          }
+        );
+    }
+}
+
 //Ajax
 function callAjax(url, method, data, cb, contentType, bool) {
     var contentType = contentType;
@@ -190,8 +206,24 @@ function loginAjax(url, method, data, cb, contentType) {
     }
 }
 
-function upLoadImg(imgUrl) {
-
+function upLoadImg(formElement,cb) {
+    var form=formElement;
+    var token=getStorageSync('token');
+    form.ajaxSubmit({
+        url: rootDocment+'api/Agent/SingleUpload',
+        type: 'post',
+        header: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'bearer ' + token.getToken
+        },
+        success: function(res) {
+            return typeof cb == "function" && cb(res);
+        },
+        error: function(err) {
+            console.log(JSON.stringify(err));
+        }
+    })
+    // from.ajaxSubmit(option);
 }
 
 
@@ -207,7 +239,7 @@ function linkTo(name, url, reload, pageParam) {
 
 function closeWin(name) {
     if (name) {
-      console.log('closeWin--'+name);
+        console.log('closeWin--' + name);
         api.closeWin({
             name: name
         });
@@ -260,7 +292,7 @@ Vue.filter('toFix', function(value) {
     return parseFloat(value).toFixed(2);
 });
 Vue.filter('toFix1', function(value) {
-    return parseFloat(value).toFixed(2)*1;
+    return parseFloat(value).toFixed(2) * 1;
 });
 
 //Plug-in unit
